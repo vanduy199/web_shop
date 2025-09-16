@@ -342,13 +342,17 @@ input:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35px;
-    height: 35px;
-    font-weight: 500;
+    width: 42px;
+    height: 42px;
+    font-weight: 700;
     font-size: 1.2rem;
     color: #fff;
-    background-color: red;
+    background: linear-gradient(135deg, #ff3b3b, #b80f06); /* đỏ -> cam */
     border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .product__info {
@@ -363,27 +367,56 @@ input:hover {
 }
 
 .product__price {
-    margin: 8px 0;
-    color: #d70018;
-    font-size: 1.5rem;
-    font-weight: 500;
+    margin: 10px 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #d70018; /* đỏ chủ đạo */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.product__price span:first-child {
+    color: #d70018; /* giá sale */
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(215, 0, 24, 0.25);
 }
 
 .product__price span:last-child {
-    margin-left: 10px;
+    color: #666; /* giá gốc */
+    font-size: 1.2rem;
+    font-weight: 400;
     text-decoration: line-through;
-    color: #707070;
-    font-size: 1.3rem;
+}
+.product__desc {
+    padding: 6px 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #ff4d4d, #ff944d);
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 6px rgba(255, 77, 77, 0.5),
+                0 0 12px rgba(255, 148, 77, 0.4);
+    animation: pulseFire 2s infinite alternate;
 }
 
-.product__desc {
-    padding: 5px;
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: #222;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 5px;
+/* Hiệu ứng nhẹ hơn */
+@keyframes pulseFire {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(255, 77, 77, 0.5),
+                    0 0 12px rgba(255, 148, 77, 0.4);
+    }
+    to {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255, 77, 77, 0.7),
+                    0 0 16px rgba(255, 148, 77, 0.6);
+    }
 }
 
 .product__media-note p {
@@ -391,22 +424,27 @@ input:hover {
     position: absolute;
     color: #fff;
     margin-bottom: 2px;
-    padding: 1px 5px;
-    font-size: 1.3rem;
-    font-weight: 300;
+    padding: 3px 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
 }
 
 .product__media-note p:first-child {
     left: 10px;
     top: 185px;
-    background: #ea9d02;
+    background: linear-gradient(135deg, #fbb034, #ffdd00); /* vàng gradient */
 }
 
 .product__media-note p:last-child {
     left: 10px;
     top: 210px;
-    background: #c40528;
+    background: linear-gradient(135deg, #d4145a, #fbb03b); /* đỏ - cam */
 }
+
 
 .flash_sale {
     background-color: rgb(246, 60, 60);
