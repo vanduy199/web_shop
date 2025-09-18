@@ -4,6 +4,22 @@ var productImage = localStorage.getItem("productImage");
 var productPrice = localStorage.getItem("productPrice");
 var productPrice2 = productPrice.replace(/\n/g, "");
 
+id = 4
+async function fetchProducts(id = null) {
+    try {
+        let url = "http://127.0.0.1:8000/product_id";
+        if (type) url += "?id=" + id;
+        const response = await fetch(url);
+        const data = await response.json();
+        products = data;
+        console.log(data)
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        showMessage("Không tải được sản phẩm!", "error");
+    }
+}
+fetchProducts(id)
+
 var headingInfo = document.querySelector(".info__heading");
 headingInfo.innerText = productName;
 

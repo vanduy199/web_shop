@@ -27,6 +27,7 @@
         <link rel="stylesheet" href="../assets/css/responsive.css" />
     </head>
     <body>
+        <div id="message"></div>
         <header class="offset-2" id="title-page">
             <button class="btn btn-primary" id="sidebar_toggle">
                 <i class="fa fa-fw fa-bars"></i>
@@ -138,15 +139,12 @@
 
 
             <div class="tab-products__add">
-                        <button
-                            class="btn btn-lg btn-info button"
-                            id="products__add-btn"
-                        >
-                            Thêm Sản Phẩm
-                        </button>
+            <button class="btn btn-lg btn-info button" id="products__add-btn">
+                Thêm Sản Phẩm
+            </button>
 
-                        
-                <div class="products__add-info form" id="productForm">
+            <div id="overlay" class="overlay">       
+                <form class="products__add-info form" id="productForm">
                     <label for="productName" class="label">Tên Sản Phẩm</label>
                     <input type="text" id="productName" name="name" required class="input" />
 
@@ -165,7 +163,7 @@
                     <input type="text" id="productBrand" name="brand" class="input" />
 
                     <label for="productReleaseDate" class="label">Ngày ra mắt</label>
-                    <input type="date" id="productReleaseDate" name="release_date" class="input" />
+                    <input type="text" id="productReleaseDate" name="release_date" class="input" />
 
                     <label for="productThumb" class="label">Ảnh đại diện</label>
                     <input type="text" id="productThumb" name="thumb" required class="input" />
@@ -177,9 +175,9 @@
                     <div id="attributes">
                         <label class="label">Thuộc tính sản phẩm</label>
                         <div class="attribute-row">
-                            <input type="text" placeholder="Tên thuộc tính" name="attributes[0].key" class="input" />
-                            <input type="text" placeholder="Giá trị" name="attributes[0].value" class="input" />
-                            <input type="text" placeholder="Loại cấu hình" name="attributes[0].loai_cau_hinh" class="input" />
+                            <input type="text" placeholder="Tên thuộc tính" name="attributes[0].key" class="attr-key input" />
+                            <input type="text" placeholder="Giá trị" name="attributes[0].value" class="attr-value input" />
+                            <input type="text" placeholder="Loại cấu hình" name="attributes[0].loai_cau_hinh" class="attr-type input" />
                             <button type="button" class="remove-attr btn btn-danger btn-sm">X</button>
                         </div>
                         <button type="button" id="add-attribute-btn" class="btn btn-success btn-sm mt-2">Thêm thuộc tính</button>
@@ -189,7 +187,7 @@
                     <div id="images">
                         <label class="label">Ảnh sản phẩm</label>
                         <div class="image-row">
-                            <input type="text" placeholder="URL ảnh" name="images[0].img" class="input" />
+                            <input type="text" placeholder="URL ảnh" name="images[0].img" class="image-input input" />
                             <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
                         </div>
                         <button type="button" id="add-image-btn" class="btn btn-success btn-sm mt-2">Thêm ảnh</button>
@@ -206,10 +204,12 @@
                     <input type="datetime-local" name="promotion.end_time" class="input" />
 
                     <button class="btn btn-lg btn-info button" id="addBtn">Thêm</button>
-                </div>
+                    <div id = "Trạng thái"></div>
+                </form>
             </div>
-                    <div id="tab-products"></div>
-                </div>
+            </div>
+            <div id="tab-products"></div>
+            </div>
 
                 <div class="item-pane orders-management">
                     <table
