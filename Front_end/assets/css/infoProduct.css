@@ -58,7 +58,6 @@ hr {
     padding: 20px;
     display: flex;
     width: 100px;
-    height: 367px;
     border-radius: 15px;
     background: linear-gradient(to right, #e3768c 40%, #f5b696 100%);
 }
@@ -66,14 +65,18 @@ hr {
 .info__left-block {
     flex: 60%;
     display: flex;
-    align-items: center;
+    justify-content: center;   /* căn giữa ngang */
+    align-items: center;       /* căn giữa dọc */
     margin-left: 10px;
+    width: 600px;              /* tùy chỉnh */
+    height: 400px;             /* tùy chỉnh */
 }
 
 .info__left-image {
     border-radius: 10px;
     object-fit: cover;
-    width: 90%;
+    width: 100%;
+    height: 100%;
 }
 
 .info__left-list {
@@ -276,4 +279,40 @@ hr {
     border-radius: 7px;
     margin-top: 3px;
     margin-right: 5px;
+}
+.spec-group {
+    margin-bottom: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    background: white;
+}
+.spec-header {
+    background: #cc1d06;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.spec-content {
+    display: none;
+    padding: 10px 15px;
+}
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+.spec-item:last-child {
+    border-bottom: none;
+}
+.spec-key {
+    font-weight: bold;
+    color: #333;
+}
+.spec-value {
+    color: #555;
+    text-align: right;
+    max-width: 60%;
 }

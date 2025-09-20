@@ -1,6 +1,9 @@
 function renderProducts(products) {
     var smartphoneListBlock = $("#smartphones-list"); // dùng jQuery cho slick
     var smartphone = products.map(function (product) {
+        if (product.percent_abs == 0) {
+            return;
+        }
         var now = new Date();
         var end = new Date(product.end_time);
 

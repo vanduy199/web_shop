@@ -418,7 +418,10 @@ input:hover {
                     0 0 16px rgba(255, 148, 77, 0.6);
     }
 }
-
+.product__media {
+    position: relative; /* để con absolute bám theo khung này */
+    display: inline-block; /* giữ vừa ảnh */
+}
 .product__media-note p {
     display: inline-block;
     position: absolute;
@@ -667,4 +670,3 @@ footer ul > li > a:hover {
   background: #f8d7da;
   color: #721c24;
 }
-

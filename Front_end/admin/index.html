@@ -139,12 +139,19 @@
 
 
             <div class="tab-products__add">
+            <button class="btn btn-lg btn-info button" id="products__abs-btn">
+                Sản phẩm có quảng cáo
+            </button>
+            <button class="btn btn-lg btn-info button" id="products__noabs-btn">
+                Sản phẩm không có quảng cáo
+            </button>
             <button class="btn btn-lg btn-info button" id="products__add-btn">
                 Thêm Sản Phẩm
             </button>
 
             <div id="overlay" class="overlay">       
                 <form class="products__add-info form" id="productForm">
+                    <span class="close-btn">&times;</span>
                     <label for="productName" class="label">Tên Sản Phẩm</label>
                     <input type="text" id="productName" name="name" required class="input" />
 
@@ -203,7 +210,8 @@
                     <label class="label">Ngày kết thúc khuyến mãi</label>
                     <input type="datetime-local" name="promotion.end_time" class="input" />
 
-                    <button class="btn btn-lg btn-info button" id="addBtn">Thêm</button>
+                    <button class="btn btn-lg btn-info button" id="addBtn" style="
+    padding: 12px">Thêm</button>
                     <div id = "Trạng thái"></div>
                 </form>
             </div>

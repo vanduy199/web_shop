@@ -9,9 +9,15 @@
             href="./assets/img/favicon.png"
             type="image/x-icon"
         />
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
         <!-- Font -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
         <link
             href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap"
             rel="stylesheet"
@@ -269,25 +275,17 @@
                     </h1>
                     <div class="info__content row">
                         <div class="info__left col-md-7">
-                            <div class="info__left-block">
-                                <img
-                                    src="./assets/img/kinh-lung-ip-14.jpg"
-                                    alt=""
-                                    class="info__left-image"
-                                />
+                            <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img id = "img1" src="./assets/img/kinh-lung-ip-14.jpg" class = "info__left-image"/></div>
+                                <div class="swiper-slide"><img id = "img2" src="./assets/img/kinh-lung-ip-15.jpg" class = "info__left-image"/></div>
+                                <div class="swiper-slide"><img id = "img3" src="./assets/img/kinh-lung-ip-16.jpg" class = "info__left-image"/></div>
+                                <div class="swiper-slide"><img id = "img4" src="./assets/img/kinh-lung-ip-17.jpg" class = "info__left-image"/></div>
+                                <div class="swiper-slide"><img id = "img5" src="./assets/img/kinh-lung-ip-18.jpg" class = "info__left-image"/></div>
                             </div>
-                            <div class="info__left-list">
-                                <h2>THÔNG TIN CHI TIẾT</h2>
-                                <ul>
-                                    <li>Mã sản phẩm: AKB48</li>
-                                    <li>Xuất xứ: Trung Quốc</li>
-                                    <li>Cam kết chính hãng 100%</li>
-                                    <li>Chất liệu cao cấp</li>
-                                    <li>
-                                        Miễn phí đổi trả nếu có lỗi từ nhà sản
-                                        xuất, nhà cung cấp
-                                    </li>
-                                </ul>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-pagination"></div>
                             </div>
                         </div>
 
@@ -340,74 +338,8 @@
                         </div>
                     </div>
                     <hr />
-                    <div class="info__product">
-                        <h2 class="info__product-title">THÔNG TIN NỔI BẬT</h2>
-                        <h3>
-                            Dịch vụ thay kính lưng iPhone 14 Pro Max chuyên
-                            nghiệp tại TP Hồ Chí Minh, Hà Nội
-                        </h3>
-                        <p>
-                            Dịch vụ thay kính lưng iPhone 14 Pro Max có gì khác
-                            biệt? Khi nào nên thay mặt sau điện thoại? Cần lưu ý
-                            những gì khi sửa chữa để đảm bảo máy không bị ảnh
-                            hưởng? Điện Thoại Vui sẽ chia sẻ đến bạn ngay sau
-                            đây
-                        </p>
-                        <span id="dots">...</span
-                        ><span id="more">
-                            <h3>Thay kính lưng iPhone là gì?</h3>
-                            <p>
-                                Trong quá trình sử dụng iPhone, việc va đập hoặc
-                                rơi vỡ là chuyện không tránh khỏi. Điều này dẫn
-                                đến mặt lưng bị hư hỏng. Hoặc cũng có thể do
-                                dùng ốp lưng quá lâu nhưng không vệ sinh khiến
-                                mặt lưng máy bị ố gây mất thẩm mỹ. Giải pháp hữu
-                                hiệu cho các vấn đề này là mang máy đi thay thế
-                                mặt kính lưng bị hỏng bằng kính mới.
-                            </p>
-                            <img
-                                src="./assets/img/product/info1.png"
-                                class="center_image"
-                            />
-                            <h3>
-                                Thay kính lưng 14 Pro Max có ảnh hưởng gì không?
-                            </h3>
-                            <p>
-                                iPhone 14 Pro Max được trang bị tính năng chống
-                                nước khá tốt. Nó giúp điện thoại hạn chế bị lỗi
-                                khi tiếp xúc với nước. Khả năng kháng nước của
-                                máy sẽ phụ thuộc vào ron và lớp keo chống nước
-                                được kết dính giữa màn hình và sườn vỏ. Về tính
-                                năng sạc nhanh, mặt kính lưng với phần cảm biến
-                                sạc không dây là hai bộ phận tách biệt. Do đó,
-                                khi thay kính lưng iPhone sẽ không ảnh hưởng gì
-                                đến chức năng sạc nhanh tích hợp bên trong mặt
-                                kính.
-                            </p>
-                            <img
-                                src="./assets/img/product/info2.png"
-                                class="center_image"
-                            />
-                            <p>
-                                Thay kính lưng chủ yếu là quá trình thủ công,
-                                yêu cầu các kỹ thuật viên phải có tay nghề cao
-                                và tỉ mỉ trong lúc sửa. Bên cạnh đó, lựa chọn
-                                trung tâm sửa chữa cũng là một yếu tố quan
-                                trọng. Có như vậy mới đảm bảo được các chức năng
-                                của thiết bị không bị ảnh hưởng.
-                            </p>
-                        </span>
-
-                        <div class="center">
-                            <button
-                                onclick="seeMore()"
-                                id="myBtn"
-                                class="button"
-                            >
-                                Xem thêm
-                            </button>
-                        </div>
-                    </div>
+                    <h2>Cấu hình chi tiết</h2>
+                    <div id="specifications"></div>
                     <div class="info__content row">
                         <div
                             class="info__qa col-md-5"

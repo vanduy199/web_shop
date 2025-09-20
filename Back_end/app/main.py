@@ -103,28 +103,47 @@ def push_abs(abs: AbsProduct):
     db.close()
     return newabs
 @app.get('/abs', response_model = List[OutPutAbs])
-def get_abs():
+def get_abs(type: Optional[str] = None):
     db = SessionLocal()
     now = datetime.now()
-    present_abs = db.query(Product,Abs).join(Abs, Abs.product_id == Product.id).filter(Abs.start_time <= now, Abs.end_time >= now).all()
-    db.close()
+
+    present_abs = (
+        db.query(Product, Abs)
+        .outerjoin(
+            Abs,
+            (Abs.product_id == Product.id) &
+            (Abs.start_time <= now) &
+            (Abs.end_time >= now)   # chỉ lấy quảng cáo còn hiệu lực
+        )
+    )
+    if type:
+        present_abs = present_abs.filter(Product.phanloai == type)
+    present_abs = present_abs.all()
     result = []
-    for product_obj, abs_obj in present_abs:     
-        result.append(OutPutAbs(
-            id=product_obj.id,
-            name=product_obj.name[:product_obj.name.find(' (')],
-            price=product_obj.price,
-            thumb=product_obj.thumb,
-            main_image=product_obj.main_image,
-            phanloai=product_obj.phanloai,
-            brand=product_obj.brand,
-            release_date=product_obj.release_date,
-            percent_abs=abs_obj.percent_abs,
-            start_time=abs_obj.start_time,
-            end_time=abs_obj.end_time
-        ))
+    for product_obj, abs_obj in present_abs:
+        # Xử lý tên laptop
+        if product_obj.phanloai == 'laptop' and '(' in product_obj.name:
+            product_obj.name = product_obj.name.split("(")[0]
+
+        result.append(
+            OutPutAbs(
+                id=product_obj.id,
+                name=product_obj.name,
+                price=product_obj.price,
+                thumb=product_obj.thumb,
+                main_image=product_obj.main_image,
+                phanloai=product_obj.phanloai,
+                brand=product_obj.brand,
+                release_date=product_obj.release_date,
+                percent_abs=abs_obj.percent_abs if abs_obj else 0,
+                start_time=abs_obj.start_time if abs_obj else None,
+                end_time=abs_obj.end_time if abs_obj else None,
+            )
+        )
+
     db.close()
     return result
+
 @app.delete('/product')
 def delete_product(product_id):
     db = SessionLocal()
@@ -158,8 +177,8 @@ def add_product(product: AddProductSchema):
     # thêm attributes
     for attr in product.attributes:
         db_attr = Specification(
-            spec=attr.spec,
-            info=attr.info,
+            spec=attr.key,
+            info=attr.value,
             loai_cau_hinh=attr.loai_cau_hinh,
             product_id=db_product.id
         )
@@ -235,3 +254,60 @@ def update_product(product_id: int, payload: AddProductSchema):
     db.commit()
     db.refresh(product)
     return {"message": "Product updated successfully", "product": product}
+
+@app.get('/product_name', response_model=AddProductSchema)
+def getproductbyname(name: Optional[str] = None):
+    db = SessionLocal()
+    try:
+        product = db.query(Product).filter(Product.name == name).first()
+        if not product:
+            raise HTTPException(404, "Không tìm thấy sản phẩm")
+
+        id = product.id
+        # Lấy specifications theo product_id
+        attrs = db.query(Specification).filter(Specification.product_id == id).all()
+        attributes = [
+            AttributeSchema(
+                key=attr.spec,
+                value=attr.info,
+                loai_cau_hinh=attr.loai_cau_hinh
+            )
+            for attr in attrs
+        ]
+        imgs = db.query(ProductImage.img).filter(ProductImage.product_id == id).all()
+        # Lấy images
+        images = [ImagesSchema(img=img.img) for img in imgs]
+
+        # Lấy promotion hiện tại (nếu có)
+        now = datetime.now()
+        present_abs = db.query(Abs).filter(
+            Abs.start_time <= now,
+            Abs.end_time >= now,
+            Abs.product_id == id
+        ).first()
+
+        promotion = None
+        if present_abs:
+            promotion = PromotionSchema(
+                percent_abs=present_abs.percent_abs,
+                start_time=present_abs.start_time,
+                end_time=present_abs.end_time
+            )
+
+        # Gói dữ liệu trả về
+        db_product = AddProductSchema(
+            name=product.name,
+            phanloai=product.phanloai,
+            price=product.price,
+            thumb=product.thumb,
+            main_image=product.main_image,
+            brand=product.brand,
+            release_date=product.release_date,
+            attributes=attributes,
+            images=images,
+            promotion=promotion
+        )
+        return db_product
+    finally:
+        db.close()
+

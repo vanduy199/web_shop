@@ -247,12 +247,7 @@ main {
 }
 
 #products__add-btn {
-    padding: 10px;
-    font-size: 15px;
-    display: inline-block;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
+    background-color: rgb(244, 100, 100);
 }
 
 .products__add-info {
@@ -304,3 +299,78 @@ main {
 }
 
 /* Thêm vào cuối file hoặc trong file css của bạn */
+/* Overlay che toàn bộ màn hình */
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Khi overlay active thì hiển thị */
+.overlay.active {
+    display: flex;
+}
+
+/* Form nổi trên overlay */
+.products__add-info.form {
+    background: #fff;
+    padding: 32px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+/* Nút đóng form */
+.overlay .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    z-index: 10000;
+}
+.price {
+    margin-top: 8px;
+    font-size: 16px;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 8px;
+}
+
+.new-price {
+    color: #e63946;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.badge-sale {
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.tab-products__add {
+    display: flex;
+
+}
+.tab-products__add button {
+    padding: 5px;
+    font-size: 15px;
+    border-radius: 1px;
+    position: relative;
+    border: 1px solid black;
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Cấu hình sản phẩm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .spec-group {
+      margin-bottom: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: white;
+    }
+    .spec-header {
+      background: #007bff;
+      color: white;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .spec-content {
+      display: none;
+      padding: 10px 15px;
+    }
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .spec-item:last-child {
+      border-bottom: none;
+    }
+    .spec-key {
+      font-weight: bold;
+      color: #333;
+    }
+    .spec-value {
+      color: #555;
+      text-align: right;
+      max-width: 60%;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Cấu hình chi tiết</h2>
+<div id="specifications"></div>
+
+<script>
+  const data = [
+    {key: 'Bluetooth', value: 'v5.0', loai_cau_hinh: 'Kết nối'},
+    {key: 'Chất liệu', value: 'Khung nhựa & Mặt lưng thuỷ tinh hữu cơ', loai_cau_hinh: 'Thiết kế & Chất liệu'},
+    {key: 'Chip đồ họa (GPU)', value: 'Adreno 610', loai_cau_hinh: 'Cấu hình'},
+    {key: 'Dung lượng pin', value: '5100 mAh', loai_cau_hinh: 'Pin & Sạc'},
+    {key: 'Công nghệ màn hình', value: 'IPS LCD', loai_cau_hinh: 'Camera & Màn hình'},
+    {key: 'Hệ điều hành', value: 'Android 14', loai_cau_hinh: 'Cấu hình'},
+    {key: 'Wi-Fi', value: 'Wi-Fi 802.11 a/b/g/n | Wi-Fi 5', loai_cau_hinh: 'Kết nối'},
+    {key: 'Tính năng bảo mật', value: 'Vân tay, Khuôn mặt', loai_cau_hinh: 'Tiện ích'}
+  ];
+
+  // Gom nhóm theo loai_cau_hinh
+  const grouped = data.reduce((acc, item) => {
+    if (!acc[item.loai_cau_hinh]) acc[item.loai_cau_hinh] = [];
+    acc[item.loai_cau_hinh].push(item);
+    return acc;
+  }, {});
+
+  const container = document.getElementById("specifications");
+
+  for (let group in grouped) {
+    const groupDiv = document.createElement("div");
+    groupDiv.classList.add("spec-group");
+
+    const header = document.createElement("div");
+    header.classList.add("spec-header");
+    header.textContent = group;
+    header.onclick = () => {
+      content.style.display = content.style.display === "block" ? "none" : "block";
+    };
+
+    const content = document.createElement("div");
+    content.classList.add("spec-content");
+
+    grouped[group].forEach(item => {
+      const row = document.createElement("div");
+      row.classList.add("spec-item");
+
+      row.innerHTML = `
+        <div class="spec-key">${item.key}</div>
+        <div class="spec-value">${item.value}</div>
+      `;
+      content.appendChild(row);
+    });
+
+    groupDiv.appendChild(header);
+    groupDiv.appendChild(content);
+    container.appendChild(groupDiv);
+  }
+</script>
+</body>
+</html>
