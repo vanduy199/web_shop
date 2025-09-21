@@ -15,7 +15,7 @@ function showMessage(msg, type = "success") {
     const msgBox = document.getElementById("message");
     if (!msgBox) return;
     msgBox.textContent = msg;
-    msgBox.className = type === "success" ? "msg-success" : "msg-error";
+    msgBox.className = type === "success" ? "msg-success" : type === "info" ? "msg-info" : "msg-error";
     msgBox.style.display = "block";
     setTimeout(() => {
         msgBox.style.display = "none";
@@ -55,35 +55,101 @@ navItems.forEach((item, index) => {
 });
 
 // -------------------- Products --------------------
-let products = [];
+let allProducts = []; // Lưu tất cả sản phẩm gốc theo type
+let currentFilter = null; // Lưu filter hiện tại (brand hoặc subcategory)
 let type = null;
 let giamgia = 0;
+let isUpdating = false;
+let updatingProductId = null;
+
 async function fetchProducts(type) {
     try {
+        showMessage("Đang tải sản phẩm...", "info");
+        document.getElementById('products__add-btn').disabled = true;
         let url = "http://127.0.0.1:8000/abs";
         if (type) url += "?type=" + type;
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const data = await response.json();
-        if (giamgia == -1) products = data.filter(product => product.percent_abs > 0); 
-        else if (giamgia == 1) products = data.filter(product => product.percent_abs == 0);     
-        else  products = data;
-        renderProducts(products);
+        allProducts = data; // Lưu dữ liệu gốc
+        console.log(data)
+        applyFiltersAndRender();
+        renderSubFilters(type);
+        showMessage("Tải sản phẩm thành công!", "success");
     } catch (error) {
         console.error("Error fetching products:", error);
         showMessage("Không tải được sản phẩm!", "error");
+    } finally {
+        document.getElementById('products__add-btn').disabled = false;
     }
 }
 
-document.getElementById('products__abs-btn').onclick = function () {
-    giamgia = -1;
-    fetchProducts(type);
-};
-document.getElementById('products__noabs-btn').onclick = function () {
-    giamgia = 1;
-    fetchProducts(type);
-};
-// Lấy tất cả sản phẩm lúc load page
-fetchProducts(type);
+// -------------------- Áp dụng bộ lọc và render --------------------
+function applyFiltersAndRender() {
+    let filteredProducts = [...allProducts];
+
+    // Lọc theo giamgia
+    if (giamgia === -1) {
+        filteredProducts = filteredProducts.filter(product => product.percent_abs > 0);
+    } else if (giamgia === 1) {
+        filteredProducts = filteredProducts.filter(product => product.percent_abs === 0);
+    }
+
+    // Lọc theo filter con (brand hoặc subcategory)
+    if (currentFilter) {
+        if (type === 'phukien') {
+            filteredProducts = filteredProducts.filter(product => product.phanloai === currentFilter);
+        } else {
+            filteredProducts = filteredProducts.filter(product => product.brand === currentFilter);
+        }
+    }
+
+    renderProducts(filteredProducts);
+}
+
+// -------------------- Render sub-filters --------------------
+function renderSubFilters(type) {
+    const subFiltersDiv = document.getElementById('sub-filters');
+    subFiltersDiv.innerHTML = '';
+
+    if (!type) return;
+
+    let html = '<h4 class="mb-3">Lọc theo: </h4><div class="d-flex flex-wrap">';
+
+    if (type === 'phukien') {
+        // Hardcode các subcategory cho phụ kiện
+        const phanloai = [
+            { name: 'Sạc dự phòng', value: 'pinduphong' },
+            { name: 'Cáp sạc', value: 'capsac' },
+            { name: 'Tai nghe', value: 'tainghe' },
+            { name: 'Flycam', value: 'flycam' } // Hoặc 'dron' nếu subcategory là 'dron'
+        ];
+
+        phanloai.forEach(sub => {
+            html += `<button class="btn btn-outline-primary m-1 sub-filter-btn" data-value="${sub.value}">${sub.name}</button>`;
+        });
+    } else if (['phone', 'laptop', 'tablet'].includes(type)) {
+        // Lấy unique brands từ allProducts
+        const uniqueBrands = [...new Set(allProducts.map(p => p.brand).filter(b => b))].sort();
+        html += `<button class="btn btn-outline-primary m-1 sub-filter-btn" data-value="">Tất cả</button>`;
+        uniqueBrands.forEach(brand => {
+            html += `<button class="btn btn-outline-primary m-1 sub-filter-btn" data-value="${brand}">${brand}</button>`;
+        });
+    }
+
+    html += '</div>';
+    subFiltersDiv.innerHTML = html;
+
+    // Thêm sự kiện click cho các button sub-filter
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+        btn.onclick = function () {
+            currentFilter = this.dataset.value || null;
+            applyFiltersAndRender();
+        };
+    });
+}
 
 // -------------------- Render products --------------------
 function renderProducts(products) {
@@ -119,16 +185,16 @@ function renderProducts(products) {
             </div>
         `;
     });
-tabProductBlock.innerHTML = htmls.join("");
-
+    tabProductBlock.innerHTML = htmls.join("");
 }
 
 // -------------------- Filter theo loại --------------------
 document.querySelectorAll('.category-card').forEach(function (card) {
     const alt = card.querySelector('img')?.alt;
-    giamgia = 0;
     if (!alt) return;
     card.addEventListener('click', function () {
+        giamgia = 0;
+        currentFilter = null;
         if (alt.includes("Điện thoại")) type = "phone";
         else if (alt.includes("Laptop")) type = "laptop";
         else if (alt.includes("Máy tính bảng")) type = "tablet";
@@ -137,16 +203,30 @@ document.querySelectorAll('.category-card').forEach(function (card) {
     });
 });
 
-// -------------------- Add Product --------------------
+// -------------------- Buttons giamgia --------------------
+document.getElementById('products__abs-btn').onclick = function () {
+    giamgia = -1;
+    applyFiltersAndRender();
+};
+document.getElementById('products__noabs-btn').onclick = function () {
+    giamgia = 1;
+    applyFiltersAndRender();
+};
+// Lấy tất cả sản phẩm lúc load page
+fetchProducts(type);
+
+// -------------------- Add/Update Product Form Management --------------------
 const btnAddProduct = document.querySelector("#products__add-btn");
 const infoAddProduct = document.querySelector(".products__add-info");
 
-let attrIndex = document.querySelectorAll('.attribute-row').length;
-let imgIndex = document.querySelectorAll('.image-row').length;
+btnAddProduct.onclick = function () {
+    resetForm();
+    document.getElementById('overlay').classList.add('active');
+    infoAddProduct.classList.add("active");
+};
 
 // Thêm thuộc tính động
 document.getElementById('add-attribute-btn').onclick = function () {
-    
     const attrDiv = document.createElement('div');
     attrDiv.className = 'attribute-row';
     attrDiv.innerHTML = `
@@ -156,109 +236,100 @@ document.getElementById('add-attribute-btn').onclick = function () {
         <button type="button" class="remove-attr btn btn-danger btn-sm">X</button>
     `;
     document.getElementById('attributes').insertBefore(attrDiv, this);
-    attrDiv.querySelector('.remove-attr').onclick = function () { attrDiv.remove(); attrIndex--; };
-    attrIndex++;
+    attrDiv.querySelector('.remove-attr').onclick = function () { attrDiv.remove(); };
 };
 
 // Thêm ảnh động
 document.getElementById('add-image-btn').onclick = function () {
-    const imagesDiv = document.getElementById('images');
     const imgDiv = document.createElement('div');
     imgDiv.className = 'image-row';
     imgDiv.innerHTML = `
         <input type="text" placeholder="URL ảnh" class="image-input input" />
         <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
     `;
-    imagesDiv.insertBefore(imgDiv, this);
-    imgDiv.querySelector('.remove-img').onclick = function () { imgDiv.remove(); imgIndex--; };
-    imgIndex++;
+    document.getElementById('images').insertBefore(imgDiv, this);
+    imgDiv.querySelector('.remove-img').onclick = function () { imgDiv.remove(); };
 };
 
-// Hiển thị form add product
-btnAddProduct.onclick = function () {
-    document.getElementById('productForm').reset();
-    document.getElementById('overlay').classList.add('active');
-    infoAddProduct.classList.toggle("active");
-};
-
-// Submit thêm sản phẩm
+// Submit thêm/cập nhật sản phẩm
 document.getElementById('addBtn').onclick = async function (e) {
     e.preventDefault();
-    const name = document.getElementById('productName').value;
-    const phanloai = document.getElementById('productType').value;
-    const price = parseFloat(document.getElementById('productPrice').value);
-    const brand = document.getElementById('productBrand').value;
-    const release_date = document.getElementById('productReleaseDate').value;
-    const thumb = document.getElementById('productThumb').value;
-    const main_image = document.getElementById('productMainImage').value;
-
-    const attributes = Array.from(document.querySelectorAll('.attribute-row')).map(row => ({
-        key: row.querySelector('.attr-key')?.value || '',
-        value: row.querySelector('.attr-value')?.value || '',
-        loai_cau_hinh: row.querySelector('.attr-type')?.value || ''
-    }));
-
-    const images = Array.from(document.querySelectorAll('.image-row')).map(row => ({
-        img: row.querySelector('.image-input')?.value || ''
-    }));
-
-    const percent_abs = document.querySelector('input[name="promotion.percent_abs"]')?.value;
-    const start_time = document.querySelector('input[name="promotion.start_time"]')?.value;
-    const end_time = document.querySelector('input[name="promotion.end_time"]')?.value;
-
-    let promotion = null;
-    if (percent_abs && start_time && end_time) {
-        promotion = {
-            percent_abs: parseFloat(percent_abs),
-            start_time: new Date(start_time).toISOString(),
-            end_time: new Date(end_time).toISOString()
-        };
+    if (isUpdating) {
+        await updateProduct(updatingProductId);
+    } else {
+        await addProduct();
     }
+};
 
-    const payload = { name, phanloai, price, brand, release_date, thumb, main_image, attributes, images, promotion };
-
+async function addProduct() {
+    const payload = collectFormData();
+    if (!validatePayload(payload)) return;
     try {
+        showMessage("Đang thêm sản phẩm...", "info");
         const response = await fetch('http://127.0.0.1:8000/product', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-
         if (!response.ok) {
-            showMessage('Thêm sản phẩm thất bại!', "error");
-            return;
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
         showMessage('Thêm sản phẩm thành công! ID: ' + data.product_id, "success");
-
-        // Reset form
-        document.getElementById('productForm').reset();
-        
-
+        resetForm();
+        infoAddProduct.classList.remove("active");
+        document.getElementById('overlay').classList.remove('active');
         fetchProducts(type);
     } catch (error) {
         console.error('Lỗi khi thêm sản phẩm:', error);
-        showMessage('Có lỗi khi thêm sản phẩm!', "error");
+        showMessage(`Có lỗi khi thêm sản phẩm: ${error.message}`, "error");
     }
-};
+}
 
+async function updateProduct(id) {
+    const payload = collectFormData();
+    if (!validatePayload(payload)) return;
+    try {
+        showMessage("Đang cập nhật sản phẩm...", "info");
+        const response = await fetch(`http://127.0.0.1:8000/product/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        showMessage("Cập nhật sản phẩm thành công!", "success");
+        resetForm();
+        infoAddProduct.classList.remove("active");
+        document.getElementById('overlay').classList.remove('active');
+        fetchProducts(type);
+    } catch (error) {
+        console.error("Lỗi khi cập nhật sản phẩm:", error);
+        showMessage(`Có lỗi khi cập nhật sản phẩm: ${error.message}`, "error");
+    }
+}
 
 // -------------------- Delete product --------------------
 window.handleDeleteProduct = async function (id) {
     if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
         try {
+            showMessage("Đang xóa sản phẩm...", "info");
             const response = await fetch(`http://127.0.0.1:8000/product?product_id=${id}`, {
                 method: 'DELETE'
             });
             if (!response.ok) {
-                showMessage('Xóa sản phẩm thất bại!', "error");
-                return;
+                if (response.status === 404) {
+                    showMessage("Sản phẩm không tồn tại!", "error");
+                    return;
+                }
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             showMessage('Xóa sản phẩm thành công!', "success");
             fetchProducts(type);
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm:', error);
-            showMessage('Có lỗi khi xóa sản phẩm!', "error");
+            showMessage(`Có lỗi khi xóa sản phẩm: ${error.message}`, "error");
         }
     }
 };
@@ -266,96 +337,34 @@ window.handleDeleteProduct = async function (id) {
 // -------------------- Update product --------------------
 window.handleUpdateProduct = async function (id) {
     try {
+        showMessage("Đang tải dữ liệu sản phẩm...", "info");
         const response = await fetch(`http://127.0.0.1:8000/product_id?id=${id}`);
-        if (!response.ok) throw new Error("Không lấy được sản phẩm");
-        const product = await response.json();
-        // Xóa tất cả các dòng thuộc tính, chỉ giữ lại dòng đầu tiên
-        document.querySelectorAll('.attribute-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-        // Xóa tất cả các dòng ảnh, chỉ giữ lại dòng đầu tiên
-        document.querySelectorAll('.image-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-        infoAddProduct.classList.add("active");
-        document.getElementById('overlay').classList.add('active');
-        document.getElementById('productName').value = product.name;
-        document.getElementById('productType').value = product.phanloai;
-        document.getElementById('productPrice').value = product.price;
-        document.getElementById('productBrand').value = product.brand;
-        document.getElementById('productReleaseDate').value = product.release_date;
-        document.getElementById('productThumb').value = product.thumb;
-        document.getElementById('productMainImage').value = product.main_image;
-
-        // Reset attributes
-        document.querySelectorAll('.attribute-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-        product.attributes?.forEach((attr, idx) => {
-            if (idx === 0) {
-                const firstRow = document.querySelector('.attribute-row');
-                firstRow.querySelector('.attr-key').value = attr.key;
-                firstRow.querySelector('.attr-value').value = attr.value;
-                firstRow.querySelector('.attr-type').value = attr.loai_cau_hinh;
-                firstRow.querySelector('.remove-attr').onclick = () => firstRow.remove();
-            } else {
-                const attrDiv = document.createElement('div');
-                attrDiv.className = 'attribute-row';
-                attrDiv.innerHTML = `
-                    <input type="text" class="attr-key input" value="${attr.key}" />
-                    <input type="text" class="attr-value input" value="${attr.value}" />
-                    <input type="text" class="attr-type input" value="${attr.loai_cau_hinh}" />
-                    <button type="button" class="remove-attr btn btn-danger btn-sm">X</button>
-                `;
-                document.getElementById('attributes').insertBefore(attrDiv, document.getElementById('add-attribute-btn'));
-                attrDiv.querySelector('.remove-attr').onclick = () => attrDiv.remove();
+        if (!response.ok) {
+            if (response.status === 404) {
+                showMessage("Sản phẩm không tồn tại!", "error");
+                return;
             }
-        });
-
-        // Reset images
-        document.querySelectorAll('.image-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-        product.images?.forEach((img, idx) => {
-            if (idx === 0) {
-                const firstRow = document.querySelector('.image-row');
-                firstRow.querySelector('.image-input').value = img.img;
-                firstRow.querySelector('.remove-img').onclick = () => firstRow.remove();
-            } else {
-                const imgDiv = document.createElement('div');
-                imgDiv.className = 'image-row';
-                imgDiv.innerHTML = `
-                    <input type="text" class="image-input input" value="${img.img}" />
-                    <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
-                `;
-                document.getElementById('images').insertBefore(imgDiv, document.getElementById('add-image-btn'));
-                imgDiv.querySelector('.remove-img').onclick = () => imgDiv.remove();
-            }
-        });
-
-        const promoPercent = document.querySelector('input[name="promotion.percent_abs"]');
-        const promoStart = document.querySelector('input[name="promotion.start_time"]');
-        const promoEnd = document.querySelector('input[name="promotion.end_time"]');
-
-        if (product.promotion) {
-            promoPercent.value = product.promotion.percent_abs ?? '';
-            promoStart.value = product.promotion.start_time?.slice(0, 16) ?? '';
-            promoEnd.value = product.promotion.end_time?.slice(0, 16) ?? '';
-        } else {
-            promoPercent.value = '';
-            promoStart.value = '';
-            promoEnd.value = '';
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        const btn = document.getElementById('addBtn');
-        btn.textContent = "Cập nhật";
-        btn.onclick = async function (e) {
-            e.preventDefault();
-            await updateProduct(id);
-        };
-        
-
+        const product = await response.json();
+        // if (!product || !product.id) {
+        //     showMessage("Dữ liệu sản phẩm không hợp lệ!", "error");
+        //     return;
+        // }
+        isUpdating = true;
+        updatingProductId = id;
+        document.getElementById('addBtn').textContent = "Cập nhật";
+        fillFormWithProductData(product);
+        document.getElementById('overlay').classList.add('active');
+        infoAddProduct.classList.add("active");
     } catch (error) {
         console.error("Lỗi khi load sản phẩm:", error);
-        showMessage("Không tải được dữ liệu sản phẩm!", "error");
+        showMessage(`Không tải được dữ liệu sản phẩm: ${error.message}`, "error");
     }
-    
 };
 
-async function updateProduct(id) {
-    document.getElementById('overlay').classList.remove('active');
+// -------------------- Helper Functions --------------------
+function collectFormData() {
     const name = document.getElementById('productName').value;
     const phanloai = document.getElementById('productType').value;
     const price = parseFloat(document.getElementById('productPrice').value);
@@ -387,129 +396,106 @@ async function updateProduct(id) {
         };
     }
 
-    const payload = { name, phanloai, price, brand, release_date, thumb, main_image, attributes, images, promotion };
+    return { name, phanloai, price, brand, release_date, thumb, main_image, attributes, images, promotion };
+}
 
-    try {
-        const response = await fetch(`http://127.0.0.1:8000/product/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+function fillFormWithProductData(product) {
+    document.getElementById('productName').value = product.name;
+    document.getElementById('productType').value = product.phanloai;
+    document.getElementById('productPrice').value = product.price;
+    document.getElementById('productBrand').value = product.brand;
+    document.getElementById('productReleaseDate').value = product.release_date;
+    document.getElementById('productThumb').value = product.thumb;
+    document.getElementById('productMainImage').value = product.main_image;
 
-        if (!response.ok) {
-            showMessage("Cập nhật sản phẩm thất bại!", "error");
-            return;
+    // Reset attributes
+    document.querySelectorAll('.attribute-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
+    product.attributes?.forEach((attr, idx) => {
+        if (idx === 0) {
+            const firstRow = document.querySelector('.attribute-row');
+            firstRow.querySelector('.attr-key').value = attr.key;
+            firstRow.querySelector('.attr-value').value = attr.value;
+            firstRow.querySelector('.attr-type').value = attr.loai_cau_hinh;
+            firstRow.querySelector('.remove-attr').onclick = () => firstRow.remove();
+        } else {
+            const attrDiv = document.createElement('div');
+            attrDiv.className = 'attribute-row';
+            attrDiv.innerHTML = `
+                <input type="text" class="attr-key input" value="${attr.key}" />
+                <input type="text" class="attr-value input" value="${attr.value}" />
+                <input type="text" class="attr-type input" value="${attr.loai_cau_hinh}" />
+                <button type="button" class="remove-attr btn btn-danger btn-sm">X</button>
+            `;
+            document.getElementById('attributes').insertBefore(attrDiv, document.getElementById('add-attribute-btn'));
+            attrDiv.querySelector('.remove-attr').onclick = () => attrDiv.remove();
         }
-        showMessage("Cập nhật sản phẩm thành công!", "success");
-        fetchProducts(type);
+    });
 
-        document.getElementById('productForm').reset();
-        document.getElementById('addBtn').textContent = "Thêm";
-        // document.getElementById('addBtn').onclick = addProductHandler;
-        infoAddProduct.classList.remove("active");
+    // Reset images
+    document.querySelectorAll('.image-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
+    product.images?.forEach((img, idx) => {
+        if (idx === 0) {
+            const firstRow = document.querySelector('.image-row');
+            firstRow.querySelector('.image-input').value = img.img;
+            firstRow.querySelector('.remove-img').onclick = () => firstRow.remove();
+        } else {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'image-row';
+            imgDiv.innerHTML = `
+                <input type="text" class="image-input input" value="${img.img}" />
+                <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
+            `;
+            document.getElementById('images').insertBefore(imgDiv, document.getElementById('add-image-btn'));
+            imgDiv.querySelector('.remove-img').onclick = () => imgDiv.remove();
+        }
+    });
 
-    } catch (error) {
-        console.error("Lỗi khi cập nhật sản phẩm:", error);
-        showMessage("Có lỗi khi cập nhật sản phẩm!", "error");
+    const promoPercent = document.querySelector('input[name="promotion.percent_abs"]');
+    const promoStart = document.querySelector('input[name="promotion.start_time"]');
+    const promoEnd = document.querySelector('input[name="promotion.end_time"]');
+
+    if (product.promotion) {
+        promoPercent.value = product.promotion.percent_abs ?? '';
+        promoStart.value = product.promotion.start_time?.slice(0, 16) ?? '';
+        promoEnd.value = product.promotion.end_time?.slice(0, 16) ?? '';
+    } else {
+        promoPercent.value = '';
+        promoStart.value = '';
+        promoEnd.value = '';
     }
 }
 
-
-// Mở form khi nhấn nút "Thêm Sản Phẩm"
-document.getElementById('products__add-btn').onclick = function () {
-    document.getElementById('addBtn').textContent = "Thêm"
-    document.getElementById('overlay').classList.add('active');
-    document.querySelector('.products__add-info.form').classList.add('active');
-    // Xóa tất cả các dòng thuộc tính, chỉ giữ lại dòng đầu tiên
+function resetForm() {
+    document.getElementById('productForm').reset();
     document.querySelectorAll('.attribute-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-    // Xóa tất cả các dòng ảnh, chỉ giữ lại dòng đầu tiên
     document.querySelectorAll('.image-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
-};
+    isUpdating = false;
+    updatingProductId = null;
+    document.getElementById('addBtn').textContent = "Thêm";
+}
+
+function validatePayload(payload) {
+    if (!payload.name || !payload.phanloai || isNaN(payload.price) || payload.price <= 0 || !payload.thumb) {
+        showMessage("Vui lòng điền đầy đủ thông tin bắt buộc (tên, loại, giá, ảnh đại diện)!", "error");
+        return false;
+    }
+    return true;
+}
 
 // Đóng form khi nhấn nút đóng
 document.querySelector('#overlay .close-btn').onclick = function() {
     document.getElementById('overlay').classList.remove('active');
-    document.querySelector('.products__add-info.form').classList.remove('active');
-    document.getElementById('productForm').reset();
+    infoAddProduct.classList.remove('active');
+    resetForm();
 };
 
 // Đóng form khi click ra ngoài form
 document.getElementById('overlay').onclick = function(e) {
     if (e.target === this) {
         this.classList.remove('active');
-        document.querySelector('.products__add-info.form').classList.remove('active');
-        document.getElementById('productForm').reset();
+        infoAddProduct.classList.remove('active');
+        resetForm();
     }
 };
 
-function createProductForm() {
-    const formHtml = `
-        <form class="products__add-info form" id="productForm">
-            <h3 class="mb-3">Thêm Sản Phẩm</h3>
-            <label for="productName" class="label">Tên Sản Phẩm</label>
-            <input type="text" id="productName" name="name" required class="input" />
-            <label for="productType" class="label">Loại Sản Phẩm</label>
-            <select name="phanloai" id="productType" class="select" required>
-                <option selected disabled>Chọn</option>
-                <option value="phone">Phone</option>
-                <option value="laptop">Laptop</option>
-                <option value="phukien">Phụ kiện</option>
-            </select>
-            <label for="productPrice" class="label">Giá</label>
-            <input type="number" id="productPrice" name="price" required class="input" min="0" />
-            <label for="productBrand" class="label">Thương hiệu</label>
-            <input type="text" id="productBrand" name="brand" class="input" />
-            <label for="productReleaseDate" class="label">Ngày ra mắt</label>
-            <input type="text" id="productReleaseDate" name="release_date" class="input" />
-            <label for="productThumb" class="label">Ảnh đại diện</label>
-            <input type="text" id="productThumb" name="thumb" required class="input" />
-            <label for="productMainImage" class="label">Ảnh chính</label>
-            <input type="text" id="productMainImage" name="main_image" class="input" />
-            <div id="attributes" class="mb-3">
-                <label class="label">Thuộc tính sản phẩm</label>
-                <div class="attribute-row d-flex gap-2 mb-2">
-                    <input type="text" placeholder="Tên thuộc tính" class="attr-key input" />
-                    <input type="text" placeholder="Giá trị" class="attr-value input" />
-                    <input type="text" placeholder="Loại cấu hình" class="attr-type input" />
-                    <button type="button" class="remove-attr btn btn-danger btn-sm">X</button>
-                </div>
-                <button type="button" id="add-attribute-btn" class="btn btn-success btn-sm mt-2">Thêm thuộc tính</button>
-            </div>
-            <div id="images" class="mb-3">
-                <label class="label">Ảnh sản phẩm</label>
-                <div class="image-row d-flex gap-2 mb-2">
-                    <input type="text" placeholder="URL ảnh" class="image-input input" />
-                    <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
-                </div>
-                <button type="button" id="add-image-btn" class="btn btn-success btn-sm mt-2">Thêm ảnh</button>
-            </div>
-            <div class="mb-3">
-                <label class="label">Khuyến mãi (%)</label>
-                <input type="number" name="promotion.percent_abs" class="input" min="0" max="100" />
-                <label class="label">Ngày bắt đầu khuyến mãi</label>
-                <input type="datetime-local" name="promotion.start_time" class="input" />
-                <label class="label">Ngày kết thúc khuyến mãi</label>
-                <input type="datetime-local" name="promotion.end_time" class="input" />
-            </div>
-            <button class="btn btn-lg btn-info button" id="addBtn">Thêm</button>
-            <div id="message"></div>
-        </form>
-    `;
-    return formHtml;
-}
-
-// Khi mở overlay, tạo lại form:
-function showProductForm() {
-    const overlay = document.getElementById('overlay');
-    overlay.innerHTML = '<span class="close-btn">&times;</span>' + createProductForm();
-    overlay.classList.add('active');
-    // Gán lại sự kiện cho nút đóng
-    overlay.querySelector('.close-btn').onclick = function() {
-        overlay.classList.remove('active');
-        overlay.innerHTML = '';
-    };
-    // Gán lại các sự kiện cho form (thêm thuộc tính, thêm ảnh, submit, ...)
-}
-
-
-
+// Tạo form nếu cần (giả sử form đã tồn tại trong HTML, nếu không thì thêm hàm createProductForm như trước)

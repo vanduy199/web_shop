@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>FunPhone</title>
+        <title>Điện Thoại - FunPhone</title>
         <link
             rel="shortcut icon"
             href="./assets/img/favicon.png"
@@ -17,7 +17,7 @@
             rel="stylesheet"
         />
 
-        <!-- Rest CSS -->
+        <!-- Reset CSS -->
         <link rel="stylesheet" href="./assets/css/reset.css" />
         <!-- Bootstrap -->
         <link
@@ -25,12 +25,6 @@
             rel="stylesheet"
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
             crossorigin="anonymous"
-        />
-        <!-- Slick Slider -->
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
         />
         <!-- Font Awesome -->
         <link
@@ -44,11 +38,13 @@
         <link rel="stylesheet" href="./assets/css/styles.css" />
         <link rel="stylesheet" href="./assets/css/app.css" />
         <link rel="stylesheet" href="./assets/css/responsive.css" />
+        <link rel="stylesheet" href="./assets/css/phone.css" />
+        <!-- CSS cho trang điện thoại -->
+
     </head>
     <body>
-        <!-- Header PC & Tablet -->
-        <!-- Header PC & Tablet -->
-    <header class="header header-pc header-info fixed-top" >
+<!-- Header PC & Tablet -->
+    <header class="header header-pc header-info fixed-top">
         <div class="container py-3">
             <div class="row header__content align-items-center">
                 <div class="col-lg-3 col-2">
@@ -130,7 +126,7 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav mx-auto">
-                           <li class="nav-item">
+                            <li class="nav-item">
                                 <a class="nav-link active" href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
                             </li>
                             <li class="nav-item">
@@ -150,7 +146,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="support.html"><i class="fas fa-headset"></i> Hỗ trợ</a>
-                            </li>
+                            </li> 
                         </ul>
                     </div>
                 </div>
@@ -160,165 +156,63 @@
 
 
         <main>
-           
-            <section
-                class="search-result container fix-phone__inner py-3 px-5 d-none"
-            >
-                <h2 class="col-lg-3 section__heading">KẾT QUẢ TÌM KIẾM</h2>
+            <!-- Section cho Điện Thoại -->
+            <section class="phone-products container py-4">
+                <h2 class="section__heading">Laptop</h2>
                 <div class="row">
-                    <!-- <div class="row search-result__product col-3" id="smartphones-list">
-                        <div class="col-lg product__item col-md-4 col-6 my-3">
-                            <div class="product__media">
-                                <img
-                                    src="./assets/img/man_hinh_iphone7plus.jpg"
-                                    alt=""
-                                    class="product__media-img"
-                                />
-                                <span class="product__media-note">
-                                    <p>BẢO HÀNH 6 THÁNG</p>
-                                    <p>Sửa 1 giờ</p>
-                                </span>
-                                <div class="product__media-promotion">-10%</div>
+                    <!-- Sidebar bộ lọc -->
+                    <div class="col-lg-2 col-md-2">
+                        <div class="filter-section">
+                            <h4>Lọc theo giá</h4>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceFilter" id="priceAll" value="all" checked>
+                                <label class="form-check-label" for="priceAll">Tất cả</label>
                             </div>
-                            <div class="product__info">
-                                <h3>Thay màn hình iPhone 7 Plus chính hãng Pisen V3</h3>
-                                <div class="product__price">
-                                    <span>1350000</span><span class="line-through">1500000</span>
-                                </div>
-                                <p class="product__desc">
-                                    <strong>Tặng áo mưa khi thay pin, màn hình Pisen số lượng có hạn</strong>
-                                </p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceFilter" id="priceUnder10" value="under10">
+                                <label class="form-check-label" for="priceUnder10">Dưới 10 triệu</label>
                             </div>
-                        </div>
-                    </div> -->
-                </div>
-            </section>
-            <!-- Sửa điện thoại -->
-             <div class="container mt-md-3 first_banner">
-                <div class = "row">
-                    <div class="col-12 d-flex justify-content-center">
-                        <img src="./assets/img/banner_1/back_to_school.png" alt="Khuyến mãi" class="img-fluid rounded">
-                     </div>
-                </div>
-            </div>
-            <section class="fix-phone">
-                <div class="container fix-phone__inner flash_sale">
-                    <div class="row align-items-center py-3 px-lg-5 px-3">
-                        <h2 class="col-lg-3 col-12 section__heading text-white mb-3 mb-lg-0">
-                            KHUYẾN MÃI NGẬP TRÀN
-                        </h2>
-                        <div class="d-flex flex-wrap">
-                            <button id = "all_fix" class="btn btn-light flex-fill fix-phone__btn ">Giá Shock</button>
-                            <button id = "phone_fix" class="btn btn-light flex-fill fix-phone__btn">Điện thoại</button>
-                            <button id = "laptop_fix" class="btn btn-light flex-fill fix-phone__btn">Laptop</button>
-                            <button id = "tablet_fix" class="btn btn-light flex-fill fix-phone__btn ">Máy tính bảng</button>
-                            <button id = "phukien_fix" class="btn btn-light flex-fill fix-phone__btn">Phụ kiện</button>
-                        </div>
-                    </div>
-                    <div class="row product__list" id="smartphones-list"></div>
-                </div>
-            </section>
-            <!-- 3 Banner quảng cáo giữa trang -->
-            <section class="second-banners my-4">
-            <div class="container">
-                <div class="row g-3">
-                <div class="col-md-4 col-12">
-                    <img src="./assets/img/banner_1/sam_sung_s.png" 
-                        alt="Banner 1" 
-                        class="img-fluid rounded shadow-sm w-100">
-                </div>
-                <div class="col-md-4 col-12">
-                    <img src="./assets/img/banner_1/vivo_sale.png" 
-                        alt="Banner 2" 
-                        class="img-fluid rounded shadow-sm w-100">
-                </div>
-                <div class="col-md-4 col-12">
-                    <img src="./assets/img/banner_1/realme_sale.png" 
-                        alt="Banner 3" 
-                        class="img-fluid rounded shadow-sm w-100">
-                </div>
-                </div>
-            </div>
-            </section>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceFilter" id="price10to20" value="10to20">
+                                <label class="form-check-label" for="price10to20">10 - 20 triệu</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceFilter" id="priceOver20" value="over20">
+                                <label class="form-check-label" for="priceOver20">Trên 20 triệu</label>
+                            </div>
 
-            <!-- Sửa laptop -->
-            <section class="fix-laptop">
-                <div class="container fix-phone__inner">
-                    <div class="row py-3 px-5">
-                        <h2 class="col-lg-3 section__heading col-12">
-                            DÀNH RIÊNG CHO BẠN
-                        </h2>
+                            <h4 class="mt-4">Lọc theo nhà sản xuất</h4>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="brandFilter" id="brandAll" value="all" checked>
+                                <label class="form-check-label" for="brandAll">Tất cả</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="brandFilter" id="brandMacbook" value="MacBook">
+                                <label class="form-check-label" for="brandMacbook">MacBook</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="brandFilter" id="brandDell" value="Dell">
+                                <label class="form-check-label" for="brandDell">Dell</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="brandFilter" id="brandOppo" value="Asus">
+                                <label class="form-check-label" for="brandOppo">Asus</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="brandFilter" id="brandXiaomi" value="HP">
+                                <label class="form-check-label" for="brandXiaomi">HP</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="row product__list" id="laptops-list"></div>
-                </div>
-            </section>
-            <!-- Features -->
-            <section class="features">
-                <div class="container py-3 px-5 bg-light">
-                    <div class="row">
-                        <h2 class="section__heading">
-                            TẠI SAO NÊN CHỌN ĐIỆN THOẠI VUI
-                        </h2>
-                    </div>
-                    <div class="row features__list">
-                        <div class="col-lg-3 col-3 features__item">
-                            <img
-                                src="./assets/img/dich-vu.png"
-                                alt=""
-                                class="features__img"
-                            />
-                            <h4 class="features__title">
-                                DỊCH VỤ CHUYÊN NGHIỆP
-                            </h4>
-                            <p class="features__desc">
-                                FunPhone là hệ thống cửa hàng sửa chữa rộng khắp
-                                cả nước với nhiều năm kinh nhiệm nhận sửa chữa
-                                thiết bị công nghệ : điện thoại, laptop,…
-                            </p>
-                        </div>
-                        <div class="col-lg-3 col-3 features__item">
-                            <img
-                                src="./assets/img/cam-ket.png"
-                                alt=""
-                                class="features__img"
-                            />
-                            <h4 class="features__title">CAM KẾT FunPhone</h4>
-                            <p class="features__desc">
-                                Thời gian bảo hành 6 – 12 tháng, hoàn 100% tiền
-                                nếu khách hàng không hài lòng, tổng đài miễn phí
-                                1800.2064 giải đáp thắc mắc nhanh chóng.
-                            </p>
-                        </div>
-                        <div class="col-lg-3 col-3 features__item">
-                            <img
-                                src="./assets/img/tiet-kiem.png"
-                                alt=""
-                                class="features__img"
-                            />
-                            <h4 class="features__title">TIẾT KIỆM, TỐI ƯU</h4>
-                            <p class="features__desc">
-                                Kiểm tra lỗi chính xác và đưa giải pháp khắc
-                                phục cụ thể mang lại dịch vụ sửa chữa, thay thế
-                                nhanh chóng với chi phí thấp cho khách hàng.
-                            </p>
-                        </div>
-                        <div class="col-lg-3 col-3 features__item">
-                            <img
-                                src="./assets/img/toan-quoc.png"
-                                alt=""
-                                class="features__img"
-                            />
-                            <h4 class="features__title">DỊCH VỤ TOÀN QUỐC</h4>
-                            <p class="features__desc">
-                                Dịch vụ sửa chữa – bảo hành toàn quốc, tiếp nhận
-                                bảo hành và sửa chữa qua đường chuyển phát nhanh
-                                với đối tác vận chuyển uy tín.
-                            </p>
-                        </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div class="col-lg-10 col-md-10">
+                        <div class="row product__list" id="phones-list"></div>
                     </div>
                 </div>
             </section>
         </main>
+
         <footer id="footer" class="footer bg-light pt-3">
             <div class="container">
                 <div class="row">
@@ -360,12 +254,6 @@
                             <li><a href="#">Liên hệ với chúng tôi</a></li>
                             <li><a href="#">Khách hàng Doanh nghiệp</a></li>
                             <li><a href="#">Kiểm tra bảo hành</a></li>
-                            <!-- <li style="display: none;"><a href="#">Kiểm tra bảo hành</a></li>
-                            <li style="display: none;"><a href="#">Chính sách bảo mật</a></li>
-                            <li style="display: none;"><a href="#">Chính sách sử dụng</a></li>
-                            <li style="display: none;"><a href="#">Quy định sao lưu dữ liệu</a></li>
-                            <li style="display: none;"><a href="#">Về việc lưu trữ thiết bị</a></li>
-                            <li class="devvn_last" style="display: block"><a href="javascript:void(0)">Xem thêm <span class="devvn_icon_down"></span></a></li> -->
                         </ul>
                     </div>
                     <div class="col-md-3">
@@ -385,9 +273,6 @@
                             <li id="" class="">
                                 <a href="#">Hợp tác kinh doanh</a>
                             </li>
-                            <!-- <li id="" class="" style="display: none;"><a href="#">Hợp tác kinh doanh</a></li>
-                            <li id="" class="" style="display: none;"><a href="#">Dịch vụ nhận sửa Điện Thoại – Máy tính tại nhà</a></li>
-                            <li class="" style="display: block"><a href="javascript:void(0)">Xem thêm <span class="devvn_icon_down"></span></a></li> -->
                         </ul>
                     </div>
                 </div>
@@ -417,14 +302,9 @@
             type="text/javascript"
             src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"
         ></script>
-        <script
-            type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
-        ></script>
-
-        <script src="./assets/js/main.js"></script>
         <script src="./assets/js/app.js"></script>
         <script src="./assets/js/search.js"></script>
         <script src="./assets/js/user.js"></script>
+        <script src='./assets/js/laptop.js'></script>
     </body>
 </html>

@@ -116,8 +116,11 @@ def get_abs(type: Optional[str] = None):
             (Abs.end_time >= now)   # chỉ lấy quảng cáo còn hiệu lực
         )
     )
-    if type:
+    if type == 'phukien':
+        present_abs = present_abs.filter(~Product.phanloai.in_(['phone','laptop','tablet']))
+    elif type:
         present_abs = present_abs.filter(Product.phanloai == type)
+    
     present_abs = present_abs.all()
     result = []
     for product_obj, abs_obj in present_abs:

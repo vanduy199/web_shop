@@ -1,107 +1,1425 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Cấu hình sản phẩm</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      padding: 20px;
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FunPhone</title>
+        <link
+            rel="shortcut icon"
+            href="./assets/img/favicon.png"
+            type="image/x-icon"
+        />
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Rest CSS -->
+        <link rel="stylesheet" href="./assets/css/reset.css" />
+        <!-- Bootstrap -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+            crossorigin="anonymous"
+        />
+        <!-- Slick Slider -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
+        />
+        <!-- Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <!-- CSS -->
+        <link rel="stylesheet" href="./assets/css/styles.css" />
+        <link rel="stylesheet" href="./assets/css/app.css" />
+        <link rel="stylesheet" href="./assets/css/responsive.css" />
+
+        <style>
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --main-color: #10375c;
+    --primary-color: #d70018;
+    --secondary-color: #f8f9fa;
+    --text-dark: #3a3a3a;
+    --text-light: #6c757d;
+}
+
+html {
+    font-size: 62.5%;
+}
+main {
+    margin-top: 8.5%;
+}
+body {
+    font-size: 1.6rem;
+    font-family: "Roboto", sans-serif;
+    background-color: #f5f5f5; /* Nền trang nhẹ nhàng */
+}
+
+/* Navbar */
+.navbar {
+    background-color: #01070e; /* Màu xanh đậm hơn một chút */
+    padding: 0px 0;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.navbar .nav-link {
+    color: #fff !important;
+    font-size: 1.5rem;
+    font-weight: 500;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    background-color: #f7f7f6; /* Màu vàng khi hover */
+    color: #000103 !important;
+    border-radius: 1px;
+}
+
+
+/* Hamburger menu cho mobile */
+.navbar-toggler {
+    border: none;
+    padding: 5px;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .header-pc {
+        display: none;
     }
-    .spec-group {
-      margin-bottom: 15px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      background: white;
+    .header-mobile {
+        display: block;
     }
-    .spec-header {
-      background: #007bff;
-      color: white;
-      padding: 10px 15px;
-      cursor: pointer;
-      font-weight: bold;
+    .navbar {
+        margin-top: 0;
     }
-    .spec-content {
-      display: none;
-      padding: 10px 15px;
+    .navbar-collapse {
+        background-color: #1565c0;
+        padding: 10px;
+        border-radius: 8px;
     }
-    .spec-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #eee;
+    .navbar-nav {
+        text-align: center;
     }
-    .spec-item:last-child {
-      border-bottom: none;
+    .nav-link {
+        padding: 10px 0 !important;
     }
-    .spec-key {
-      font-weight: bold;
-      color: #333;
+}
+
+@media (min-width: 992px) {
+    .header-mobile {
+        display: none;
     }
-    .spec-value {
-      color: #555;
-      text-align: right;
-      max-width: 60%;
+    .header-pc {
+        display: block;
     }
-  </style>
-</head>
-<body>
+}
 
-<h2>Cấu hình chi tiết</h2>
-<div id="specifications"></div>
+@media (max-width: 576px) {
+    .header__item .subheader {
+        font-size: 0.9rem;
+    }
+    .header__item .header-icon {
+        font-size: 1.2rem;
+    }
+    .header .group .input {
+        font-size: 0.9rem;
+    }
+}
 
-<script>
-  const data = [
-    {key: 'Bluetooth', value: 'v5.0', loai_cau_hinh: 'Kết nối'},
-    {key: 'Chất liệu', value: 'Khung nhựa & Mặt lưng thuỷ tinh hữu cơ', loai_cau_hinh: 'Thiết kế & Chất liệu'},
-    {key: 'Chip đồ họa (GPU)', value: 'Adreno 610', loai_cau_hinh: 'Cấu hình'},
-    {key: 'Dung lượng pin', value: '5100 mAh', loai_cau_hinh: 'Pin & Sạc'},
-    {key: 'Công nghệ màn hình', value: 'IPS LCD', loai_cau_hinh: 'Camera & Màn hình'},
-    {key: 'Hệ điều hành', value: 'Android 14', loai_cau_hinh: 'Cấu hình'},
-    {key: 'Wi-Fi', value: 'Wi-Fi 802.11 a/b/g/n | Wi-Fi 5', loai_cau_hinh: 'Kết nối'},
-    {key: 'Tính năng bảo mật', value: 'Vân tay, Khuôn mặt', loai_cau_hinh: 'Tiện ích'}
-  ];
+.category-card {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    transition: 0.3s;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
-  // Gom nhóm theo loai_cau_hinh
-  const grouped = data.reduce((acc, item) => {
-    if (!acc[item.loai_cau_hinh]) acc[item.loai_cau_hinh] = [];
-    acc[item.loai_cau_hinh].push(item);
-    return acc;
-  }, {});
+.category-card img {
+    width: 40%;
+    height: 70%;
+    object-fit: contain;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
 
-  const container = document.getElementById("specifications");
+.category-card p {
+    font-size: 2rem;
+    font-weight: 500;
+    color: #10375c;
+    text-align: center;
+    margin: 0;
+}
 
-  for (let group in grouped) {
-    const groupDiv = document.createElement("div");
-    groupDiv.classList.add("spec-group");
 
-    const header = document.createElement("div");
-    header.classList.add("spec-header");
-    header.textContent = group;
-    header.onclick = () => {
-      content.style.display = content.style.display === "block" ? "none" : "block";
-    };
+.product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+/* Common */
+a {
+    text-decoration: none;
+}
 
-    const content = document.createElement("div");
-    content.classList.add("spec-content");
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Roboto", sans-serif;
+}
 
-    grouped[group].forEach(item => {
-      const row = document.createElement("div");
-      row.classList.add("spec-item");
+input,
+textarea,
+select,
+button {
+    font-size: inherit;
+    font-family: inherit;
+}
 
-      row.innerHTML = `
-        <div class="spec-key">${item.key}</div>
-        <div class="spec-value">${item.value}</div>
-      `;
-      content.appendChild(row);
-    });
+.section__heading {
+    position: relative;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3a3a3a;
+}
 
-    groupDiv.appendChild(header);
-    groupDiv.appendChild(content);
-    container.appendChild(groupDiv);
-  }
-</script>
-</body>
+.section__heading::before {
+    position: absolute;
+    content: "";
+    display: inline-block;
+    left: -10px;
+    width: 3px;
+    height: 100%;
+    background-color: #3a3a3a;
+}
+
+/* Search */
+.group {
+    display: flex;
+    line-height: 28px;
+    align-items: center;
+    position: relative;
+}
+
+.input {
+    width: 100%;
+    height: 40px;
+    line-height: 28px;
+    padding: 0 1rem;
+    padding-left: 4.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    outline: none;
+    background-color: #f3f3f4;
+    color: #0d0c22;
+    transition: 0.3s ease;
+}
+
+.input::placeholder {
+    color: #9e9ea7;
+}
+
+.input:focus,
+input:hover {
+    outline: none;
+    border-color: rgba(234, 76, 137, 0.4);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
+}
+
+.icon {
+    position: absolute;
+    left: 1rem;
+    fill: #9e9ea7;
+    width: 3rem;
+    height: 2.1rem;
+}
+/* Header */
+.header {
+    display: fixed;
+    width: 100%;
+    left: 0;
+    background-color: #d70018;
+    top: 0;
+    z-index: 1000;
+}
+.header__content {
+    padding-top: 3px;
+}
+
+.logo {
+    font-size: 3rem;
+}
+
+.logo a {
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+}
+.nav-item {
+    padding: 0 25px;
+    font-weight: 500;
+    font-size: 14px;
+}
+.service {
+    text-align: center;
+    font-weight: 500;
+    font-size: 14px;
+}
+.input-group input {
+    font-size: 13px;
+    line-height: 30px;
+}
+.icon-search {
+    width: 30px;
+    color: red;
+}
+
+.subheader {
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+    text-wrap: nowrap;
+}
+
+.subheader:hover {
+    color: #fff;
+}
+
+.header__item {
+    display: flex;
+    align-items: center;
+}
+
+.header__item:hover {
+    cursor: pointer;
+    --tw-bg-opacity: 1;
+    background-color: rgb(231 51 72 / var(--tw-bg-opacity));
+    border-radius: 5px;
+}
+
+.sub-menu {
+    display: none;
+    max-width: 147px;
+    position: absolute;
+    top: 53px;
+    background-color: #eee;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgb(0 0 0 / 35%);
+    z-index: 100;
+}
+
+.sub-menu li a {
+    color: black;
+    font-size: 1.5rem;
+    font-weight: 400;
+    padding: 10px 0;
+}
+
+.header__item:hover .sub-menu {
+    display: block;
+}
+
+/* Brand */
+.brand {
+    margin-top: 20px;
+}
+
+.brand__inner {
+    background-color: #f7f7f7;
+}
+
+.brand__group-logo {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.brand__img {
+    width: 125px;
+    border: 1px solid #ccc;
+    padding: 5px 15px;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.brand__img:hover {
+    cursor: pointer;
+    box-shadow: 0px 0px 5px rgb(0 0 0 / 35%);
+}
+
+/* Fix phone */
+.fix-phone__inner {
+    background-color: #fff;
+    padding-bottom: 20px;
+}
+
+.fix-phone__btn {
+    font-size: 1.5rem;
+    font-weight: 500;
+    padding: 12px 0;        /* nút cao hơn */
+    border-radius: 0px;     /* bo vừa thôi */
+    transition: all 0.3s ease;
+}
+
+.fix-phone__btn:hover {
+    background-color: #fbc7c0;
+    border: None;
+    border-bottom: 2px solid #ff0000; /* hover nhẹ */
+}
+.active_border{
+    border-right: 1px solid #000000;  /* chỉ nút active có border */
+}
+
+.product__list {
+    margin-top: 10px;
+    padding: 0 5px;
+}
+
+.product__item {
+    position: relative;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0 5px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.1),
+        0 2px 6px 2px rgba(60, 64, 67, 0.15);
+    cursor: pointer;
+}
+
+.banner img {
+    margin: 0 auto 20px auto; /* căn giữa ngang, cách dưới 10px */
+    object-fit: contain;
+}
+
+.product__media-img {
+    width: 210px;
+    height: 210px;
+    object-fit: cover;
+}
+.suggestion {
+  background: #f8f9fa; /* nền sáng nhẹ */
+}
+
+.section__heading {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #d60000;
+}
+
+.product-card {
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.price {
+  margin: 8px 0;
+}
+
+.product__media-promotion {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #fff;
+    background: linear-gradient(135deg, #ff3b3b, #b80f06); /* đỏ -> cam */
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.product__info {
+    color: #444444;
+    font-size: 1.4rem;
+    text-align: start;
+}
+
+.product__info h3 {
+    margin-top: 25px;
+    height: 45px;
+}
+
+.product__price {
+    margin: 10px 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #d70018; /* đỏ chủ đạo */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.product__price span:first-child {
+    color: #d70018; /* giá sale */
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(215, 0, 24, 0.25);
+}
+
+.product__price span:last-child {
+    color: #666; /* giá gốc */
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-decoration: line-through;
+}
+.product__desc {
+    padding: 6px 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #ff4d4d, #ff944d);
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 6px rgba(255, 77, 77, 0.5),
+                0 0 12px rgba(255, 148, 77, 0.4);
+    animation: pulseFire 2s infinite alternate;
+}
+
+/* Hiệu ứng nhẹ hơn */
+@keyframes pulseFire {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(255, 77, 77, 0.5),
+                    0 0 12px rgba(255, 148, 77, 0.4);
+    }
+    to {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255, 77, 77, 0.7),
+                    0 0 16px rgba(255, 148, 77, 0.6);
+    }
+}
+.product__media {
+    display: inline-block; /* giữ vừa ảnh */
+}
+.product__media-note p {
+    display: inline-block;
+    position: absolute;
+    color: #fff;
+    margin-bottom: 2px;
+    padding: 3px 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.product__media-note p:first-child {
+    left: 10px;
+    top: 185px;
+    background: linear-gradient(135deg, #fbb034, #ffdd00); /* vàng gradient */
+}
+
+.product__media-note p:last-child {
+    left: 10px;
+    top: 210px;
+    background: linear-gradient(135deg, #d4145a, #fbb03b); /* đỏ - cam */
+}
+
+
+.flash_sale {
+    background-color: rgb(246, 60, 60);
+}
+
+.flash_sale .product__list {
+    background-color: #ffffff;
+}
+
+/* Laptop */
+.fix-laptop {
+    margin-top: 10px;
+}
+
+/* Features */
+.features {
+    margin-top: 10px;
+}
+
+.features__list {
+    text-align: center;
+}
+
+.features__img {
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.features__item {
+    padding: 0 20px;
+}
+
+.features__title {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.features__desc {
+    font-size: 1.5rem;
+    text-align: justify;
+    line-height: 1.5;
+    color: #3a3a3a;
+}
+
+/* Footer */
+footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer ul > li > a {
+    text-decoration: none;
+    color: gray;
+}
+
+footer ul > li > a:hover {
+    color: rgb(212, 37, 37);
+    text-decoration: underline;
+}
+
+.colum1 > li {
+    color: gray;
+}
+
+.colum1 > li > a {
+    color: rgb(212, 37, 37);
+}
+
+.block1,
+.block2 {
+    background: lightgray;
+    padding: 6px;
+}
+
+.block1 > a,
+.block2 > a {
+    color: rgb(212, 37, 37);
+    font-style: italic;
+    font-size: medium;
+    font-weight: 650;
+}
+
+.block1 > a:hover,
+.block2 > a:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.block1 {
+    margin-bottom: 2px;
+}
+
+.block2 {
+    margin-top: 2px;
+}
+
+.lastfooter {
+    color: gray;
+    font-weight: 300;
+    font-size: small;
+}
+
+/* Quan ly san pham */
+.orders-management th {
+    font-weight: 600;
+}
+
+.orders-management img {
+    width: 100px;
+    aspect-ratio: 1/1;
+}
+
+.orders-management table {
+    width: 100%;
+}
+
+/* Cart  */
+.cart__list {
+    background-color: white;
+}
+
+.cart__list th {
+    font-weight: 600;
+}
+
+.cart__list img {
+    width: 100px;
+    aspect-ratio: 1/1;
+}
+
+.order-product {
+    background-color: #d70018;
+    color: white;
+    border: 0;
+    width: 20%;
+}
+
+.total-cost {
+    text-align: end;
+    color: #ff0724;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.total-cost span {
+    font-size: 24px;
+}
+
+.cart-main {
+    background-color: white;
+}
+/* Responsive cho category-card */
+@media (max-width: 1200px) {
+    .category-card {
+        min-width: 150px;
+        padding: 16px;
+    }
+    .category-card img {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 900px) {
+    .category-card {
+        min-width: 150px;
+        padding: 12px;
+    }
+    .category-card img {
+        width: 60px;
+        height: 60px;
+    }
+    .category-card p {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .category-card {
+        min-width: 120px;
+        padding: 8px;
+        margin: 8px 0;
+    }
+    .category-card img {
+        width: 45px;
+        height: 45px;
+    }
+    .category-card p {
+        font-size: 1.3rem;
+    }
+    /* Nếu container là flex, cho xuống dòng */
+    .category-card-container {
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+}
+
+#message {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 300px;
+  max-width: 600px;
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.msg-success {
+  background: #d4edda;
+  color: #155724;
+}
+.msg-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+/* Định dạng submenu */
+.submenu {
+    display: none; /* Ẩn submenu mặc định */
+    position: absolute;
+    background-color: #fff; /* Màu nền của submenu */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    border-radius: 4px;
+    padding: 10px 0;
+    min-width: 150px;
+    z-index: 1000; /* Đảm bảo submenu hiển thị trên các phần tử khác */
+}
+
+.submenu li {
+    list-style: none;
+}
+
+.submenu li a {
+    display: block;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.submenu li a:hover {
+    background-color: #f1f1f1; /* Màu nền khi hover vào các mục trong submenu */
+}
+
+/* Hiển thị submenu khi hover vào nav-item */
+.nav-item:hover .submenu {
+    display: block; /* Hiển thị submenu khi hover */
+}
+
+/* Đảm bảo nav-item có vị trí tương đối để submenu định vị đúng */
+.nav-item {
+    position: relative;
+}
+
+/* Responsive: Ẩn submenu trên mobile và điều chỉnh nếu cần */
+@media (max-width: 991px) {
+    .submenu {
+        position: static; /* Không dùng absolute trên mobile */
+        background-color: #f8f9fa;
+        padding-left: 20px;
+    }
+}
+
+
+/* Container cho category buttons */
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+/* Category button */
+.category-btn {
+    background-color: #de2020;
+    border: 1px solid #dee2e6;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #333;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: capitalize;
+}
+
+.category-btn i {
+    margin-right: 0.5rem;
+}
+
+/* Hover effect */
+.category-btn:hover {
+    background: linear-gradient(45deg, #007bff, #00c4ff);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Active state */
+.category-btn.active {
+    background: linear-gradient(45deg, #0056b3, #007bff);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    font-weight: 600;
+}
+
+/* Focus state */
+.category-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .category-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .category-btn i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Cải tiến tổng thể cho trang */
+.container {
+    max-width: 1200px; /* Giới hạn chiều rộng để đẹp hơn */
+}
+
+.first_banner img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.first_banner img:hover {
+    transform: scale(1.02);
+}
+
+.second-banners img {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.second-banners img:hover {
+    transform: scale(1.02);
+}
+
+.fix-phone {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.fix-phone__inner {
+    padding: 20px;
+}
+
+.product__list .product__item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product__list .product__item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.2);
+}
+
+.features {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    padding: 20px 0;
+}
+
+.features__item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.features__item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.features__img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.footer {
+    background-color: #343a40;
+    color: #fff;
+    padding: 40px 0;
+}
+
+.footer h2 {
+    color: #ffc107;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.footer a {
+    color: #adb5bd;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #ffc107;
+}
+
+.lastfooter {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #adb5bd;
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .category-buttons {
+        gap: 0.5rem;
+    }
+
+    .category-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .features__item {
+        margin-bottom: 20px;
+    }
+}
+        </style>
+    </head>
+    <body>
+        <!-- Header PC & Tablet -->
+        <!-- Header PC & Tablet -->
+    <header class="header header-pc header-info fixed-top" >
+        <div class="container py-3">
+            <div class="row header__content align-items-center">
+                <div class="col-lg-3 col-2">
+                    <div class="logo">
+                        <a href="index.html">FunPhone</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-5">
+                    <div class="group">
+                        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
+                            <g>
+                                <path
+                                    d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"
+                                ></path>
+                            </g>
+                        </svg>
+                        <input
+                            placeholder="Bạn cần tìm gì?"
+                            type="search"
+                            id="search-product"
+                            class="input search-product"
+                        />
+                    </div>
+                </div>
+                <div class="col-lg-4 col-5">
+                    <div class="row">
+                        <div class="col">
+                            <a class="row header__item" href="tel:0397798824">
+                                <div class="col-3">
+                                    <div class="fs-1 text-light">
+                                        <i class="fa fa-phone header-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="col-9">
+                                    <strong class="subheader">0397798824</strong>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="row header__item" href="cart.html">
+                                <div class="col-3">
+                                    <div class="fs-1 text-light">
+                                        <i class="fa fa-shopping-cart header-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="col-9">
+                                    <strong class="subheader">Giỏ hàng</strong>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col header-check">
+                            <a class="row header__item" href="login.html">
+                                <div class="col-3">
+                                    <div class="fs-1 text-light">
+                                        <i class="fa fa-user header-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="col-9">
+                                    <strong class="subheader">Đăng nhập</strong>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Menu danh mục -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container">
+                    <button
+                        class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
+                    >
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav mx-auto">
+                           <li class="nav-item">
+                                <a class="nav-link active" href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="phone.html"><i class="fas fa-mobile-alt"></i> Điện thoại</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="laptop.html"><i class="fas fa-laptop"></i> Laptop</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="tablet.html"><i class="fas fa-tablet-alt"></i> Máy tính bảng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="phukien.html"><i class="fas fa-headphones"></i> Phụ kiện</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="promotions.html"><i class="fas fa-tags"></i> Khuyến mãi</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="support.html"><i class="fas fa-headset"></i> Hỗ trợ</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+        <main>
+           
+            <section
+                class="search-result container fix-phone__inner py-3 px-5 d-none"
+            >
+                <h2 class="col-lg-3 section__heading">KẾT QUẢ TÌM KIẾM</h2>
+                <div class="row">
+                    <!-- <div class="row search-result__product col-3" id="smartphones-list">
+                        <div class="col-lg product__item col-md-4 col-6 my-3">
+                            <div class="product__media">
+                                <img
+                                    src="./assets/img/man_hinh_iphone7plus.jpg"
+                                    alt=""
+                                    class="product__media-img"
+                                />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 6 THÁNG</p>
+                                    <p>Sửa 1 giờ</p>
+                                </span>
+                                <div class="product__media-promotion">-10%</div>
+                            </div>
+                            <div class="product__info">
+                                <h3>Thay màn hình iPhone 7 Plus chính hãng Pisen V3</h3>
+                                <div class="product__price">
+                                    <span>1350000</span><span class="line-through">1500000</span>
+                                </div>
+                                <p class="product__desc">
+                                    <strong>Tặng áo mưa khi thay pin, màn hình Pisen số lượng có hạn</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </section>
+            <!-- Sửa điện thoại -->
+             <div class="container mt-md-3 first_banner">
+                <div class = "row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <img src="./assets/img/banner_1/back_to_school.png" alt="Khuyến mãi" class="img-fluid rounded">
+                     </div>
+                </div>
+            </div>
+            <section class="fix-phone">
+                <div class="container fix-phone__inner flash_sale">
+                    <div class="row align-items-center py-3 px-lg-5 px-3">
+                        <h2 class="col col-12 section__heading text-white mb-3 mb-lg-0">
+                            KHUYẾN MÃI NGẬP TRÀN
+                        </h2>
+                            <div class="d-flex flex-wrap gap-2 category-buttons">
+                                <button class="btn category-btn flex-fill active" data-filter="gia-shock">
+                                    <i class="fas fa-tags me-1"></i> Giá Shock
+                                </button>
+                                <button class="btn category-btn flex-fill" data-filter="phone">
+                                    <i class="fas fa-mobile-alt me-1"></i> Điện thoại
+                                </button>
+                                <button class="btn category-btn flex-fill" data-filter="laptop">
+                                    <i class="fas fa-laptop me-1"></i> Laptop
+                                </button>
+                                <button class="btn category-btn flex-fill" data-filter="tablet">
+                                    <i class="fas fa-tablet-alt me-1"></i> Máy tính bảng
+                                </button>
+                                <button class="btn category-btn flex-fill" data-filter="phukien">
+                                    <i class="fas fa-headphones me-1"></i> Phụ kiện
+                                </button>
+                            </div>
+                    </div>
+                    <div class="row product__list" id="smartphones-list"></div>
+                </div>
+            </section>
+            <!-- 3 Banner quảng cáo giữa trang -->
+            <section class="second-banners my-4">
+            <div class="container">
+                <div class="row g-3">
+                <div class="col-md-4 col-12">
+                    <img src="./assets/img/banner_1/sam_sung_s.png" 
+                        alt="Banner 1" 
+                        class="img-fluid rounded shadow-sm w-100">
+                </div>
+                <div class="col-md-4 col-12">
+                    <img src="./assets/img/banner_1/vivo_sale.png" 
+                        alt="Banner 2" 
+                        class="img-fluid rounded shadow-sm w-100">
+                </div>
+                <div class="col-md-4 col-12">
+                    <img src="./assets/img/banner_1/realme_sale.png" 
+                        alt="Banner 3" 
+                        class="img-fluid rounded shadow-sm w-100">
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- Sửa laptop -->
+            <section class="fix-laptop">
+                <div class="container fix-phone__inner">
+                    <div class="row py-3 px-5">
+                        <h2 class="col-lg-3 section__heading col-12">
+                            DÀNH RIÊNG CHO BẠN
+                        </h2>
+                    </div>
+                    <div class="row product__list" id="laptops-list"></div>
+                </div>
+            </section>
+            <!-- Features -->
+            <section class="features">
+                <div class="container py-3 px-5 bg-light">
+                    <div class="row">
+                        <h2 class="section__heading">
+                            TẠI SAO NÊN CHỌN ĐIỆN THOẠI VUI
+                        </h2>
+                    </div>
+                    <div class="row features__list">
+                        <div class="col-lg-3 col-3 features__item">
+                            <img
+                                src="./assets/img/dich-vu.png"
+                                alt=""
+                                class="features__img"
+                            />
+                            <h4 class="features__title">
+                                DỊCH VỤ CHUYÊN NGHIỆP
+                            </h4>
+                            <p class="features__desc">
+                                FunPhone là hệ thống cửa hàng sửa chữa rộng khắp
+                                cả nước với nhiều năm kinh nhiệm nhận sửa chữa
+                                thiết bị công nghệ : điện thoại, laptop,…
+                            </p>
+                        </div>
+                        <div class="col-lg-3 col-3 features__item">
+                            <img
+                                src="./assets/img/cam-ket.png"
+                                alt=""
+                                class="features__img"
+                            />
+                            <h4 class="features__title">CAM KẾT FunPhone</h4>
+                            <p class="features__desc">
+                                Thời gian bảo hành 6 – 12 tháng, hoàn 100% tiền
+                                nếu khách hàng không hài lòng, tổng đài miễn phí
+                                1800.2064 giải đáp thắc mắc nhanh chóng.
+                            </p>
+                        </div>
+                        <div class="col-lg-3 col-3 features__item">
+                            <img
+                                src="./assets/img/tiet-kiem.png"
+                                alt=""
+                                class="features__img"
+                            />
+                            <h4 class="features__title">TIẾT KIỆM, TỐI ƯU</h4>
+                            <p class="features__desc">
+                                Kiểm tra lỗi chính xác và đưa giải pháp khắc
+                                phục cụ thể mang lại dịch vụ sửa chữa, thay thế
+                                nhanh chóng với chi phí thấp cho khách hàng.
+                            </p>
+                        </div>
+                        <div class="col-lg-3 col-3 features__item">
+                            <img
+                                src="./assets/img/toan-quoc.png"
+                                alt=""
+                                class="features__img"
+                            />
+                            <h4 class="features__title">DỊCH VỤ TOÀN QUỐC</h4>
+                            <p class="features__desc">
+                                Dịch vụ sửa chữa – bảo hành toàn quốc, tiếp nhận
+                                bảo hành và sửa chữa qua đường chuyển phát nhanh
+                                với đối tác vận chuyển uy tín.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer id="footer" class="footer bg-light pt-3">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2>HỆ THỐNG CỬA HÀNG</h2>
+                        <ul class="colum1">
+                            <li>
+                                Tổng đài miễn phí:
+                                <a href="tel:0123456789">0123456789</a>
+                            </li>
+                            <li>
+                                Email:
+                                <a href="mailto:your-email@gmail.com"
+                                    >your-email@gmail.com</a
+                                >
+                            </li>
+                            <li>
+                                Thời gian phục vụ: <b>08:00 – 21:00</b> hàng
+                                ngày (cả Chủ nhật &amp; ngày lễ)
+                            </li>
+                            <li class="block1">
+                                <a href="#"
+                                    >Tìm đến cửa hàng FunPhone gần nhất</a
+                                >
+                            </li>
+                            <li class="block2">
+                                <a href="#">Dịch vụ cho khách hàng ở xa</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h2>THÔNG TIN HỖ TRỢ</h2>
+                        <ul id="" class="">
+                            <li id="" class="">
+                                <a href="#">Tin tức công nghệ</a>
+                            </li>
+                            <li><a href="#">Thủ thuật sửa chữa</a></li>
+                            <li><a href="#">Chính sách bảo hành</a></li>
+                            <li><a href="#">Liên hệ với chúng tôi</a></li>
+                            <li><a href="#">Khách hàng Doanh nghiệp</a></li>
+                            <li><a href="#">Kiểm tra bảo hành</a></li>
+                            <!-- <li style="display: none;"><a href="#">Kiểm tra bảo hành</a></li>
+                            <li style="display: none;"><a href="#">Chính sách bảo mật</a></li>
+                            <li style="display: none;"><a href="#">Chính sách sử dụng</a></li>
+                            <li style="display: none;"><a href="#">Quy định sao lưu dữ liệu</a></li>
+                            <li style="display: none;"><a href="#">Về việc lưu trữ thiết bị</a></li>
+                            <li class="devvn_last" style="display: block"><a href="javascript:void(0)">Xem thêm <span class="devvn_icon_down"></span></a></li> -->
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h2>KẾT NỐI VỚI CHÚNG TÔI</h2>
+                        <ul id="" class="">
+                            <li id="" class="">
+                                <a href="#">Sơ đồ Website</a>
+                            </li>
+                            <li id="" class=""><a href="#">Khuyến mại</a></li>
+                            <li id="" class=""><a href="#">Tuyển dụng</a></li>
+                            <li id="" class="">
+                                <a href="#">Dạy nghề sửa chữa</a>
+                            </li>
+                            <li id="" class="">
+                                <a href="#">Giới thiệu FunPhone</a>
+                            </li>
+                            <li id="" class="">
+                                <a href="#">Hợp tác kinh doanh</a>
+                            </li>
+                            <!-- <li id="" class="" style="display: none;"><a href="#">Hợp tác kinh doanh</a></li>
+                            <li id="" class="" style="display: none;"><a href="#">Dịch vụ nhận sửa Điện Thoại – Máy tính tại nhà</a></li>
+                            <li class="" style="display: block"><a href="javascript:void(0)">Xem thêm <span class="devvn_icon_down"></span></a></li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <hr class="hr container-fluid" />
+            <div class="container">
+                <div class="row lastfooter">
+                    <div
+                        class="col-md-12 absolute-footer light medium-text-center text-center"
+                    >
+                        Bản quyền 2021 - © Dịch vụ sửa chữa FunPhone - GPDKKD:
+                        xxx do sở KH &amp; ĐT TP.HCM cấp ngày xx/xx/xxxx
+                        <br />
+                        Địa chỉ: quận 1, TP Hồ Chí Minh - Điện thoại: 0123456789
+                        - Email: your-email@gmail.com
+                    </div>
+                </div>
+            </div>
+            <hr class="hr container-fluid" />
+        </footer>
+
+        <script
+            type="text/javascript"
+            src="https://code.jquery.com/jquery-1.11.0.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"
+        ></script>
+
+        <script src="./assets/js/main.js"></script>
+        <script src="./assets/js/app.js"></script>
+        <script src="./assets/js/search.js"></script>
+        <script src="./assets/js/user.js"></script>
+    </body>
 </html>

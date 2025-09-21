@@ -1,6 +1,6 @@
 /* breadcrumb */
 .nav-breadcrumb {
-    position: fixed;
+    display: fixed;
     background: #fff;
     top: 65px;
     width: 100%;

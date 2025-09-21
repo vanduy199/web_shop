@@ -374,3 +374,86 @@ main {
     position: relative;
     border: 1px solid black;
 }
+/* Container cho sub-filters */
+#sub-filters {
+    margin-top: 1.5rem;
+    padding: 0 1rem;
+}
+
+/* Tiêu đề "Lọc theo" */
+#sub-filters h4 {
+    font-size: 1.75rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+/* Định dạng nút sub-filter */
+.sub-filter-btn {
+    background-color: #f8f9fa; /* Màu nền nhạt */
+    color: #333; /* Màu chữ tối */
+    border: 1px solid #dee2e6; /* Viền nhẹ */
+    border-radius: 20px; /* Bo góc mềm mại */
+    padding: 8px 16px; /* Khoảng cách bên trong */
+    font-size: 1.3rem; /* Kích thước chữ nhỏ gọn */
+    font-weight: 500; /* Chữ hơi đậm */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi mượt */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
+}
+
+/* Hover effect */
+.sub-filter-btn:hover {
+    background-color: #007bff; /* Màu xanh khi hover */
+    color: white; /* Chữ trắng */
+    border-color: #007bff; /* Viền xanh */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Bóng nổi bật hơn */
+}
+
+/* Active state */
+.sub-filter-btn.active {
+    background-color: #0056b3; /* Màu xanh đậm khi active */
+    color: white; /* Chữ trắng */
+    border-color: #0056b3; /* Viền xanh đậm */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Bóng nổi bật */
+}
+
+/* Focus state (khi nút được focus bằng tab) */
+.sub-filter-btn:focus {
+    outline: none; /* Bỏ viền focus mặc định */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Viền sáng khi focus */
+}
+
+/* Responsive: Giảm kích thước trên mobile */
+@media (max-width: 576px) {
+    .sub-filter-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+.dieuhuong {
+    display: flex;
+    justify-content: center;   /* căn giữa ngang */
+    gap: 10px;                 /* khoảng cách giữa các nút */
+    margin: 5px 0;            /* cách trên/dưới */
+}
+
+.dieuhuong .button {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.dieuhuong .button:hover {
+    background: linear-gradient(135deg, #138496, #117a8b);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.dieuhuong .button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}

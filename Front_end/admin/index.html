@@ -135,19 +135,21 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="sub-filters" class="row mt-4"></div> <!-- Thêm phần lọc con ở đây -->
                         </div>
-
-
             <div class="tab-products__add">
-            <button class="btn btn-lg btn-info button" id="products__abs-btn">
-                Sản phẩm có quảng cáo
-            </button>
-            <button class="btn btn-lg btn-info button" id="products__noabs-btn">
-                Sản phẩm không có quảng cáo
-            </button>
-            <button class="btn btn-lg btn-info button" id="products__add-btn">
-                Thêm Sản Phẩm
-            </button>
+            <div class="dieuhuong">  
+                <button class="btn btn-lg btn-info button" id="products__abs-btn">
+                    Sản phẩm có quảng cáo
+                </button>
+                <button class="btn btn-lg btn-info button" id="products__noabs-btn">
+                    Sản phẩm không có quảng cáo
+                </button>
+                <button class="btn btn-lg btn-info button" id="products__add-btn">
+                    Thêm Sản Phẩm
+                </button>
+            </div>
+            
 
             <div id="overlay" class="overlay">       
                 <form class="products__add-info form" id="productForm">
@@ -160,7 +162,11 @@
                         <option selected disabled>Chọn</option>
                         <option value="phone">Phone</option>
                         <option value="laptop">Laptop</option>
-                        <option value="phukien">Phụ kiện</option>
+                        <option value="tablet">Máy tính bảng</option>
+                        <option value="pinduphong">Pin dự phòng</option>
+                        <option value="capsac">Cáp sạc</option>
+                        <option value="tainghe">Tai nghe</option>
+                        <option value="flycam">Fly cam</option>
                     </select>
 
                     <label for="productPrice" class="label">Giá</label>
