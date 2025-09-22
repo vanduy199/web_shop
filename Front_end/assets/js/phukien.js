@@ -43,44 +43,74 @@ function renderProducts(products) {
                 currency: "VND",
             }).format(price * (1 - percent / 100));
 
-            return `
-                <div class="col-lg-3 col-md-4 col-6 my-3">
-                    <div class="product__item">
-                        <div class="product__media">
-                            <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
-                            <span class="product__media-note">
-                                <p>BẢO HÀNH 12 THÁNG</p>
-                            </span>
-                            ${percent > 0 ? `<div class="product__media-promotion">-${percent}%</div>` : ""}
-                        </div>
-                        <div class="product__info">
-                            <h3>${product.name}</h3>
-                            <div class="product__price">
-                                <span class="price-sale">${priceSale}</span>
-                                ${percent > 0 ? `<span class="line-through">${new Intl.NumberFormat("vi-VN", {
-                                    style: "currency",
-                                    currency: "VND",
-                                }).format(price)}</span>` : ""}
+if (product.percent_abs > 0) {
+                return `
+                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                        <div class="product__item">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                                <div class="product__media-promotion">-${product.percent_abs}%</div>
                             </div>
-                            <div class="product__time-left">${timeLeft}</div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                             
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            else {
+                return `
+                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                        <div class="product__item">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                            </div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
         })
         .join("");
 
     phonesList.innerHTML = htmls;
 
     // Thêm sự kiện click để chuyển hướng tới trang chi tiết
-    document.querySelectorAll(".product__item").forEach(function (item) {
+    var productItems = document.querySelectorAll(".product__item");
+    productItems.forEach(function (item) {
         item.addEventListener("click", function () {
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
-            var productPrice = item.querySelector(".product__price .price-sale").innerText;
+            var productPrice = item.querySelector(".product__price span:first-child").innerHTML;
+            var productPrice2 = productPrice.slice(0, productPrice.indexOf("₫")).replace("&nbsp;", "");
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
-            localStorage.setItem("productPrice", productPrice);
+            localStorage.setItem("productPrice", productPrice2);
             window.location.href = "info.html";
         });
     });
