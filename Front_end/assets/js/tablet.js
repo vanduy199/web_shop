@@ -3,7 +3,7 @@ let filteredProducts = [];
 
 async function fetchProducts() {
     try {
-        const url = "http://127.0.0.1:8000/abs?type=tablet";
+        const url = "http://127.0.0.1:8000/api/abs?type=tablet";
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);

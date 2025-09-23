@@ -92,7 +92,7 @@ function renderProducts(products) {
 // Hàm fetch dữ liệu từ API
 async function fetchData(type = null) {
     try {
-        let url = "http://127.0.0.1:8000/abs";
+        let url = "http://127.0.0.1:8000/api/abs";
         if (type && type !== "all") {
             url += `?type=${type}`;
         }
@@ -105,7 +105,6 @@ async function fetchData(type = null) {
         renderProducts(data);
     } catch (error) {
         console.error("Error fetching products:", error);
-        alert("Không tải được sản phẩm!");
     }
 }
 

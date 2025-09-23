@@ -66,7 +66,7 @@ async function fetchProducts(type) {
     try {
         showMessage("Đang tải sản phẩm...", "info");
         document.getElementById('products__add-btn').disabled = true;
-        let url = "http://127.0.0.1:8000/abs";
+        let url = "http://127.0.0.1:8000/api/abs";
         if (type) url += "?type=" + type;
         const response = await fetch(url);
         if (!response.ok) {
@@ -266,7 +266,7 @@ async function addProduct() {
     if (!validatePayload(payload)) return;
     try {
         showMessage("Đang thêm sản phẩm...", "info");
-        const response = await fetch('http://127.0.0.1:8000/product', {
+        const response = await fetch('http://127.0.0.1:8000/api/product', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -291,7 +291,7 @@ async function updateProduct(id) {
     if (!validatePayload(payload)) return;
     try {
         showMessage("Đang cập nhật sản phẩm...", "info");
-        const response = await fetch(`http://127.0.0.1:8000/product/${id}`, {
+        const response = await fetch(`http://127.0.0.1:8000/api/product/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -315,7 +315,7 @@ window.handleDeleteProduct = async function (id) {
     if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
         try {
             showMessage("Đang xóa sản phẩm...", "info");
-            const response = await fetch(`http://127.0.0.1:8000/product?product_id=${id}`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/product?product_id=${id}`, {
                 method: 'DELETE'
             });
             if (!response.ok) {
@@ -338,7 +338,7 @@ window.handleDeleteProduct = async function (id) {
 window.handleUpdateProduct = async function (id) {
     try {
         showMessage("Đang tải dữ liệu sản phẩm...", "info");
-        const response = await fetch(`http://127.0.0.1:8000/product_id?id=${id}`);
+        const response = await fetch(`http://127.0.0.1:8000/api/product_id?id=${id}`);
         if (!response.ok) {
             if (response.status === 404) {
                 showMessage("Sản phẩm không tồn tại!", "error");

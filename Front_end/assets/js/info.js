@@ -7,7 +7,7 @@ var productPrice2 = productPrice.replace(/\n/g, "");
 let name1 = "Samsung Galaxy S24 5G 8GB/256GB";
 async function fetchProducts(name = null) {
     try {
-        let url = "http://127.0.0.1:8000/product_name";
+        let url = "http://127.0.0.1:8000/api/product_name";
         if (name) url += "?name=" + name;
         const response = await fetch(url);
         const data = await response.json();
