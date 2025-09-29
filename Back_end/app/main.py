@@ -314,3 +314,6 @@ def getproductbyname(name: Optional[str] = None):
     finally:
         db.close()
 
+from app.routers import user_router
+
+app.include_router(user_router.router, tags=["Users"])
