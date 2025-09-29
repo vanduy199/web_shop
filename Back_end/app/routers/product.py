@@ -198,58 +198,6 @@ def delete_product(product_id: int):
     finally:
         db.close()
 
-
-@router.get("/product_name", response_model=AddProductSchema)
-def get_product_by_name(name: Optional[str] = None):
-    db = SessionLocal()
-    try:
-        product = db.query(Product).filter(Product.name == name).first()
-        if not product:
-            raise HTTPException(404, "Không tìm thấy sản phẩm")
-
-        id = product.id
-        # Lấy specifications
-        attrs = db.query(Specification).filter(Specification.product_id == id).all()
-        attributes = [
-            AttributeSchema(key=attr.spec, value=attr.info, loai_cau_hinh=attr.loai_cau_hinh)
-            for attr in attrs
-        ]
-
-        # Lấy images
-        imgs = db.query(ProductImage.img).filter(ProductImage.product_id == id).all()
-        images = [ImagesSchema(img=img.img) for img in imgs]
-
-        # Lấy promotion
-        now = datetime.now()
-        present_abs = db.query(Abs).filter(
-            Abs.start_time <= now,
-            Abs.end_time >= now,
-            Abs.product_id == id
-        ).first()
-
-        promotion = None
-        if present_abs:
-            promotion = PromotionSchema(
-                percent_abs=present_abs.percent_abs,
-                start_time=present_abs.start_time,
-                end_time=present_abs.end_time
-            )
-
-        return AddProductSchema(
-            name=product.name,
-            phanloai=product.phanloai,
-            price=product.price,
-            thumb=product.thumb,
-            main_image=product.main_image,
-            brand=product.brand,
-            release_date=product.release_date,
-            attributes=attributes,
-            images=images,
-            promotion=promotion
-        )
-    finally:
-        db.close()
-
 # -------------------- ABS --------------------
 @router.post("/abs", response_model=AbsProduct)
 def push_abs(abs: AbsProduct):

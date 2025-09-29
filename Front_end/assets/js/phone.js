@@ -46,7 +46,7 @@ function renderProducts(products) {
             if (product.percent_abs > 0) {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id = "${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -72,7 +72,7 @@ function renderProducts(products) {
             else {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -105,10 +105,12 @@ function renderProducts(products) {
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
+            var productId = item.getAttribute("data-id");
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
             var productPrice = item.querySelector(".product__price span:first-child").innerHTML;
             var productPrice2 = productPrice.slice(0, productPrice.indexOf("₫")).replace("&nbsp;", "");
+            localStorage.setItem("productId", productId);
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
             localStorage.setItem("productPrice", productPrice2);
