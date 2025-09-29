@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import router as api_router
+from app.routers import router as api_router, user as user_router
 
 app = FastAPI(title="Product & ABS API")
 
@@ -14,5 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
-
-
+app.include_router(user_router.router, tags=["Users"])
