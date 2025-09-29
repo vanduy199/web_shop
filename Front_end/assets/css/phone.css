@@ -1,0 +1,79 @@
+/* Sort Section Styling */
+.sort-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sort-section label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.sort-section .form-select {
+    min-width: 200px; /* Tăng min-width để chứa text đầy đủ */
+    width: auto; /* Cho phép tự động điều chỉnh width */
+    padding: 12px 16px; /* Tăng padding để text không bị ép */
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: #fff;
+    line-height: 1.4;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap; /* Không cho phép text xuống dòng */
+    overflow: visible; /* Đảm bảo text không bị cắt */
+}
+
+.sort-section .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.sort-section .form-select option {
+    font-size: 14px;
+    color: #333;
+    padding: 10px; /* Tăng padding cho option */
+    white-space: nowrap; /* Không cho phép text xuống dòng */
+    min-height: 40px; /* Đảm bảo chiều cao tối thiểu */
+    display: block; /* Hiển thị đầy đủ */
+}
+
+/* Hover effect for better interactivity */
+.sort-section .form-select:hover {
+    border-color: #007bff;
+    cursor: pointer;
+}
+
+/* Đảm bảo dropdown hiển thị đầy đủ */
+.sort-section {
+    position: relative;
+    overflow: visible;
+}
+
+.sort-section .form-select {
+    position: relative;
+    z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .sort-section {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .sort-section .form-select {
+        width: 100%;
+        min-width: 200px; /* Đảm bảo min-width trên mobile */
+        max-width: 300px; /* Tăng max-width trên mobile */
+    }
+}

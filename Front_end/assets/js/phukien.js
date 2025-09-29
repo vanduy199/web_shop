@@ -127,7 +127,13 @@ function applyFilters() {
         return phanloaiMatch && brandMatch;
     });
 
-    console.log("Filtered Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc
+    if (sortPrice === "asc") {
+        filteredProducts.sort((a, b) => (a.price * (1 - (a.percent_abs || 0) / 100)) - (b.price * (1 - (b.percent_abs || 0) / 100)));
+    } else if (sortPrice === "desc") {
+        filteredProducts.sort((a, b) => (b.price * (1 - (b.percent_abs || 0) / 100)) - (a.price * (1 - (a.percent_abs || 0) / 100)));
+    }
+
+    console.log("Filtered and Sorted Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc và sắp xếp
     renderProducts(filteredProducts);
 }
 

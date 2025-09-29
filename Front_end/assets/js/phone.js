@@ -148,4 +148,42 @@ document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"]'
 });
 
 // Load sản phẩm khi trang mở
+function applyFilters() {
+    const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
+    const brandFilter = document.querySelector('input[name="brandFilter"]:checked').value;
+    const sortPrice = document.querySelector('#sortPrice').value;
+
+    // Filter products by price and brand
+    filteredProducts = products.filter(product => {
+        let priceMatch = true;
+        let brandMatch = brandFilter === "all" || product.brand === brandFilter;
+
+        if (priceFilter === "under10") {
+            priceMatch = product.price < 10000000;
+        } else if (priceFilter === "10to20") {
+            priceMatch = product.price >= 10000000 && product.price <= 20000000;
+        } else if (priceFilter === "over20") {
+            priceMatch = product.price > 20000000;
+        }
+
+        return priceMatch && brandMatch;
+    });
+
+    // Sort products by price
+    if (sortPrice === "asc") {
+        filteredProducts.sort((a, b) => (a.price * (1 - (a.percent_abs || 0) / 100)) - (b.price * (1 - (b.percent_abs || 0) / 100)));
+    } else if (sortPrice === "desc") {
+        filteredProducts.sort((a, b) => (b.price * (1 - (b.percent_abs || 0) / 100)) - (a.price * (1 - (a.percent_abs || 0) / 100)));
+    }
+
+    console.log("Filtered and Sorted Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc và sắp xếp
+    renderProducts(filteredProducts);
+}
+
+// Sự kiện thay đổi bộ lọc và sắp xếp
+document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"], #sortPrice').forEach(input => {
+    input.addEventListener("change", applyFilters);
+});
+
+// Load sản phẩm khi trang mở
 fetchProducts();
