@@ -223,7 +223,7 @@ def push_abs(abs: AbsProduct):
 
 
 @router.get("/abs", response_model=List[OutPutAbs])
-def get_abs(type: Optional[str] = None):
+def get_abs(type: Optional[str] = None, page: int = 1, limit: int = 20, show_abs: bool = False):
     db = SessionLocal()
     try:
         now = datetime.now()
@@ -236,13 +236,20 @@ def get_abs(type: Optional[str] = None):
                 (Abs.end_time >= now)
             )
         )
+
         if type == "phukien":
             present_abs = present_abs.filter(~Product.phanloai.in_(["phone", "laptop", "tablet"]))
         elif type:
             present_abs = present_abs.filter(Product.phanloai == type)
 
-        present_abs = present_abs.all()
+        total = present_abs.count()
+
+        # phân trang
+        if not show_abs:
+            present_abs = present_abs.offset((page - 1) * limit).limit(limit).all()
         result = []
+
+
         for product_obj, abs_obj in present_abs:
             if product_obj.phanloai == "laptop" and "(" in product_obj.name:
                 product_obj.name = product_obj.name.split("(")[0]

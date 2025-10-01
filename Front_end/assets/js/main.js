@@ -95,9 +95,9 @@ function renderProducts(products) {
 // Hàm fetch dữ liệu từ API
 async function fetchData(type = null) {
     try {
-        let url = "http://127.0.0.1:8000/api/abs";
-        if (type && type !== "all") {
-            url += `?type=${type}`;
+        let url = "http://127.0.0.1:8000/api/abs?show_abs=true";
+        if (type) {
+            url = `http://127.0.0.1:8000/api/abs?type=${type}`;
         }
         const response = await fetch(url);
         if (!response.ok) {

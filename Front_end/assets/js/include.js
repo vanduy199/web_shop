@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
 
-// Khởi tạo lại các script cho header sau khi load
 function initializeHeaderScripts() {
     // Highlight active menu item dựa trên current page
     const currentPage = window.location.pathname.split('/').pop();
