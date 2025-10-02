@@ -220,7 +220,6 @@ input:hover {
 }
 /* Header */
 .header {
-    display: fixed;
     width: 100%;
     left: 0;
     background-color: #d70018;

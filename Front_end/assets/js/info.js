@@ -1,14 +1,15 @@
 //render ở trang info.html
 var productName = localStorage.getItem("productName");
+var productId = localStorage.getItem("productId");
 var productImage = localStorage.getItem("productImage");
 var productPrice = localStorage.getItem("productPrice");
 var productPrice2 = productPrice.replace(/\n/g, "");
 
 let name1 = "Samsung Galaxy S24 5G 8GB/256GB";
-async function fetchProducts(name = null) {
+async function fetchProducts(id = null) {
     try {
-        let url = "http://127.0.0.1:8000/api/product_name";
-        if (name) url += "?name=" + name;
+        let url = "http://127.0.0.1:8000/api/product_id";
+        if (id) url += "?id=" + id;
         const response = await fetch(url);
         const data = await response.json();
         products = data;
@@ -91,7 +92,7 @@ async function fetchProducts(name = null) {
         showMessage("Không tải được sản phẩm!", "error");
     }
 };
-fetchProducts(productName);
+fetchProducts(productId);
 
 // Thêm sản phẩm vào giỏ hàng
 

@@ -1,12 +1,16 @@
 const isLogin =
     localStorage.getItem("tokenLogin") && localStorage.getItem("tokenLogin");
 
-// Có đăng nhập thì hiện ra user
-if (isLogin) {
-    var user = JSON.parse(localStorage.getItem("tokenLogin"));
-    var userBlock = document.querySelector(".header-check");
-    var userBlockMobile = document.querySelector(".header-check-mobile");
-    if (user.isAdmin === true) {
+// Function để check user login sau khi header đã load
+function checkUserLogin() {
+    // Có đăng nhập thì hiện ra user
+    if (isLogin) {
+        var user = JSON.parse(localStorage.getItem("tokenLogin"));
+        var userBlock = document.querySelector(".header-check");
+        var userBlockMobile = document.querySelector(".header-check-mobile");
+        
+        if (userBlock && userBlockMobile) {
+        if (user.isAdmin === true) {
         userBlock.innerHTML = `
         <div class="row header__item">
             <div class="col-3">
@@ -137,6 +141,15 @@ if (isLogin) {
         </div>
         `;
     }
+        } // Close userBlock check
+    } // Close isLogin check
+}
+
+// Call function immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkUserLogin);
+} else {
+    checkUserLogin();
 }
 
 function showNotification(className, content) {

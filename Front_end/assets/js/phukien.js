@@ -46,7 +46,7 @@ function renderProducts(products) {
 if (product.percent_abs > 0) {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -72,7 +72,7 @@ if (product.percent_abs > 0) {
             else {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -104,10 +104,13 @@ if (product.percent_abs > 0) {
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
+            var productId = item.getAttribute("data-id")
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
-            var productPrice = item.querySelector(".product__price span:first-child").innerHTML;
-            var productPrice2 = productPrice.slice(0, productPrice.indexOf("₫")).replace("&nbsp;", "");
+            var productPrice = item.querySelector(".product__price span:first-child").innerText;
+            var productPrice2 = productPrice.replace(/[^0-9]/g, "");
+            // Loại bỏ ký tự không phải số
+            localStorage.setItem("productId", productId);
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
             localStorage.setItem("productPrice", productPrice2);
@@ -127,7 +130,13 @@ function applyFilters() {
         return phanloaiMatch && brandMatch;
     });
 
-    console.log("Filtered Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc
+    if (sortPrice === "asc") {
+        filteredProducts.sort((a, b) => (a.price * (1 - (a.percent_abs || 0) / 100)) - (b.price * (1 - (b.percent_abs || 0) / 100)));
+    } else if (sortPrice === "desc") {
+        filteredProducts.sort((a, b) => (b.price * (1 - (b.percent_abs || 0) / 100)) - (a.price * (1 - (a.percent_abs || 0) / 100)));
+    }
+
+    console.log("Filtered and Sorted Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc và sắp xếp
     renderProducts(filteredProducts);
 }
 

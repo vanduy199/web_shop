@@ -39,7 +39,7 @@ function renderProducts(products) {
             // Render HTML cho sản phẩm (hiển thị tất cả danh mục)
             return `
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12 my-3">
-                    <div class="product__item">
+                    <div class="product__item" data-id="${product.id}">
                         <div class="product__media">
                             <img
                                 src="${product.thumb}"
@@ -77,10 +77,13 @@ function renderProducts(products) {
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
+            var productId = item.getAttribute("data-id")
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
             var productPrice = item.querySelector(".product__price span:first-child").innerText;
-            var productPrice2 = productPrice.replace(/[^0-9]/g, ""); // Loại bỏ ký tự không phải số
+            var productPrice2 = productPrice.replace(/[^0-9]/g, "");
+            // Loại bỏ ký tự không phải số
+            localStorage.setItem("productId", productId);
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
             localStorage.setItem("productPrice", productPrice2);
@@ -92,9 +95,9 @@ function renderProducts(products) {
 // Hàm fetch dữ liệu từ API
 async function fetchData(type = null) {
     try {
-        let url = "http://127.0.0.1:8000/api/abs";
-        if (type && type !== "all") {
-            url += `?type=${type}`;
+        let url = "http://127.0.0.1:8000/api/abs?show_abs=true";
+        if (type) {
+            url = `http://127.0.0.1:8000/api/abs?type=${type}`;
         }
         const response = await fetch(url);
         if (!response.ok) {

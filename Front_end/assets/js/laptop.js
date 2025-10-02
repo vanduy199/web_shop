@@ -46,7 +46,7 @@ function renderProducts(products) {
             if (product.percent_abs > 0) {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -71,7 +71,7 @@ function renderProducts(products) {
             else {
                 return `
                     <div class="col-lg-3 col-md-4 col-6 my-3">
-                        <div class="product__item">
+                        <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
                                 <span class="product__media-note">
@@ -103,10 +103,13 @@ function renderProducts(products) {
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
+            var productId = item.getAttribute("data-id")
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
-            var productPrice = item.querySelector(".product__price span:first-child").innerHTML;
-            var productPrice2 = productPrice.slice(0, productPrice.indexOf("₫")).replace("&nbsp;", "");
+            var productPrice = item.querySelector(".product__price span:first-child").innerText;
+            var productPrice2 = productPrice.replace(/[^0-9]/g, "");
+            // Loại bỏ ký tự không phải số
+            localStorage.setItem("productId", productId);
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
             localStorage.setItem("productPrice", productPrice2);
@@ -114,13 +117,16 @@ function renderProducts(products) {
         });
     });
 }
-
 function applyFilters() {
     const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
     const brandFilter = document.querySelector('input[name="brandFilter"]:checked').value;
+    const sortPrice = document.querySelector('#sortPrice').value;
 
+    // Filter products by price and brand
     filteredProducts = products.filter(product => {
         let priceMatch = true;
+        let brandMatch = brandFilter === "all" || product.brand === brandFilter;
+
         if (priceFilter === "under10") {
             priceMatch = product.price < 10000000;
         } else if (priceFilter === "10to20") {
@@ -129,19 +135,22 @@ function applyFilters() {
             priceMatch = product.price > 20000000;
         }
 
-        let brandMatch = true;
-        if (brandFilter !== "all") {
-            brandMatch = product.brand === brandFilter;
-        }
-
         return priceMatch && brandMatch;
     });
 
+    // Sort products by price
+    if (sortPrice === "asc") {
+        filteredProducts.sort((a, b) => (a.price * (1 - (a.percent_abs || 0) / 100)) - (b.price * (1 - (b.percent_abs || 0) / 100)));
+    } else if (sortPrice === "desc") {
+        filteredProducts.sort((a, b) => (b.price * (1 - (b.percent_abs || 0) / 100)) - (a.price * (1 - (a.percent_abs || 0) / 100)));
+    }
+
+    console.log("Filtered and Sorted Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc và sắp xếp
     renderProducts(filteredProducts);
 }
 
-// Sự kiện thay đổi bộ lọc
-document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"]').forEach(input => {
+// Sự kiện thay đổi bộ lọc và sắp xếp
+document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"], #sortPrice').forEach(input => {
     input.addEventListener("change", applyFilters);
 });
 
