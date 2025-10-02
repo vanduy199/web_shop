@@ -237,17 +237,32 @@
             <div class="cart-container container">
                 <div class="cart__list container mt-4">
                     <h2 class="section__heading ms-3 my-2">Giỏ hàng</h2>
+
                     <table class="table table-hover table-sm mt-3">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
+                                </th>
+                                <th>Sản phẩm</th>
+                            </tr>
+                        </thead>
                         <tbody class="cart__content"></tbody>
                     </table>
-                    <div
-                        class="info__right-groupbtn row d-flex justify-content-around align-items-center my-5 me-1"
-                    >
-                        <div class="total-cost money">
-                            <h2 class="price-total">Tổng thanh toán:</h2>
-                            <button
-                                class="groupbtn__order col-lg-6 col-md-6 col py-3 order-product"
-                            >
+
+                    <!-- Khu vực tổng tiền và nút -->
+                    <div class="info__right-groupbtn row d-flex justify-content-between align-items-center my-5 me-1">
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <h2 class="total-price">Tổng thanh toán: 0₫</h2>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-end gap-3">
+                            <!-- Nút xóa sản phẩm đã chọn -->
+                            <button class="delete-selected-btn">
+                                <i class="fa fa-trash"></i> XÓA SẢN PHẨM ĐÃ CHỌN
+                            </button>
+
+                            <!-- Nút đặt hàng -->
+                            <button class="checkout-btn order-product">
                                 <i class="fa fa-calendar"></i> ĐẶT HÀNG
                             </button>
                         </div>
@@ -255,6 +270,7 @@
                 </div>
             </div>
         </main>
+        
 
         <script src="./assets/js/cart.js"></script>
         <script src="./assets/js/order.js"></script>
