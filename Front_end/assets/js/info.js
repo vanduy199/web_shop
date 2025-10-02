@@ -55,7 +55,7 @@ async function fetchProducts(id = null) {
         let groups = Object.keys(grouped);
         // add to cart
         var btnAddCart = document.querySelector(".groupbtn__cart");
-        btnAddCart.onclick = addToCart(products.id,1);
+        btnAddCart.onclick = addToCart(productId,1);
         
         // Sắp xếp lại theo order
         groups.sort((a, b) => (order[a] || 999) - (order[b] || 999));
