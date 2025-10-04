@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from app.core.config import SessionLocal
 from app.schemas.user import UserCreate, UserOut, UserUpdate, ChangePasswordSchema
 from app.services import user as user_service
+from app.dependencies.auth import get_current_user, require_admin
+from app.models.user import User 
+from app.crud import user as user_crud
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -18,17 +21,37 @@ def get_db():
 def register(user: UserCreate, db: Session = Depends(get_db)):
     return user_service.register_user(db, user)
 
+
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = db.query(user_service.User).filter(user_service.User.id == user_id).first()
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this user")
+    return user_crud.get_user_by_id(db, user_id)
+
 
 @router.put("/{user_id}", response_model=UserOut)
-def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)):
+def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this user")
     return user_service.update_user_info(db, user_id, user_update)
 
+
 @router.put("/{user_id}/change-password")
-def change_password(user_id: int, data: ChangePasswordSchema, db: Session = Depends(get_db)):
+def change_password(
+    user_id: int,
+    data: ChangePasswordSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to change this password")
     return user_service.change_password(db, user_id, data)

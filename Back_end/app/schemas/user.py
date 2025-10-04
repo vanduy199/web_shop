@@ -6,7 +6,6 @@ class UserBase(BaseModel):
     phone: str
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
-    role: Optional[str] = "customer"
 
 class UserCreate(UserBase):
     password: str  

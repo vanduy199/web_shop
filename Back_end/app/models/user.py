@@ -12,7 +12,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=True)  
     email = Column(String(255), unique=True, nullable=True)
-    role = Column(String(50), default="customer")
+    role = Column(String(50), default="USER")
     created_at = Column(DateTime, server_default=func.now())
 
     activity = relationship("UserActivity", back_populates="owner")
