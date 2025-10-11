@@ -105,7 +105,7 @@ async function fetchData(type = null) {
         }
         const data = await response.json();
         console.log("API Data:", data);
-        renderProducts(data);
+        renderProducts(data.show_product);
     } catch (error) {
         console.error("Error fetching products:", error);
     }

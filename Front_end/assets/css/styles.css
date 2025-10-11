@@ -960,3 +960,29 @@ footer ul > li > a:hover {
 #product__list {
     background-color: red;
 }
+#view-more {
+    display: block;
+    margin: 30px auto;
+    padding: 6px 25px;
+    max-width: 340px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+
+    color: #f0413b;
+    background-color: #fff;
+    border: 2px solid #f74943;
+    border-radius: 10px;
+    cursor: pointer;
+
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+}
+
+/* Hover: đổi màu, nổi lên nhẹ */
+#view-more:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(197, 25, 20, 0.3);
+}
+
