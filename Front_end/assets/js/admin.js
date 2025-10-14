@@ -66,14 +66,14 @@ async function fetchProducts(type) {
     try {
         showMessage("Đang tải sản phẩm...", "info");
         document.getElementById('products__add-btn').disabled = true;
-        let url = "http://127.0.0.1:8000/api/abs";
-        if (type) url += "?type=" + type;
+        let url = "http://127.0.0.1:8000/api/abs?show_abs=true";
+        if (type) url += "&type=" + type;
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        allProducts = data; // Lưu dữ liệu gốc
+        allProducts = data.show_product; // Lưu dữ liệu gốc
         console.log(data)
         applyFiltersAndRender();
         renderSubFilters(type);
