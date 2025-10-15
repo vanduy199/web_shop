@@ -1,5 +1,4 @@
 # app/routers/product.py (Bản đã tối ưu hóa)
-
 from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Optional
 from sqlalchemy.orm import Session as DBSession # Đặt alias
@@ -9,7 +8,8 @@ from app.schemas.product import (
 )
 # IMPORT SERVICE
 from app.services import product as product_service 
-
+from app.dependencies.auth import get_current_user, require_admin
+from app.models.user import User
 router = APIRouter()
 
 def get_db():
@@ -34,23 +34,23 @@ def get_product_by_id(id: int, db: DBSession = Depends(get_db)):
     return product
 
 @router.post("/product")
-def add_product(product: AddProductSchema, db: DBSession = Depends(get_db)):
+def add_product(product: AddProductSchema, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
     # Service sẽ raise HTTPException nếu có lỗi
     return product_service.add_product(db, product)
 
 @router.put("/product/{product_id}")
-def update_product(product_id: int, payload: AddProductSchema, db: DBSession = Depends(get_db)):
+def update_product(product_id: int, payload: AddProductSchema, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
     return product_service.update_product(db, product_id, payload)
 
 @router.delete("/product")
-def delete_product(product_id: int, db: DBSession = Depends(get_db)):
+def delete_product(product_id: int, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
     return product_service.delete_product(db, product_id)
 
 
 # -------------------- ABS & PROMOTION --------------------
 
 @router.post("/abs", response_model=AbsProduct)
-def push_abs(abs_data: AbsProduct, db: DBSession = Depends(get_db)):
+def push_abs(abs_data: AbsProduct, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
     return product_service.push_abs(db, abs_data)
 
 @router.get("/abs", response_model=OutPutPage)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.config import SessionLocal
-from app.schemas.user import UserCreate, UserOut, UserUpdate, ChangePasswordSchema
+from app.schemas.user import UserCreate, UserOut, UserUpdate, ChangePasswordSchema, OutPutUser
 from app.services import user as user_service
 from app.dependencies.auth import get_current_user, require_admin
 from app.models.user import User 
@@ -31,6 +31,10 @@ def get_user(
     if current_user.role != "admin" and current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to view this user")
     return user_crud.get_user_by_id(db, user_id)
+
+@router.get("/users/me", response_model=OutPutUser)
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.put("/{user_id}", response_model=UserOut)

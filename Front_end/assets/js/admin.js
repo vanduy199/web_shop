@@ -1,14 +1,34 @@
-// -------------------- Kiểm tra quyền admin --------------------
-if (localStorage.getItem("tokenLogin")) {
-    const user = JSON.parse(localStorage.getItem("tokenLogin"));
-    if (user.isAdmin !== true) {
-        showMessage("Bạn không có quyền truy cập vào trang này!", "error");
-        window.location.href = "../index.html";
+const token = localStorage.getItem("access_token");
+(async () => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/users/users/me', {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                if (user.role !== 'admin') {
+                    alert('Xin lỗi, trang này chỉ dành cho Quản trị viên!');
+                    window.location.href = "../index.html";
+                }
+            } else {
+                alert("Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.");
+                window.location.href = "../login.html";
+            }
+        } catch (error) {
+            console.error("Lỗi kết nối đến server:", error);
+            alert("Không thể kết nối tới máy chủ. Vui lòng thử lại sau.");
+        }
+    } else {
+        alert("Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.");
+        window.location.href = "../login.html";
     }
-} else {
-    showMessage("Bạn chưa đăng nhập!", "error");
-    window.location.href = "../login.html";
-}
+})();
 
 // -------------------- Hàm hiển thị thông báo --------------------
 function showMessage(msg, type = "success") {
@@ -265,10 +285,14 @@ async function addProduct() {
     const payload = collectFormData();
     if (!validatePayload(payload)) return;
     try {
+        const token = localStorage.getItem("access_token");
         showMessage("Đang thêm sản phẩm...", "info");
         const response = await fetch('http://127.0.0.1:8000/api/product', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`
+            },
             body: JSON.stringify(payload)
         });
         if (!response.ok) {
@@ -290,10 +314,14 @@ async function updateProduct(id) {
     const payload = collectFormData();
     if (!validatePayload(payload)) return;
     try {
+        const token = localStorage.getItem("access_token");
         showMessage("Đang cập nhật sản phẩm...", "info");
         const response = await fetch(`http://127.0.0.1:8000/api/product/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`
+            },
             body: JSON.stringify(payload)
         });
         if (!response.ok) {
@@ -314,8 +342,12 @@ async function updateProduct(id) {
 window.handleDeleteProduct = async function (id) {
     if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
         try {
+            const token = localStorage.getItem("access_token");
             showMessage("Đang xóa sản phẩm...", "info");
             const response = await fetch(`http://127.0.0.1:8000/api/product?product_id=${id}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
                 method: 'DELETE'
             });
             if (!response.ok) {

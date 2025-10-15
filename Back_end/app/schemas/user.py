@@ -34,3 +34,10 @@ class TokenSchema(BaseModel):
 class TokenData(BaseModel):
     id: Optional[int] = None
     role: Optional[str] = None
+
+class OutPutUser(BaseModel):
+    username: Optional[str] = None
+    phone: str
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None

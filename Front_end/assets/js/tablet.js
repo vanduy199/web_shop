@@ -19,7 +19,7 @@ function getCurrentFilters() {
     const sortPrice = document.querySelector('#sortPrice').value;
     
     // Map priceFilter to API value
-    let price = null;
+    let price = null; 
     if (priceFilter === "under10") price = 1;
     else if (priceFilter === "10to20") price = 2;
     else if (priceFilter === "over20") price = 3;

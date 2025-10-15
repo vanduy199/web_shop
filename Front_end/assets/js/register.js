@@ -1,7 +1,7 @@
 document.getElementById("form-register").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const API_URL = "http://localhost:8000"; // Define your API URL
+  const API_URL = "http://127.0.0.1:8000"; // Define your API URL
   
   // Get form data
   const username = document.getElementById("username").value.trim();
@@ -18,7 +18,7 @@ document.getElementById("form-register").addEventListener("submit", async (e) =>
     password,
   };
 
-  try {
+  try { 
     const response = await fetch(`${API_URL}/users/register`, {
       method: "POST",
       headers: {
