@@ -36,6 +36,7 @@ class TokenData(BaseModel):
     role: Optional[str] = None
 
 class OutPutUser(BaseModel):
+    id: Optional[int] = None
     username: Optional[str] = None
     phone: str
     full_name: Optional[str] = None
