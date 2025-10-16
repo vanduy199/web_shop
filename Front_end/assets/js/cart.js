@@ -3,12 +3,23 @@ const tbody = document.querySelector("table tbody");
 const totalPrice = document.querySelector(".total-price");
 
 const API_BASE = "http://127.0.0.1:8000/cart";
-const userId = 1;
+
+// 🟢 Lấy token từ localStorage
+const token = localStorage.getItem("access_token"); // DÙNG access_token
+
+// 🟢 Headers cho tất cả request
+const headers = token
+  ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+  : { "Content-Type": "application/json" };
+
+// 🟢 Không cần userId cố định — backend lấy từ token
+const userId = null;
 
 // Load giỏ hàng
 async function loadCart() {
     try {
-        const res = await fetch(`${API_BASE}/${userId}`);
+        // 🔧 Sửa: bỏ userId ra khỏi URL + thêm headers
+        const res = await fetch(`${API_BASE}/`, { headers });
         if (!res.ok) throw new Error("Không load được giỏ hàng");
         let carts = await res.json();
 
@@ -108,46 +119,36 @@ async function updateTotal() {
         return;
     }
 
-    // cancel previous pending request to avoid race conditions
     if (lastCalcController) {
         try { lastCalcController.abort(); } catch (e) { /* ignore */ }
     }
     lastCalcController = new AbortController();
     const signal = lastCalcController.signal;
 
-    // snapshot key để biết request này tương ứng với selection nào
     const requestedKey = selected.join(',');
 
     try {
         const params = selected.map(id => `selected_ids=${encodeURIComponent(id)}`).join("&");
-        const url = `${API_BASE}/${userId}/calculate-total?${params}`;
-        const res = await fetch(url, { signal });
+        // 🔧 Sửa: bỏ userId, thêm headers
+        const url = `${API_BASE}/calculate-total?${params}`;
+        const res = await fetch(url, { signal, headers });
 
         if (!res.ok) {
-            // đọc body lỗi cho debug, nhưng ném lỗi để đi vào catch
             const errText = await res.text().catch(() => "");
             throw new Error(`API lỗi ${res.status} ${errText}`);
         }
 
         const data = await res.json();
 
-        // nếu selection đã thay đổi kể từ lúc gửi request thì bỏ qua response này
         const currentKey = Array.from(document.querySelectorAll(".select-item:checked")).map(cb => cb.dataset.id).join(',');
-        if (currentKey !== requestedKey) {
-            // stale response -> ignore
-            return;
-        }
+        if (currentKey !== requestedKey) return;
 
         const total = Number(data.total_price) || 0;
         totalPrice.textContent = "Tổng thanh toán: " + total.toLocaleString("vi-VN") + " đ";
     } catch (err) {
-        if (err.name === "AbortError") {
-            // request bị abort chủ động, không báo lỗi
-            return;
-        }
+        if (err.name === "AbortError") return;
         console.error("Lỗi tính tổng:", err);
 
-        // fallback: tính client-side đúng = đơn giá * số lượng
         let total = 0;
         selected.forEach(id => {
             const row = document.querySelector(`tr[data-id="${id}"]`);
@@ -163,21 +164,20 @@ async function updateTotal() {
     }
 }
 
-// Thêm sản phẩm vào giỏ (POST /cart/{userId})
+// 🟢 Thêm sản phẩm vào giỏ (POST /cart)
 async function addToCart(productId, quantity = 1) {
     try {
         console.log("Thêm vào giỏ:", productId, quantity);
 
-        const res = await fetch(`${API_BASE}/${userId}`, {
+        const res = await fetch(`${API_BASE}/`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: headers, // 🟢 dùng chung headers có Bearer token
             body: JSON.stringify({
                 product_id: Number(productId),
                 quantity: Number(quantity)
             }),
         });
 
-        // try parse json (nếu server trả json)
         let data = null;
         try { data = await res.json(); } catch (e) { /* không phải json */ }
 
@@ -188,10 +188,7 @@ async function addToCart(productId, quantity = 1) {
         }
 
         console.log("Thêm thành công:", data);
-        // cập nhật lại danh sách giỏ hàng hiển thị
         await loadCart();
-
-        // thông báo ngắn gọn
         alert("Đã thêm vào giỏ hàng!");
     } catch (err) {
         console.error("Lỗi khi thêm sản phẩm:", err);
@@ -205,9 +202,10 @@ async function decrease(cartId, qty) { if (qty > 1) await updateQuantity(cartId,
 
 async function updateQuantity(cartId, newQty) {
     try {
-        const res = await fetch(`${API_BASE}/${userId}/${cartId}`, {
+        // 🔧 Sửa: bỏ userId, thêm headers
+        const res = await fetch(`${API_BASE}/${cartId}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             body: JSON.stringify({ quantity: newQty }),
         });
         if (!res.ok) throw new Error("Cập nhật thất bại");
@@ -217,7 +215,7 @@ async function updateQuantity(cartId, newQty) {
 
 async function removeItem(cartId) {
     if (!confirm("Xóa sản phẩm này?")) return;
-    await fetch(`${API_BASE}/${userId}/${cartId}`, { method: "DELETE" });
+    await fetch(`${API_BASE}/${cartId}`, { method: "DELETE", headers });
     await loadCart();
 }
 
@@ -228,7 +226,7 @@ async function removeSelected() {
     if (!confirm("Xóa các sản phẩm đã chọn?")) return;
 
     for (let id of selected) {
-        await fetch(`${API_BASE}/${userId}/${id}`, { method: "DELETE" });
+        await fetch(`${API_BASE}/${id}`, { method: "DELETE", headers });
     }
     await loadCart();
 }
@@ -247,12 +245,11 @@ function toggleSelectAll(source) {
     updateTotal();
 }
 
-// Gắn sự kiện cho nút
 document.querySelector(".delete-selected-btn").addEventListener("click", removeSelected);
 document.querySelector(".checkout-btn").addEventListener("click", checkout);
 
-// Load cart khi mở trang
 window.addEventListener("DOMContentLoaded", loadCart);
+
 function goInfo() {
     var productItems = document.querySelectorAll(".cart__info-product");
     productItems.forEach(function (item) {

@@ -55,7 +55,9 @@ async function fetchProducts(id = null) {
         let groups = Object.keys(grouped);
         // add to cart
         var btnAddCart = document.querySelector(".groupbtn__cart");
-        btnAddCart.onclick = addToCart(productId,1);
+        btnAddCart.onclick = function() {
+            addToCart(productId, 1);
+        };
         
         // Sắp xếp lại theo order
         groups.sort((a, b) => (order[a] || 999) - (order[b] || 999));
@@ -130,29 +132,57 @@ var swiper = new Swiper(".mySwiper", {
   },
 });
 const API_BASE = "http://127.0.0.1:8000/cart";
-const userId = 1;
-function addToCart(productId, quantity = 1) {
+
+// 🟢 Lấy token từ localStorage
+const token = localStorage.getItem("access_token"); // DÙNG access_token
+
+// 🟢 Headers cho tất cả request
+const headers = token
+  ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+  : { "Content-Type": "application/json" };
+
+// 🟢 Không cần userId cố định — backend lấy từ token
+const userId = null;
+async function addToCart(productId, quantity = 1) {
     try {
         console.log("Thêm vào giỏ:", productId, quantity);
 
-        const res = fetch(`${API_BASE}/${userId}`, {
+        // 🟢 Đảm bảo URL là /cart/ cho POST
+        const res = await fetch(`${API_BASE}/`, { 
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: headers, 
             body: JSON.stringify({
                 product_id: Number(productId),
                 quantity: Number(quantity)
             }),
         });
 
-        // try parse json (nếu server trả json)
         let data = null;
-        try { data = res.json(); } catch (e) { /* không phải json */ }
+        try { data = await res.json(); } catch (e) { /* Lỗi khi phản hồi không phải JSON */ }
 
+        // 🟢 HIỂN THỊ MÃ LỖI RÕ RÀNG
         if (!res.ok) {
+            console.error("Thêm thất bại:", res.status, data);
+            
+            let errorMessage = `LỖI API ${res.status}`;
+            
+            errorMessage = `Thêm thất bại: ${data.detail}`;
+
+            alert(errorMessage);
             return;
         }
+
+        console.log("Thêm thành công:", data);
+        
+        // 🟢 Gọi loadCart nếu nó tồn tại (thường là trong cart.js)
+        if (typeof loadCart === 'function') {
+            await loadCart();
+        }
+        
+        alert("Đã thêm vào giỏ hàng!");
     } catch (err) {
-        console.error("Lỗi khi thêm sản phẩm:", err);
-        alert("Lỗi mạng hoặc server. Kiểm tra console.");
+        console.error("Lỗi mạng hoặc JS:", err);
+        alert("Lỗi mạng hoặc lỗi JavaScript. Kiểm tra console.");
     }
 }
+
