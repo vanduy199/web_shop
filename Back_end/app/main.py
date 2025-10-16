@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.security import decode_access_token
 
 from app.routers import router as api_router, user as user_router, user_activity, authentication
-
+from app.routers import orders
 app = FastAPI(title="Product & ABS API")
 
 bearer_scheme = HTTPBearer()
@@ -51,3 +51,4 @@ app.include_router(api_router)
 app.include_router(user_router.router, tags=["Users"])
 app.include_router(user_activity.router)
 app.include_router(authentication.router, tags=["Login"])
+app.include_router(orders.router, tags=["Orders"])
