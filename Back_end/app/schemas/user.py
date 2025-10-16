@@ -6,7 +6,6 @@ class UserBase(BaseModel):
     phone: str
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
-    role: Optional[str] = "customer"
 
 class UserCreate(UserBase):
     password: str  
@@ -34,4 +33,12 @@ class TokenSchema(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[int] = None
+    role: Optional[str] = None
+
+class OutPutUser(BaseModel):
+    id: Optional[int] = None
+    username: Optional[str] = None
+    phone: str
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
     role: Optional[str] = None

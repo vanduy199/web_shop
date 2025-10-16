@@ -119,12 +119,12 @@ html {
 }
 
 .form_login {
-    height: 450px;
+    min-height: 450px; 
 }
 
 .form_register {
-    height: 600px;
-    margin-bottom: 20px;
+    min-height: 600px;
+    margin-bottom: 100px; 
 }
 
 #notification {

@@ -1,2 +1,3 @@
 __pycache__/
 *.pyc
+Back_end/app/core/config.py

@@ -12,9 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Sau khi load header, khởi tạo lại các script cần thiết
             initializeHeaderScripts();
-            
-            // Trigger user login check sau khi header đã load
-            if (typeof checkUserLogin === 'function') {
+
+            // Khởi tạo hiển thị người dùng: render từ cache trước, rồi refresh API
+            if (typeof initUserHeader === 'function') {
+                initUserHeader();
+            } else if (typeof checkUserLogin === 'function') {
+                // fallback nếu code cũ
                 checkUserLogin();
             }
         })

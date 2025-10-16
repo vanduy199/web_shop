@@ -40,9 +40,14 @@ class OutPutAbs(BaseModel):
     percent_abs: Optional[float] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
-
+    
     class Config:
         from_attributes = True
+
+class OutPutPage(BaseModel):
+    remainingQuantity: Optional[int] = None
+    show_product: List[OutPutAbs]
+
 
 class AttributeSchema(BaseModel):
     key: str
@@ -70,4 +75,13 @@ class AddProductSchema(BaseModel):
     promotion: Optional[PromotionSchema] = None
     class Config:
         from_attributes = True
+
+class ProductSearchResult(BaseModel):
+    id: int
+    name: str
+    price: float
+    phanloai_vi: str
+    brand: str
+    
+
 

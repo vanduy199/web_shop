@@ -1,29 +1,86 @@
 let products = [];
 let filteredProducts = [];
+let page = 1;
+let baseUrl = "http://127.0.0.1:8000/api/abs";
 
-async function fetchProducts() {
+// Function để build URL với param
+function getUrlWithParams(type, pageNum, price, brand, sortPrice) {
+    let url = `${baseUrl}?type=${type}&page=${pageNum}`;
+    if (price) url += `&price=${price}`;
+    if (brand && brand !== "all") url += `&brand=${brand}`;
+    if (sortPrice) url += `&sort_price=${sortPrice}`;
+    return url;
+}
+
+// Function để get current filter values
+function getCurrentFilters() {
+    const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
+    const brandFilter = document.querySelector('input[name="brandFilter"]:checked').value;
+    const sortPrice = document.querySelector('#sortPrice').value;
+    
+    // Map priceFilter to API value
+    let price = null; 
+    if (priceFilter === "under10") price = 1;
+    else if (priceFilter === "10to20") price = 2;
+    else if (priceFilter === "over20") price = 3;
+    
+    return { price, brand: brandFilter, sortPrice };
+}
+
+async function fetchProducts(append = false) {
+    const filters = getCurrentFilters();
+    const url = getUrlWithParams("tablet", page, filters.price, filters.brand, filters.sortPrice);
+    
     try {
-        const url = "http://127.0.0.1:8000/api/abs?type=tablet";
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        products = await response.json();
-        console.log(products)
-        filteredProducts = products;
-        renderProducts(filteredProducts);
+        const data = await response.json();
+        
+        if (data.remainingQuantity === 0 && append) {
+            document.getElementById("view-more").style.display = "none";
+            console.log("No more products to load");
+            return;
+        }
+        
+        const viewMoreP = document.querySelector("#view-more strong");
+        if (viewMoreP) {
+            if (data.remainingQuantity > 0) {
+                viewMoreP.innerText = `Xem thêm ${data.remainingQuantity} sản phẩm`;
+                document.getElementById("view-more").style.display = "block";
+            } else {
+                document.getElementById("view-more").style.display = "none";
+            }
+        }
+        
+        if (append) {
+            // Append sản phẩm mới (đã được back-end filter/sort)
+            filteredProducts = [...filteredProducts, ...data.show_product];
+            renderProducts(data.show_product, true);
+        } else {
+            // Load ban đầu
+            products = data.show_product;
+            filteredProducts = data.show_product;
+            renderProducts(filteredProducts, false);
+        }
+        
+        console.log("Products loaded:", products);
+        console.log("Filtered Products:", filteredProducts);
     } catch (error) {
         console.error("Error fetching products:", error);
         alert("Không tải được sản phẩm!");
     }
 }
 
-function renderProducts(products) {
+function renderProducts(products, append = false) {
     const phonesList = document.getElementById("phones-list");
-    phonesList.innerHTML = ""; // Xóa nội dung cũ
+    if (!append) {
+        phonesList.innerHTML = "";  // Chỉ xóa nếu không append
+    }
 
     const htmls = products
-        .filter(product => product.percent_abs >= 0 && product.phanloai === "tablet") // Chỉ hiển thị sản phẩm có khuyến mãi và là điện thoại
+        .filter(product => product.percent_abs >= 0)  // Back-end đã filter, nhưng giữ để an toàn
         .map(function (product) {
             var now = new Date();
             var end = new Date(product.end_time);
@@ -63,8 +120,6 @@ function renderProducts(products) {
                                         currency: "VND",
                                     }).format(product.price)}</span>
                                 </div>
-                             
-                
                             </div>
                         </div>
                     </div>
@@ -89,8 +144,6 @@ function renderProducts(products) {
                                         currency: "VND",
                                     }).format(product.price)}</span>
                                 </div>
-                      
-                                
                             </div>
                         </div>
                     </div>
@@ -101,9 +154,13 @@ function renderProducts(products) {
         .join("");
 
     // Gắn vào danh sách
-    phonesList.innerHTML = htmls;
+    if (append) {
+        phonesList.innerHTML += htmls;
+    } else {
+        phonesList.innerHTML = htmls;
+    }
 
-    // Thêm sự kiện click để chuyển hướng tới trang chi tiết
+    // Thêm sự kiện click
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
@@ -122,37 +179,10 @@ function renderProducts(products) {
     });
 }
 
-// Sự kiện thay đổi bộ lọc
 function applyFilters() {
-    const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
-    const brandFilter = document.querySelector('input[name="brandFilter"]:checked').value;
-    const sortPrice = document.querySelector('#sortPrice').value;
-
-    // Filter products by price and brand
-    filteredProducts = products.filter(product => {
-        let priceMatch = true;
-        let brandMatch = brandFilter === "all" || product.brand === brandFilter;
-
-        if (priceFilter === "under10") {
-            priceMatch = product.price < 10000000;
-        } else if (priceFilter === "10to20") {
-            priceMatch = product.price >= 10000000 && product.price <= 20000000;
-        } else if (priceFilter === "over20") {
-            priceMatch = product.price > 20000000;
-        }
-
-        return priceMatch && brandMatch;
-    });
-
-    // Sort products by price
-    if (sortPrice === "asc") {
-        filteredProducts.sort((a, b) => (a.price * (1 - (a.percent_abs || 0) / 100)) - (b.price * (1 - (b.percent_abs || 0) / 100)));
-    } else if (sortPrice === "desc") {
-        filteredProducts.sort((a, b) => (b.price * (1 - (b.percent_abs || 0) / 100)) - (a.price * (1 - (a.percent_abs || 0) / 100)));
-    }
-
-    console.log("Filtered and Sorted Products:", filteredProducts); // Debug danh sách sản phẩm sau lọc và sắp xếp
-    renderProducts(filteredProducts);
+    // Reset page về 1 khi filter/sort thay đổi
+    page = 1;
+    fetchProducts(false);  // Fetch lại từ đầu với filter mới
 }
 
 // Sự kiện thay đổi bộ lọc và sắp xếp
@@ -160,5 +190,10 @@ document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"],
     input.addEventListener("change", applyFilters);
 });
 
-// Load sản phẩm khi trang mở
-fetchProducts();
+// Load sản phẩm ban đầu
+fetchProducts(false);
+
+document.getElementById("view-more").onclick = function () {
+    page += 1;
+    fetchProducts(true);
+}

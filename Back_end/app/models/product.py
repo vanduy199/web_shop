@@ -48,3 +48,14 @@ class Abs(Base):
     end_time = Column(DateTime, nullable = False)
 
     product = relationship("Product", back_populates="abs")
+
+class Search(Base):
+    __tablename__ = 'product_search'
+
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    name = Column(String, nullable = False)
+    price = Column(Float)
+    phanloai = Column(String)
+    phanloai_vi = Column(String)
+    brand = Column(String)
+    cauhinh_daydu = Column(String)
