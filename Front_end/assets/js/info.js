@@ -12,11 +12,11 @@ async function fetchProducts(id = null) {
         if (id) url += "?id=" + id;
         const response = await fetch(url);
         const data = await response.json();
-        products = data;
+        const products = data;
         var headingInfo = document.querySelector(".info__heading");
         headingInfo.innerText = products.name;
         console.log(products.id)
-        var breadcrumbInfo = document.querySelector(".breadcrumb-name");
+        var breadcrumbInfo = document.querySelector(".info__heading");
         breadcrumbInfo.innerText = products.name;
 
         let img1 = document.querySelector("#img1");
