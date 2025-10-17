@@ -62,13 +62,11 @@ def get_abs(type: Optional[str] = None, page: int = 1, limit: int = 20,brand: Op
 
 @router.get("/search/", response_model=List[ProductSearchResult])
 def search_products(
-    q: str = Query(..., min_length=2, description="Từ khóa tìm kiếm"),
+    q: str = Query(..., description="Từ khóa tìm kiếm"),
     db: DBSession = Depends(get_db)
 ):
-    results = product_service.smart_search_products(db, q)
+    results = product_service.ultimate_search_products(db, q)
     
     if not results:
-        # Nếu không có kết quả, trả về list rỗng
         return []
-        
     return results

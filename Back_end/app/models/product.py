@@ -57,5 +57,8 @@ class Search(Base):
     price = Column(Float)
     phanloai = Column(String)
     phanloai_vi = Column(String)
+    ram = Column(Integer)
+    bonho = Column(Integer)
+    pin = Column(String)
     brand = Column(String)
     cauhinh_daydu = Column(String)

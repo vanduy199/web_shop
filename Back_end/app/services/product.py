@@ -6,126 +6,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from fastapi import HTTPException, Query
-from app.models.product import Product, ProductImage, Specification, Abs
+from app.models.product import Product, ProductImage, Specification, Abs, Search
 from app.schemas.product import (
     ProductSchema, AddProductSchema, AttributeSchema,
     ImagesSchema, PromotionSchema, AbsProduct, OutPutAbs, ProductSearchResult, OutPutPage
 )
-
-# --- KHAI BÁO HẰNG SỐ VÀ HÀM PHÂN TÍCH SEARCH ---
-import unicodedata
-import re
-DEVICE_SLUGS = ["phone", "laptop", "tablet"] 
-KNOWN_CATEGORIES = {
-    "dien thoai": "phone", "may tinh bang": "tablet", "laptop": "laptop",
-    "pin du phong": "pinduphong", "cap sac": "capsac", "tai nghe": "tainghe"
-}
-
-def normalize_search_term(query: str) -> str:
-    """Chuẩn hóa chuỗi tìm kiếm: hạ chữ, bỏ dấu, và thay thế từ viết tắt."""
-    text = query.lower().strip()
-    
-    # 1. Bỏ dấu tiếng Việt
-    text = unicodedata.normalize('NFD', text)
-    text = re.sub(r'[\u0300-\u036f]', '', text)
-    text = text.replace('đ', 'd')
-    
-    # 2. Thay thế Từ viết tắt phổ biến
-    replacements = {
-        r'\bdt\b': 'dien thoai', 
-        r'\blt\b': 'laptop',
-        r'\bss\b': 'samsung',
-        r'\bip\b': 'iphone',
-        r'\bpin dp\b': 'pin du phong'
-    }
-    for old, new in replacements.items():
-        text = re.sub(old, new, text)
-        
-    # Loại bỏ ký tự đặc biệt, nhưng giữ lại '/','-', '.' và '+' 
-    text = re.sub(r'[^a-z0-9\s/+-.]', ' ', text)
-    
-    # Rút gọn khoảng trắng thừa
-    return " ".join(text.split())
-def parse_query_to_conditions(query: str) -> dict:
-    """
-    Phân tích truy vấn, trích xuất thông số kỹ thuật (RAM, Pin, Lưu trữ) 
-    và ánh xạ ngược thành cụm từ chính xác (Exact Match) và từ khóa mở rộng (Broad Match).
-    """
-    conditions: Dict[str] = {}
-    remaining_query = query
-    
-    # 1. Tìm và loại bỏ Loại sản phẩm
-    conditions['phanloai'] = None
-    for cat_name, cat_slug in KNOWN_CATEGORIES.items():
-        if re.search(r'\b' + re.escape(cat_name) + r'\b', remaining_query):
-            conditions['phanloai'] = cat_slug
-            remaining_query = re.sub(r'\b' + re.escape(cat_name) + r'\b', ' ', remaining_query).strip()
-            break
-            
-    text_filter_parts = []
-    broad_search_terms = [] 
-    
-
-    is_device = conditions['phanloai'] in DEVICE_SLUGS
-    
-
-    ram_match = re.search(r'\b(\d+)\s*(gb)?\s*ram\b|\bram\s*(\d+)\s*(gb)?\b', remaining_query)
-    if ram_match:
-        ram_gb = int(ram_match.group(1) or ram_match.group(3))
-        text_filter_parts.append(f'"RAM: {ram_gb} GB"') 
-        broad_search_terms.extend([str(ram_gb), "ram", "gb"])
-        remaining_query = re.sub(r'\b' + re.escape(ram_match.group(0)) + r'\b', ' ', remaining_query)
-
-
-    storage_pattern1 = r'\b(\d+)\s*(gb|g)?\s*(dung\s*luong|luu\s*tru|bo\s*nho|storage|rom)\b'
-
-    storage_pattern2 = r'\b(dung\s*luong|luu\s*tru|bo\s*nho|storage|rom)\s*(\d+)\s*(gb|g)?\b'
-    
-    storage_match = re.search(storage_pattern1, remaining_query) or re.search(storage_pattern2, remaining_query)
-    
-    if storage_match:
-        if re.search(storage_pattern1, remaining_query):
-            # Pattern 1: group(1) chứa số
-            storage_gb = int(storage_match.group(1))
-        else:
-            # Pattern 2: group(2) chứa số
-            storage_gb = int(storage_match.group(2))
-            
-        text_filter_parts.append(f'"Dung lượng lưu trữ: {storage_gb} GB"')
-        broad_search_terms.extend([str(storage_gb), "bo", "nho", "dung", "luong", "gb"])
-        remaining_query = re.sub(r'\b' + re.escape(storage_match.group(0)) + r'\b', ' ', remaining_query)
-
-    pin_match = re.search(r'\b(\d+)\s*(mah)?\s*pin\b|\bpin\s*(\d+)\s*(mah)?\b', remaining_query)
-    if pin_match:
-        pin_mah = int(pin_match.group(1) or pin_match.group(3))
-        text_filter_parts.append(f'"Dung lượng pin: {pin_mah} mAh"')
-        broad_search_terms.extend([str(pin_mah), "mah", "pin"])
-        remaining_query = re.sub(r'\b' + re.escape(pin_match.group(0)) + r'\b', ' ', remaining_query)
-
-    cleaned_text_search = " ".join(remaining_query.split())
-    broad_search_terms.extend(cleaned_text_search.split())
-    
-
-    unique_broad_terms = set(broad_search_terms)
-    
-
-    exact_terms_sql = [f'{term}' for term in text_filter_parts] 
-    
-
-    broad_terms_sql = [
-        f'{word}' 
-        for word in unique_broad_terms 
-        if len(word) > 1 and word.isalnum()
-    ]
-    
-    final_text_search_query = " ".join(exact_terms_sql + broad_terms_sql)
-
-    if final_text_search_query:
-        conditions['text_search'] = final_text_search_query
-        
-    return conditions
-
-# -------------------- LOGIC NGHIỆP VỤ & DB (CRUD) --------------------
 
 def get_products(db: Session, type: Optional[str] = None) -> List[Product]:
     if type:
@@ -333,58 +218,197 @@ def get_abs(db: Session, type: Optional[str] = None, page: int = 1, limit: int =
         )
         return result
 
-def smart_search_products(
-    db: Session, 
-    q: str       
-) -> List[Tuple]: 
+import unicodedata
+import re
+from difflib import SequenceMatcher
 
-    normalized_q = normalize_search_term(q)
+def normalize_vietnamese_string(text: str) -> str:
+    text = text.lower().strip()
+    text = unicodedata.normalize('NFD', text)
+    text = re.sub(r'[\u0300-\u036f]', '', text)
+    text = text.replace('đ', 'd')
+    return " ".join(text.split())
+
+def fuzzy_brand_match(text: str, threshold: float = 0.6) -> str | None:
+    brand_variants = {
+        'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
+        'apple': ['apple', 'iphone', 'ipad', 'macbook', 'mac', 'ip'],
+        'oppo': ['oppo', 'op', 'opo'],
+        'vivo': ['vivo', 'vi vo', 'vv'],
+        'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
+        'realme': ['realme', 'real me', 'rm'],
+        'huawei': ['huawei', 'hua wei', 'hw'],
+        'dell': ['dell', 'de ll'],
+        'hp': ['hp', 'hewlett packard'],
+        'asus': ['asus', 'a sus'],
+        'acer': ['acer', 'a cer'],
+        'lenovo': ['lenovo', 'le no vo'],
+        'lg': ['lg', 'l g'],
+        'sony': ['sony', 'so ny']
+    }
     
-        
-    conditions = parse_query_to_conditions(normalized_q)
+    text = normalize_vietnamese_string(text)
     
-    where_clauses = []
-    params: Dict[str, Any] = {} 
+    # Kiểm tra exact match trước
+    for brand, variants in brand_variants.items():
+        for variant in variants:
+            if variant in text:
+                return brand
     
-    if conditions.get('phanloai'):
-        where_clauses.append("phanloai = :phanloai")
-        params['phanloai'] = conditions['phanloai']
-        
-
-    final_text_query = conditions.get('text_search', '')
-
-    score_clause = "0 AS relevance_score"
-    order_by_clause = "ORDER BY id DESC"
+    # Fuzzy matching nếu không có exact match
+    best_brand = None
+    best_score = 0
     
-    if final_text_query:
-        params['text_query'] = final_text_query 
+    for brand, variants in brand_variants.items():
+        for variant in variants:
+            # Tính similarity score
+            score = SequenceMatcher(None, variant, text).ratio()
+            if score > threshold and score > best_score:
+                best_score = score
+                best_brand = brand
+    
+    return best_brand
 
-        fulltext_match_clause = "MATCH(name, phanloai_vi, brand, cauhinh_daydu) AGAINST(:text_query IN BOOLEAN MODE)"
-        
-        where_clauses.append(fulltext_match_clause)
-        
-        score_clause = f"({fulltext_match_clause}) * 5 AS relevance_score"
-        order_by_clause = "ORDER BY relevance_score DESC"
-        
-    if not where_clauses:
-        return []
-
-    where_sql = " AND ".join(where_clauses)
-
-    sql_query = text(f"""
-        SELECT 
-            id, name, price, phanloai_vi, phanloai, brand, cauhinh_daydu,
-            {score_clause}
-        FROM product_search
-        WHERE {where_sql}
-        {order_by_clause}
-    """)
-
+def parse_price_string(price_str: str) -> int | None:
+    if not price_str: 
+        return None
     try:
-        results = db.execute(sql_query, params).fetchall()
-        return results
-    except Exception as e:
-        print(f"Lỗi truy vấn SQL trong Service: {e}")
-        print(f"Truy vấn SQL lỗi: {sql_query.string.strip()}")
-        print(f"Tham số: {params}")
-        raise e
+        text = price_str.lower().strip().replace('.', '').replace(',', '')
+        total_value = 0
+        if 'tr' in text or 'trieu' in text:
+            text = text.replace('trieu', 'tr')
+            parts = text.split('tr')
+            if parts[0]: 
+                total_value += float(parts[0]) * 1_000_000
+            if len(parts) > 1 and parts[1]:
+                if len(parts[1]) < 3: 
+                    total_value += float(parts[1]) * 100_000
+                else: 
+                    total_value += float(parts[1]) * 1_000
+            return int(total_value)
+        if 'k' in text:
+            value_part = text.replace('k', '').strip()
+            return int(float(value_part) * 1_000)
+        return int(text)
+    except (ValueError, IndexError):
+        return None
+
+def parse_master_query(query: str) -> dict:
+    conditions = {}
+    q = normalize_vietnamese_string(query)
+    original_q = q
+    
+    # Xử lý loại sản phẩm
+    type_pattern = r'(dien thoai|laptop|may tinh bang|cap sac|tai nghe|du phong|flycam|tablet)'
+    type_match = re.search(type_pattern, q)
+    if type_match:
+        conditions['phanloai'] = type_match.group(1)
+        q = re.sub(type_pattern, '', q).strip()
+
+    # ✅ Xử lý brand với fuzzy matching
+    brand = fuzzy_brand_match(original_q)
+    if brand:
+        conditions['brand'] = brand
+        # Xóa tất cả brand variants khỏi query
+        brand_variants = {
+            'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
+            'apple': ['apple', 'iphone', 'ipad', 'macbook', 'mac', 'ip'],
+            'oppo': ['oppo', 'op', 'opo'],
+            'vivo': ['vivo', 'vi vo', 'vv'],
+            'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
+            'realme': ['realme', 'real me', 'rm'],
+            'huawei': ['huawei', 'hua wei', 'hw'],
+        }
+        
+        if brand in brand_variants:
+            for variant in brand_variants[brand]:
+                q = re.sub(rf'\b{re.escape(variant)}\b', '', q, flags=re.IGNORECASE).strip()
+
+    # Xử lý giá
+    price_patterns = {
+        'price_lte': r'(duoi|toi da|max)\s*([0-9,.\s]+(?:tr|trieu|k)?)',
+        'price_gte': r'(tren|tu|min)\s*([0-9,.\s]+(?:tr|trieu|k)?)',
+        'price_exact': r'(?:gia|)\s*([0-9,.\s]+)\s*(tr|trieu|k)\b(?!\s*(?:duoi|tren|tu|min|toi da|max))'
+    }
+    
+    for key, pattern in price_patterns.items():
+        match = re.search(pattern, q)
+        if match:
+            if key == 'price_exact':
+                price_str = match.group(1) + match.group(2)
+                price_val = parse_price_string(price_str)
+            else:
+                price_val = parse_price_string(match.group(2))
+            
+            if price_val is not None: 
+                conditions[key] = price_val
+                q = re.sub(pattern, '', q).strip()
+                break
+    
+    # RAM pattern
+    ram_pattern = r'\b(\d+)\s*(?:g|gb)?\s*ram\b|\bram\s*(\d+)\s*(?:g|gb)\b'
+    ram_match = re.search(ram_pattern, q)
+    if ram_match:
+        for group in ram_match.groups():
+            if group and group.isdigit():
+                conditions['ram_gb'] = int(group)
+                break
+        q = re.sub(ram_pattern, '', q).strip()
+    
+    # Storage pattern  
+    storage_patterns = [
+        r'(\d+)\s*(?:g|gb)\s*(?:bo nho|luu tru)\b',
+        r'\b(?:bo nho|luu tru)\s*(\d+)\s*(?:g|gb)\b'
+    ]
+    
+    for pattern in storage_patterns:
+        storage_match = re.search(pattern, q)
+        if storage_match:
+            conditions['storage_gb'] = int(storage_match.group(1))
+            q = re.sub(pattern, '', q).strip()
+            break
+    
+    # Xử lý số GB còn lại
+    if 'storage_gb' not in conditions:
+        remaining_gb = re.search(r'\b(\d+)\s*(?:g|gb)\b', q)
+        if remaining_gb:
+            gb_value = int(remaining_gb.group(1))
+            if gb_value >= 32:
+                conditions['storage_gb'] = gb_value
+                q = re.sub(r'\b(\d+)\s*(?:g|gb)\b', '', q, count=1).strip()
+    
+    # Text search cho phần còn lại
+    q_clean = re.sub(r'\s+', ' ', q).strip()
+    if q_clean:
+        conditions['text_search'] = q_clean
+        
+    return conditions
+
+def ultimate_search_products(db: Session, q: str):
+    conditions = parse_master_query(q)
+    
+    # Giả sử tên model của bạn là ProductSearch
+    # và tên cột là ram, bonho, pin
+    query = db.query(Search) 
+
+    if 'price_exact' in conditions:
+        query = query.filter((Search.price >= conditions['price_exact'] - 500000) & (Search.price <= conditions['price_exact'] + 500000))
+    if 'price_lte' in conditions:
+        query = query.filter(Search.price <= conditions['price_lte'])
+    if 'price_gte' in conditions:
+        query = query.filter(Search.price >= conditions['price_gte'])
+
+    if 'phanloai' in conditions:
+        query = query.filter(Search.phanloai_vi == conditions['phanloai'])
+
+    if 'brand' in conditions:
+        query = query.filter(Search.brand == conditions['brand'])
+    # CẢI TIẾN b: Dùng đúng tên key đã tạo trong parser
+    if 'ram_gb' in conditions:
+        query = query.filter(Search.ram == conditions['ram_gb'])
+
+    if 'storage_gb' in conditions:
+        query = query.filter(Search.bonho == conditions['storage_gb'])  
+        
+    results = query.all()
+    return results
