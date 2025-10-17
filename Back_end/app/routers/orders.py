@@ -5,6 +5,10 @@ from app.models.orders import Order, OrderItem
 from app.models.product import Product
 from app.schemas.orders import OrderResponse
 from typing import List
+from app.models.user import User
+from app.dependencies.auth import get_current_user, require_admin
+
+from web_shop.Back_end.app.dependencies.auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -62,7 +66,10 @@ def get_orders(user_id: int, db: Session = Depends(get_db)):
 
 # ====================== 📍 POST /orders/{user_id} ======================
 @router.post("/{user_id}", response_model=OrderResponse)
-def create_order(user_id: int, db: Session = Depends(get_db)):
+def create_order(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
     """
     Tạo đơn hàng mới từ các sản phẩm được chọn trong giỏ hàng
     """
@@ -81,7 +88,7 @@ def create_order(user_id: int, db: Session = Depends(get_db)):
 
     # Tạo đơn hàng mới
     total_price = 0
-    order = Order(user_id=user_id, total_price=0, status="pending")
+    order = Order(user_id=user_id, total_price=0, status="pending", shipping_address="Địa chỉ mẫu", phone_number="0123456789", payment_method="Tiền mặt")
     db.add(order)
     db.commit()
     db.refresh(order)
