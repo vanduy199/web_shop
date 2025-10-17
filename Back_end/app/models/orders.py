@@ -1,3 +1,4 @@
+import select
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Float, String, func
 from sqlalchemy.orm import relationship
 from app.core.config import Base
@@ -5,7 +6,6 @@ from app.core.config import Base
 
 class Order(Base):
     __tablename__ = "orders"
-
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False)
     total_price = Column(Float, nullable=False, default=0)
@@ -30,3 +30,4 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     product = relationship("Product")
+

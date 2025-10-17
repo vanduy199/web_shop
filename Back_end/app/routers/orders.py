@@ -3,12 +3,11 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.config import SessionLocal
 from app.models.orders import Order, OrderItem
 from app.models.product import Product
-from app.schemas.orders import OrderResponse
+from app.schemas.orders import OrderResponse, OrderInput
 from typing import List
 from app.models.user import User
 from app.dependencies.auth import get_current_user, require_admin
 
-from web_shop.Back_end.app.dependencies.auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -22,15 +21,17 @@ def get_db():
 
 
 # ====================== 📍 GET /orders/{user_id} ======================
-@router.get("/{user_id}", response_model=List[OrderResponse])
-def get_orders(user_id: int, db: Session = Depends(get_db)):
+@router.get("/", response_model=List[OrderResponse])
+def get_orders(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)):
     """
     Lấy danh sách đơn hàng của 1 user (bao gồm sản phẩm bên trong)
     """
     orders = (
         db.query(Order)
         .options(joinedload(Order.items).joinedload(OrderItem.product))
-        .filter(Order.user_id == user_id)
+        .filter(Order.user_id == current_user.id)
         .order_by(Order.created_at.desc())
         .all()
     )
@@ -65,30 +66,30 @@ def get_orders(user_id: int, db: Session = Depends(get_db)):
 
 
 # ====================== 📍 POST /orders/{user_id} ======================
-@router.post("/{user_id}", response_model=OrderResponse)
+@router.post("/", response_model=OrderResponse)
 def create_order(
-    user_id: int,
+    input_order: OrderInput,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)):
-    """
-    Tạo đơn hàng mới từ các sản phẩm được chọn trong giỏ hàng
-    """
     from app.models.cart import Cart  # import tránh vòng lặp
 
+    carts = map(int, input_order.carts.split(','))
     # Lấy các sản phẩm được chọn trong giỏ hàng
-    cart_items = (
-        db.query(Cart)
-        .join(Product, Cart.product_id == Product.id)
-        .filter(Cart.user_id == user_id, Cart.selected == True)
-        .all()
-    )
+    cart_items = []
+    for cart in carts:
+        cart_selected = (
+            db.query(Cart)
+            .join(Product, Cart.product_id == Product.id)
+            .filter(Cart.user_id == current_user.id, Cart.selected == True, Cart.id == cart).first()
+        )
+        cart_items.append(cart_selected)
 
     if not cart_items:
         raise HTTPException(status_code=400, detail="Giỏ hàng trống")
 
     # Tạo đơn hàng mới
     total_price = 0
-    order = Order(user_id=user_id, total_price=0, status="pending", shipping_address="Địa chỉ mẫu", phone_number="0123456789", payment_method="Tiền mặt")
+    order = Order(user_id=current_user.id, total_price=0, status="pending", shipping_address=input_order.address, phone_number=input_order.phone, payment_method=input_order.pttt)
     db.add(order)
     db.commit()
     db.refresh(order)

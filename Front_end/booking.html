@@ -54,22 +54,15 @@
         
         <main>
             <div class="container booking">
-                <h1>ĐẶT LỊCH SỬA CHỮA</h1>
-                <div class="img_product">
-                    <img src="./assets/img/kinh-lung-ip-14.jpg" />
-                    <div>
-                        <p>Thay kính lưng iPhone 14 Pro Max</p>
-                        <p>Giá: <span class="price">1.000.000đ</span></p>
-                    </div>
-                </div>
+                <h1>THÔNG TIN MUA HÀNG</h1>
                 <p class="name_input">Thông tin khách hàng</p>
                 <form action="/submit_form">
-                    <label for="fname"></label>
+                    <label for="address"></label>
                     <input
                         type="text"
-                        id="fname"
-                        name="fullname"
-                        placeholder="Họ và tên (bắt buộc)"
+                        id="address"
+                        name="address"
+                        placeholder="Địa chỉ"
                         required
                     />
 
@@ -78,64 +71,24 @@
                         type="text"
                         id="phone"
                         name="phone"
-                        placeholder="Số điện thoại (bắt buộc)"
+                        placeholder="Số điện thoại"
                         required
                     />
 
-                    <label for="email"></label>
-                    <input
-                        type="text"
-                        id="email"
-                        name="email"
-                        placeholder="Email nhận hóa đơn (không bắt buộc)"
-                    />
-                    <p class="name_input">Thời gian hẹn trước:</p>
-                    <label for="time"></label>
-                    <input type="date" id="time" name="time" />
-
-                    <p class="name_input">Thông tin bổ sung</p>
-                    <label for="info"></label>
-                    <textarea
-                        name="infor"
-                        id="infor"
-                        cols="80"
-                        rows="10"
-                        placeholder="Ghi chú đơn hàng"
-                    ></textarea>
-
-                    <input type="submit" value="ĐẶT LỊCH" />
+                    <label for="pttt">Phương thức thanh toán</label>
+                    <select id="pttt" name="pttt">
+                        <option value="Thanh toán khi nhận hàng">Thanh toán khi nhận hàng</option>
+                        <option value="Thẻ ngân hàng">Thẻ ngân hàng</option>
+                        <option value="Ví trả sau">Thẻ tín dụng/ghi nợ</option>
+                        <option value="vi-dien-tu">Ví điện tử (Momo, ZaloPay, v.v.)</option>
+                    </select>
+                    <input type="submit" value="ĐẶT MUA" />
                 </form>
             </div>
         </main>
           <!-- Footer Placeholder -->
         <div id="footer-placeholder"></div>
-        <script>
-            var productName = localStorage.getItem("productName");
-            var productPrice = localStorage.getItem("productPrice");
-            var productImage = localStorage.getItem("productImage");
-
-            document.querySelector(".img_product img").src = productImage;
-
-            document.querySelector(".img_product div p").innerHTML =
-                productName;
-
-            document.querySelector(".price").innerHTML = productPrice;
-
-            // khi click vào nút đặt lịch
-            document.querySelector("form").addEventListener("submit", (e) => {
-                e.preventDefault();
-                alert("Đặt lịch thành công");
-                window.location.href = "index.html";
-            });
-
-            // Lấy ngày hiện tại điền vào input
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, "0");
-            var mm = String(today.getMonth() + 1).padStart(2, "0");
-            var yyyy = today.getFullYear();
-            today = yyyy + "-" + mm + "-" + dd;
-            document.getElementById("time").value = today;
-        </script>
+        <script src="./assets/js/booking.js"></script>
         <script src="./assets/js/include.js"></script>
         <script src="./assets/js/order.js"></script>
         <script src="./assets/js/search.js"></script>

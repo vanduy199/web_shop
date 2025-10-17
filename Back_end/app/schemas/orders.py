@@ -33,3 +33,9 @@ class OrderResponse(OrderBase):
     Schema chuẩn trả về cho API /orders/{user_id} và /orders POST
     """
     pass
+
+class OrderInput(BaseModel):
+    carts: str
+    address: str
+    pttt: str
+    phone: str

@@ -234,8 +234,15 @@ async function removeSelected() {
 function checkout() {
     const selected = Array.from(document.querySelectorAll(".select-item:checked"))
         .map(cb => cb.dataset.id);
-    if (selected.length === 0) return alert("Bạn chưa chọn sản phẩm nào!");
-    alert("Đặt hàng thành công với sản phẩm ID: " + selected.join(", "));
+    
+    if (selected.length >= 1) {
+        localStorage.removeItem("booked")
+        localStorage.setItem("booked",selected)
+        window.location.href = "booking.html";
+    }
+    else {
+        alert("Chưa chọn sản phẩm.")
+    }
 }
 
 function toggleSelectAll(source) {
