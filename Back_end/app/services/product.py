@@ -231,20 +231,18 @@ def normalize_vietnamese_string(text: str) -> str:
 
 def fuzzy_brand_match(text: str, threshold: float = 0.6) -> str | None:
     brand_variants = {
-        'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
-        'apple': ['apple', 'iphone', 'ipad', 'macbook', 'mac', 'ip'],
-        'oppo': ['oppo', 'op', 'opo'],
-        'vivo': ['vivo', 'vi vo', 'vv'],
-        'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
-        'realme': ['realme', 'real me', 'rm'],
-        'huawei': ['huawei', 'hua wei', 'hw'],
-        'dell': ['dell', 'de ll'],
-        'hp': ['hp', 'hewlett packard'],
-        'asus': ['asus', 'a sus'],
-        'acer': ['acer', 'a cer'],
-        'lenovo': ['lenovo', 'le no vo'],
-        'lg': ['lg', 'l g'],
-        'sony': ['sony', 'so ny']
+            'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
+            'macbook': ['apple', 'iphone', 'macbook', 'mac', 'ip'],
+            'ipad' : ['apple', 'iphone', 'ipad', 'ip'],
+            'oppo': ['oppo', 'op', 'opo'],
+            'vivo': ['vivo', 'vi vo', 'vv'],
+            'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
+            'realme': ['realme', 'real me', 'rm'],
+            'lenovo': ['lenovo'],
+            'anker': ['anker'],
+            'xmobile': ['xmobile'],
+            'ugreen': ['ugreen'],
+            'jbl': ['jbl']
     }
     
     text = normalize_vietnamese_string(text)
@@ -298,33 +296,35 @@ def parse_master_query(query: str) -> dict:
     q = normalize_vietnamese_string(query)
     original_q = q
     
-    # Xử lý loại sản phẩm
-    type_pattern = r'(dien thoai|laptop|may tinh bang|cap sac|tai nghe|du phong|flycam|tablet)'
-    type_match = re.search(type_pattern, q)
+    phanloai = r'(dien thoai|laptop|may tinh bang|cap sac|tai nghe|du phong|flycam|tablet)'
+    type_match = re.search(phanloai, q)
     if type_match:
         conditions['phanloai'] = type_match.group(1)
-        q = re.sub(type_pattern, '', q).strip()
+        q = re.sub(phanloai, '', q).strip()
 
-    # ✅ Xử lý brand với fuzzy matching
     brand = fuzzy_brand_match(original_q)
     if brand:
         conditions['brand'] = brand
-        # Xóa tất cả brand variants khỏi query
         brand_variants = {
             'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
-            'apple': ['apple', 'iphone', 'ipad', 'macbook', 'mac', 'ip'],
+            'macbook': ['apple', 'iphone', 'macbook', 'mac', 'ip'],
+            'ipad' : ['apple', 'iphone', 'ipad', 'ip'],
             'oppo': ['oppo', 'op', 'opo'],
             'vivo': ['vivo', 'vi vo', 'vv'],
             'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
             'realme': ['realme', 'real me', 'rm'],
-            'huawei': ['huawei', 'hua wei', 'hw'],
+            'lenovo': ['lenovo'],
+            'anker': ['anker'],
+            'xmobile': ['xmobile'],
+            'ugreen': ['ugreen'],
+            'jbl': ['jbl']
         }
         
         if brand in brand_variants:
             for variant in brand_variants[brand]:
                 q = re.sub(rf'\b{re.escape(variant)}\b', '', q, flags=re.IGNORECASE).strip()
 
-    # Xử lý giá
+
     price_patterns = {
         'price_lte': r'(duoi|toi da|max)\s*([0-9,.\s]+(?:tr|trieu|k)?)',
         'price_gte': r'(tren|tu|min)\s*([0-9,.\s]+(?:tr|trieu|k)?)',
@@ -343,9 +343,8 @@ def parse_master_query(query: str) -> dict:
             if price_val is not None: 
                 conditions[key] = price_val
                 q = re.sub(pattern, '', q).strip()
-                break
+                
     
-    # RAM pattern
     ram_pattern = r'\b(\d+)\s*(?:g|gb)?\s*ram\b|\bram\s*(\d+)\s*(?:g|gb)\b'
     ram_match = re.search(ram_pattern, q)
     if ram_match:
@@ -355,7 +354,6 @@ def parse_master_query(query: str) -> dict:
                 break
         q = re.sub(ram_pattern, '', q).strip()
     
-    # Storage pattern  
     storage_patterns = [
         r'(\d+)\s*(?:g|gb)\s*(?:bo nho|luu tru)\b',
         r'\b(?:bo nho|luu tru)\s*(\d+)\s*(?:g|gb)\b'
@@ -384,31 +382,71 @@ def parse_master_query(query: str) -> dict:
         
     return conditions
 
-def ultimate_search_products(db: Session, q: str):
+def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20,brand: Optional[str] = None,sort_price: Optional[str] = None):
     conditions = parse_master_query(q)
-    
-    # Giả sử tên model của bạn là ProductSearch
-    # và tên cột là ram, bonho, pin
-    query = db.query(Search) 
-
+    search_query = db.query(Search) 
+    len = search_query.count()
     if 'price_exact' in conditions:
-        query = query.filter((Search.price >= conditions['price_exact'] - 500000) & (Search.price <= conditions['price_exact'] + 500000))
+        pc = conditions['price_exact'] * 0.1
+        search_query = search_query.filter((Search.price >= conditions['price_exact'] - pc) & (Search.price <= conditions['price_exact'] + pc))
     if 'price_lte' in conditions:
-        query = query.filter(Search.price <= conditions['price_lte'])
+        search_query = search_query.filter(Search.price <= conditions['price_lte'])
     if 'price_gte' in conditions:
-        query = query.filter(Search.price >= conditions['price_gte'])
-
+        search_query = search_query.filter(Search.price >= conditions['price_gte'])
     if 'phanloai' in conditions:
-        query = query.filter(Search.phanloai_vi == conditions['phanloai'])
-
+        search_query = search_query.filter(Search.phanloai_vi == conditions['phanloai'])
     if 'brand' in conditions:
-        query = query.filter(Search.brand == conditions['brand'])
-    # CẢI TIẾN b: Dùng đúng tên key đã tạo trong parser
+        search_query = search_query.filter(Search.brand == conditions['brand'])
     if 'ram_gb' in conditions:
-        query = query.filter(Search.ram == conditions['ram_gb'])
-
+        search_query = search_query.filter(Search.ram == conditions['ram_gb'])
     if 'storage_gb' in conditions:
-        query = query.filter(Search.bonho == conditions['storage_gb'])  
-        
-    results = query.all()
-    return results
+        search_query = search_query.filter(Search.bonho == conditions['storage_gb'])  
+    
+    if 'text_search' in conditions:
+        search_text = f"%{conditions['text_search']}%"
+        if search_text:
+            b = search_query.filter(Search.name.ilike(search_text))
+            if b.count() != 0:
+                search_query = b
+            else:
+                if search_query.count() == len:
+                    search_query = b
+    search_subquery = search_query.with_entities(Search.id).subquery()
+    now = datetime.now()
+    present_abs = (
+        db.query(Product, Abs)
+        .outerjoin(
+            Abs,
+            (Abs.product_id == Product.id) & (Abs.start_time <= now) & (Abs.end_time >= now)
+        )
+        .filter(Product.id.in_(search_subquery))
+    )
+
+    if brand:
+        present_abs = present_abs.filter(Product.brand == brand)
+
+    if sort_price == "asc":
+        present_abs = present_abs.order_by(Product.price.asc())
+    elif sort_price == "desc":
+        present_abs = present_abs.order_by(Product.price.desc())
+
+    length = present_abs.count()
+    present_abs = present_abs.offset((page - 1) * limit).limit(limit)
+    pageView = []
+    for product_obj, abs_obj in present_abs.all():
+        if product_obj.phanloai == "laptop" and "(" in product_obj.name:
+            product_obj.name = product_obj.name.split("(")[0]
+        pageView.append(
+            OutPutAbs(
+                id=product_obj.id, name=product_obj.name, price=product_obj.price,
+                thumb=product_obj.thumb, main_image=product_obj.main_image, phanloai=product_obj.phanloai,
+                brand=product_obj.brand, release_date=product_obj.release_date,
+                percent_abs=abs_obj.percent_abs if abs_obj else 0,
+                start_time=abs_obj.start_time if abs_obj else None, end_time=abs_obj.end_time if abs_obj else None,
+            )
+        )
+    result = OutPutPage(
+        show_product=pageView,
+        remainingQuantity= max(0,length - page*limit) 
+    )
+    return (length, result)
