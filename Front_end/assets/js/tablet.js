@@ -41,7 +41,6 @@ async function fetchProducts(append = false) {
         if (data.remainingQuantity === 0 && append) {
             document.getElementById("view-more").style.display = "none";
             console.log("No more products to load");
-            return;
         }
         
         const viewMoreP = document.querySelector("#view-more strong");

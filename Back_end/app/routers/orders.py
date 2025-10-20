@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.config import SessionLocal
 from app.models.orders import Order, OrderItem
 from app.models.product import Product
+from app.models.user_activity import UserActivity
 from app.schemas.orders import OrderResponse, OrderInput
 from typing import List
 from app.models.user import User
@@ -106,7 +107,16 @@ def create_order(
             price=price
         )
         db.add(order_item)
-        db.delete(cart)  # Xóa sản phẩm đã đặt khỏi giỏ hàng
+        db.delete(cart) # xóa rỏ hàng của sản phẩm vừa order
+        
+        activity = UserActivity (
+            user_id = current_user.id,
+            product_id = cart.product_id,
+            action = "Order"
+        )
+        db.add(activity)
+
+
 
     order.total_price = total_price
     db.commit()

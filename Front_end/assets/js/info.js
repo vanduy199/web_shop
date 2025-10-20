@@ -1,9 +1,5 @@
-//render ở trang info.html
-var productName = localStorage.getItem("productName");
+
 var productId = localStorage.getItem("productId");
-var productImage = localStorage.getItem("productImage");
-var productPrice = localStorage.getItem("productPrice");
-var productPrice2 = productPrice.replace(/\n/g, "");
 
 let name1 = "Samsung Galaxy S24 5G 8GB/256GB";
 async function fetchProducts(id = null) {
@@ -15,7 +11,6 @@ async function fetchProducts(id = null) {
         const products = data;
         var headingInfo = document.querySelector(".info__heading");
         headingInfo.innerText = products.name;
-        console.log(products.id)
         var breadcrumbInfo = document.querySelector(".info__heading");
         breadcrumbInfo.innerText = products.name;
 
@@ -133,21 +128,18 @@ var swiper = new Swiper(".mySwiper", {
 });
 const API_BASE = "http://127.0.0.1:8000/cart";
 
-// 🟢 Lấy token từ localStorage
-const token = localStorage.getItem("access_token"); // DÙNG access_token
 
-// 🟢 Headers cho tất cả request
+const token = localStorage.getItem("access_token"); 
+
 const headers = token
   ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
   : { "Content-Type": "application/json" };
-
-// 🟢 Không cần userId cố định — backend lấy từ token
 const userId = null;
 async function addToCart(productId, quantity = 1) {
     try {
         console.log("Thêm vào giỏ:", productId, quantity);
 
-        // 🟢 Đảm bảo URL là /cart/ cho POST
+        // Đảm bảo URL là /cart/ cho POST
         const res = await fetch(`${API_BASE}/`, { 
             method: "POST",
             headers: headers, 
@@ -159,8 +151,6 @@ async function addToCart(productId, quantity = 1) {
 
         let data = null;
         try { data = await res.json(); } catch (e) { /* Lỗi khi phản hồi không phải JSON */ }
-
-        // 🟢 HIỂN THỊ MÃ LỖI RÕ RÀNG
         if (!res.ok) {
             console.error("Thêm thất bại:", res.status, data);
             
@@ -174,7 +164,6 @@ async function addToCart(productId, quantity = 1) {
 
         console.log("Thêm thành công:", data);
         
-        // 🟢 Gọi loadCart nếu nó tồn tại (thường là trong cart.js)
         if (typeof loadCart === 'function') {
             await loadCart();
         }
@@ -186,3 +175,62 @@ async function addToCart(productId, quantity = 1) {
     }
 }
 
+
+// ✅ FIXED: Activity tracking
+const API_ACTIVITY = "http://127.0.0.1:8000/activity/";
+
+
+async function activity(productId) {
+    try {
+        // ❌ FIX 1: Kiểm tra productId
+        if (!productId) {
+            console.warn("No productId provided for activity tracking");
+            return;
+        }
+
+        console.log("Tracking activity for product:", productId);
+
+        // ❌ FIX 2: URL đúng - không có "/" thừa ở cuối
+        const res = await fetch(API_ACTIVITY, { 
+            method: "POST",
+            headers: headers, 
+            body: JSON.stringify({
+                product_id: Number(productId),
+                action: "click"
+            }),
+        });
+
+        // ❌ FIX 3: Parse JSON an toàn
+        let data = null;
+        try { 
+            data = await res.json(); 
+        } catch (e) { 
+            console.warn("Response is not JSON:", e);
+        }
+
+        // ❌ FIX 4: Xử lý lỗi đúng
+        if (!res.ok) {
+            const errorMessage = data?.detail || `HTTP ${res.status}`;
+            console.error("Activity tracking failed:", errorMessage);
+            // Không alert vì đây là background task, không cần thông báo user
+            return;
+        }
+
+        console.log("Activity tracked successfully:", data);
+
+    } catch (err) {
+        console.error("Network or JS error in activity:", err);
+        // Không alert vì đây là background task
+    }
+}
+
+// ❌ FIX 5: Gọi activity sau khi DOM ready và có productId
+var productId = localStorage.getItem("productId");
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (productId) {
+        activity(productId);
+    } else {
+        console.warn("No productId found in localStorage");
+    }
+});

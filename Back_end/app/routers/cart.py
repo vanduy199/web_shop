@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from typing import List, Optional
-
+from app.models.user_activity import UserActivity
 from app.core.config import SessionLocal
 from app.models.cart import Cart
 from app.models.product import Product, Abs
 from app.models.user import User
 from app.schemas.cart import CartCreate, CartUpdate, CartResponse
+from app.schemas.user_activity import UserActivitySchema, OutActivity
 from app.dependencies.auth import get_current_user, require_admin
-
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
 # ================== DEPENDENCY ==================
@@ -117,6 +117,14 @@ def add_to_cart(
     price = product.price
     if abs:
         price = int(product.price * (100 - abs.percent_abs) / 100)
+
+    activity = UserActivity (
+        user_id = current_user.id,
+        product_id= product.id,
+        action = "Cart"
+    )
+    db.add(activity)
+    db.commit()
 
     return CartResponse(
         id=cart.id,
