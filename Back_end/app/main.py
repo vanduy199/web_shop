@@ -3,13 +3,17 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles  # ✅ thêm dòng này
 from app.core.security import decode_access_token
 
 from app.routers import router as api_router, user as user_router, user_activity, authentication
 from app.routers import orders
+from app.routers import guest_router
+
 app = FastAPI(title="Product & ABS API")
 
 bearer_scheme = HTTPBearer()
+
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     token = credentials.credentials
     # decode JWT
@@ -39,16 +43,23 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
+# ---- Cấu hình CORS ----
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # cho phép mọi nguồn (FE nào cũng gọi được)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ✅ Mount static để xem ảnh được trực tiếp
+# Truy cập URL kiểu: http://localhost:8000/static/support_files/<file>.png
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# ---- Đăng ký router ----
 app.include_router(api_router)
 app.include_router(user_router.router, tags=["Users"])
 app.include_router(user_activity.router)
 app.include_router(authentication.router, tags=["Login"])
 app.include_router(orders.router, tags=["Orders"])
+app.include_router(guest_router.router)

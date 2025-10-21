@@ -15,5 +15,19 @@ class User(Base):
     role = Column(String(50), default="USER")
     created_at = Column(DateTime, server_default=func.now())
 
+  
     activity = relationship("UserActivity", back_populates="owner")
     carts = relationship("Cart", back_populates="user", cascade="all, delete-orphan")
+    submitted_tickets = relationship(
+        "SupportTicketModel",
+        foreign_keys="[SupportTicketModel.user_id]",
+        back_populates="requester",
+        cascade="all, delete-orphan"
+    )
+ 
+    sent_messages = relationship(
+        "SupportMessageModel",
+        foreign_keys="[SupportMessageModel.sender_id]",
+        back_populates="sender", 
+        cascade="all, delete-orphan"
+    )

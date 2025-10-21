@@ -517,3 +517,41 @@ main {
 .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
 .admin-actions { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 15px; }
 .btn-primary { padding: 8px 15px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+.offset-2.item-content{
+  margin-left: 255px;   /* khớp với width .sidebar */
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+.msg-preview {
+  display: inline-block;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+img.tn {
+  max-width: 40px;
+  max-height: 40px;
+  object-fit: cover;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.support-attachment {
+  max-width: 920px;
+  max-height: 360px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  display: block;
+}
+/* Đặt modal luôn nổi cao hơn overlay tự làm */
+.modal            { z-index: 20000; }
+.modal-backdrop   { z-index: 19900; }
+#ticketModal .text-muted {
+  font-size: 1.7rem;
+  color: #333;
+  font-weight: 600;
+}
+

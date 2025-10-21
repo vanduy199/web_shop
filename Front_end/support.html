@@ -135,19 +135,19 @@
 								<form id="support-form" class="row g-3">
 									<div class="col-md-6">
 										<label class="form-label">Họ tên</label>
-										<input type="text" class="form-control" id="support-name" required />
+										<input type="text" class="form-control" id="support-name" name="support-name" required />
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Email</label>
-										<input type="email" class="form-control" id="support-email" required />
+										<input type="email" class="form-control" id="support-email" name="support-email" required />
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Số điện thoại</label>
-										<input type="tel" class="form-control" id="support-phone" />
+										<input type="tel" class="form-control" id="support-phone" name="support-phone" />
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Loại vấn đề</label>
-										<select class="form-select" id="support-type">
+										<select class="form-select" id="support-type" name="support-type">
 											<option>Đơn hàng</option>
 											<option>Tài khoản</option>
 											<option>Thanh toán</option>
@@ -157,11 +157,11 @@
 									</div>
 									<div class="col-12">
 										<label class="form-label">Mô tả</label>
-										<textarea class="form-control" rows="4" id="support-desc" placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
+										<textarea class="form-control" rows="4" id="support-desc" name="support-desc" placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
 									</div>
 									<div class="col-12">
 										<label class="form-label">Ảnh đính kèm</label>
-										<input type="file" class="form-control" id="support-file" accept="image/*" />
+										<input type="file" class="form-control" id="support-file" name="support-file" accept="image/*" />
 									</div>
 									<div class="col-12">
 										<button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
@@ -220,17 +220,6 @@
 		<script src="./assets/js/app.js"></script>
 		<script src="./assets/js/user.js"></script>
 		<script src="./assets/js/search.js"></script>
-		<script>
-			// Support form mock handler
-			document.getElementById('support-form')?.addEventListener('submit', function (e) {
-				e.preventDefault();
-				const fb = document.getElementById('support-feedback');
-				if (fb) {
-					fb.style.display = 'inline';
-					setTimeout(() => (fb.style.display = 'none'), 4000);
-				}
-				this.reset();
-			});
-		</script>
+		<script src="./assets/js/support.js"></script>
 	</body>
  </html>
