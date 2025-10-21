@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
 from app.core.config import SessionLocal
-from app.models.support import SupportTicketModel, SupportMessageModel
-from app.schemas.support import TicketDetailSchema, TicketUpdate, SupportMessageCreate, SupportMessageDetail, FullTicketDetail,TicketSummary
+from app.models.support import SupportTicketModel
+from app.schemas.support import TicketDetailSchema, TicketUpdate, FullTicketDetail,TicketSummary
 from app.dependencies.auth import require_admin 
 from app.models.user import User 
 
@@ -31,7 +31,7 @@ def get_tickets_summary(
 
     tickets = (
         q.options(
-            joinedload(SupportTicketModel.requester),  # lấy info người gửi
+            joinedload(SupportTicketModel.requester),  
         )
         .order_by(SupportTicketModel.created_at.desc())
         .all()
@@ -56,6 +56,7 @@ def get_tickets_summary(
 @router.get("/tickets/{ticket_id}", response_model=FullTicketDetail)
 def get_ticket_detail(
     ticket_id: int,
+    payload: TicketUpdate,  
     db: Session = Depends(get_db),
     admin_user: User = Depends(require_admin),
 ):
@@ -74,7 +75,7 @@ def get_ticket_detail(
     if not ticket:
         raise HTTPException(status_code=404, detail="Không tìm thấy ticket.")
 
-    # Sắp xếp tin nhắn theo thời gian tạo (nếu muốn)
+   
     msgs = ticket.messages
 
     return FullTicketDetail(
@@ -128,8 +129,7 @@ def update_ticket_status_admin(
     db.commit()
     db.refresh(ticket)
 
-    msgs = sorted(ticket.messages, key=lambda m: m.created_at)
-
+    msgs = ticket.messages
     return FullTicketDetail(
         detail=TicketDetailSchema.model_validate(ticket),
         messages=[m.message for m in msgs],

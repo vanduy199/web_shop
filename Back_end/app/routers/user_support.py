@@ -11,10 +11,9 @@ from app.schemas.support import SupportTicketResponse
 
 router = APIRouter(prefix="/api/support", tags=["User Support"])
 
-DEFAULT_GUEST_ID = 99999999  # ID mặc định cho khách ẩn danh
-UPLOAD_DIR = "app/static/support_files"  # thư mục lưu file thực tế
+DEFAULT_GUEST_ID = 99999999  
+UPLOAD_DIR = "app/static/support_files" 
 
-# --- DB session dependency ---
 def get_db():
     db = SessionLocal()
     try:
@@ -22,7 +21,6 @@ def get_db():
     finally:
         db.close()
 
-# --- Lưu file thật và trả về đường dẫn tĩnh ---
 async def save_uploaded_file(file: Optional[UploadFile]) -> Optional[str]:
     if not file or not file.filename:
         return None
@@ -33,7 +31,6 @@ async def save_uploaded_file(file: Optional[UploadFile]) -> Optional[str]:
     # ghi file
     with open(abs_path, "wb") as f:
         f.write(await file.read())
-    # trả về path tĩnh (sẽ ghép với base_url để thành full URL)
     return f"/static/support_files/{unique_name}"
 
 # --- API GỬI YÊU CẦU HỖ TRỢ ---
@@ -55,9 +52,9 @@ async def submit_support_request(
 ):
     user_id = current_user.id if current_user else DEFAULT_GUEST_ID
 
-    # Lưu file thật và tạo URL công khai
-    rel_path = await save_uploaded_file(support_file)  # ví dụ: /static/support_files/xxxx.png
-    base_url = str(request.base_url).rstrip("/")       # ví dụ: http://localhost:8000
+    # Lưu file và tạo URL
+    rel_path = await save_uploaded_file(support_file)  
+    base_url = str(request.base_url).rstrip("/")      
     attachment_url = f"{base_url}{rel_path}" if rel_path else None
 
     # Tạo message trước
@@ -88,7 +85,6 @@ async def submit_support_request(
     db.commit()
     db.refresh(new_ticket)
 
-    # Gán ticket_id cho message
     new_message.ticket_id = new_ticket.id
     db.add(new_message)
     db.commit()

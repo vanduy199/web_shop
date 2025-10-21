@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles  # ✅ thêm dòng này
+from fastapi.staticfiles import StaticFiles 
 from app.core.security import decode_access_token
 
 from app.routers import router as api_router, user as user_router, user_activity, authentication
@@ -52,11 +52,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Mount static để xem ảnh được trực tiếp
-# Truy cập URL kiểu: http://localhost:8000/static/support_files/<file>.png
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# ---- Đăng ký router ----
 app.include_router(api_router)
 app.include_router(user_router.router, tags=["Users"])
 app.include_router(user_activity.router)
