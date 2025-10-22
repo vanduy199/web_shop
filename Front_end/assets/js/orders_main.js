@@ -53,21 +53,20 @@ function renderOrders(orders) {
             <tr data-id="${order.id}">
                 <td>#${order.id}</td>
                 <td>${date}</td>
-                <td>${order.user_id}</td>
+                <td>${order.phone_number}</td>
                 <td>
                     <select class="form-select form-select-sm order-status" data-id="${order.id}">
                         ${getStatusOptions(status)}
                     </select>
                 </td>
+                <td>${order.payment_method}</td>
+                <td>${order.shipping_address}</td>
+                <td>${total}</td>
                 <td>
                     <button class="btn btn-sm btn-primary update-status-btn" data-id="${order.id}">
                         Cập nhật
                     </button>
                 </td>
-                <td>${order.payment_method}</td>
-                <td>${order.shipping_address}</td>
-                <td>${total}</td>
-                <td>${date}</td>
             </tr>`;
     });
 

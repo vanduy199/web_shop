@@ -25,6 +25,9 @@ class OrderBase(BaseModel):
     total_price: float
     status: str
     created_at: datetime
+    payment_method: Optional[str] = None
+    shipping_address: Optional[str] = None
+    phone_number: Optional[str] = None
     items: List[OrderItemBase] = []
 
     model_config = ConfigDict(from_attributes=True)

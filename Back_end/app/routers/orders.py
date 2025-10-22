@@ -214,5 +214,4 @@ def get_all_orders(
             "shipping_address": order.shipping_address,
             "phone_number": order.phone_number,
         })
-
     return result
