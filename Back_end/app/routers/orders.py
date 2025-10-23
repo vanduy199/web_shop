@@ -164,7 +164,12 @@ def create_order(
     return order
 # ====================== 📍 PUT /orders/{order_id}/status ======================
 @router.put("/{order_id}/status")
-def update_order_status(order_id: int, status: str, db: Session = Depends(get_db)):
+def update_order_status(
+        order_id: int, 
+        status: str, 
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
    # Kiểm tra quyền admin
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Không có quyền truy cập")

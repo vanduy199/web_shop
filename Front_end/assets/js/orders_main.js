@@ -89,7 +89,9 @@ async function updateOrderStatus(e) {
         const res = await fetch(`${api}/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+
             }
         });
 
