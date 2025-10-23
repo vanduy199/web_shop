@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Sau khi load header, khởi tạo lại các script cần thiết
             initializeHeaderScripts();
 
+            // Load search.js AFTER header is loaded
+            loadSearchScript();
+
             // Khởi tạo hiển thị người dùng: render từ cache trước, rồi refresh API
             if (typeof initUserHeader === 'function') {
                 initUserHeader();
@@ -51,10 +54,28 @@ function initializeHeaderScripts() {
             link.classList.add('active');
         }
     });
-    
-    // Search functionality (nếu cần)
-    const searchInput = document.getElementById('search-product');
-    if (searchInput) {
-        // Thêm logic search ở đây nếu cần
-    }
+}
+
+// Load search.js dynamically
+function loadSearchScript() {
+    const script = document.createElement('script');
+    script.src = './assets/js/search.js';
+    script.onload = function() {
+        console.log('search.js loaded successfully');
+    };
+    script.onerror = function() {
+        console.error('Error loading search.js');
+    };
+    document.body.appendChild(script);
+}
+function loadSearchInfo() {
+    const script = document.createElement('script');
+    script.src = './assets/js/search-results.js';
+    script.onload = function() {
+        console.log('search-results.js loaded successfully');
+    };
+    script.onerror = function() {
+        console.error('Error loading search-results.js');
+    };
+    document.body.appendChild(script);
 }

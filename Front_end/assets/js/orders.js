@@ -1,14 +1,22 @@
 const tbody = document.querySelector(".order__content");
-const API_BASE = "http://127.0.0.1:8000/orders";
-const userId = 1; // sau này có thể lấy từ localStorage sau khi login
+const API_BASE = "http://127.0.0.1:8000/orders/";
+const token = localStorage.getItem("access_token");
 
 // 🧩 Hàm load danh sách đơn hàng
 async function loadOrders() {
     try {
-        const res = await fetch(`${API_BASE}/${userId}`);
+        const res = await fetch(API_BASE,
+            {
+                method: 'GET',
+                headers: {
+                    "Authorization": `Bearer ${token}` 
+                }
+            }
+        );
         if (!res.ok) throw new Error("Không thể tải đơn hàng từ server");
 
         let orders = await res.json();
+        console.log(orders)
         if (!Array.isArray(orders)) orders = orders ? [orders] : [];
 
         tbody.innerHTML = "";

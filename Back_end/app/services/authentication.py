@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.schemas import LoginSchema, TokenSchema, TokenData
-from app.crud import user as user_crud
+from app.repositories import user_repository as user_repo
 from app.models.user import User
 from app.core.config import SessionLocal
 
@@ -16,10 +16,10 @@ def get_db():
         db.close()
 
 def authenticate_user(db: Session, phone: str, password: str):
-    user = user_crud.get_user_by_phone(db, phone)
+    user = user_repo.get_by_phone(db, phone)
     if not user:
         return None
-    if not user_crud.verify_password(password, user.password_hash):
+    if not user_repo.verify_password(password, user.password_hash):
         return None
     return user
 

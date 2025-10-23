@@ -1,7 +1,9 @@
 from fastapi import  APIRouter, HTTPException, Depends
 from app.core.config import SessionLocal
 from app.models.user_activity import UserActivity
-from app.schemas.user_activity import UserActivitySchema, InputUserActivity
+from app.models.user import User
+from app.dependencies.auth import get_current_user, require_admin
+from app.schemas.user_activity import UserActivitySchema, OutActivity
 from sqlalchemy.orm import Session
 from typing import List, Optional
 def get_db():
@@ -14,22 +16,20 @@ def get_db():
 router = APIRouter(prefix="/activity", tags=["Activity"])
 
 @router.post("/")
-def post_activity(a: InputUserActivity,db: Session = Depends(get_db)):
-    user_ac = []
-    for i in a.activities:
-        x = UserActivity(**i.model_dump())
-        user_ac.append(x)
-    db.add_all(user_ac)
+def post_activity(a: UserActivitySchema,db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    x = UserActivity(
+        user_id = current_user.id,
+        product_id = a.product_id,
+        action = a.action
+    )
+    db.add(x)
     db.commit()
     return {
         "message" : "ok"
     }
-@router.get("/",response_model=List[UserActivitySchema])
-def get_user_activity(id: Optional[int] = None, db: Session = Depends(get_db)):
-    if not id:
-        data = db.query(UserActivity).all()
-    else:
-        data = db.query(UserActivity).filter(UserActivity.user_id == id).all()
+@router.get("/",response_model=List[OutActivity])
+def get_user_activity(db: Session = Depends(get_db),current_user: User = Depends(require_admin)):
+    data = db.query(UserActivity).all()
     return data
 
     

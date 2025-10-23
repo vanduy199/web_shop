@@ -1,107 +1,118 @@
 let products = [];
 let filteredProducts = [];
 let page = 1;
-let baseUrl = "http://127.0.0.1:8000/api/abs";
-
+let baseUrl = "http://127.0.0.1:8000/api/search";
+const urlParams = new URLSearchParams(window.location.search);
+const query = urlParams.get('q') || '';
+const myInput = document.getElementById("search-product");
+myInput.value = query;
 // Function để build URL với param
-function getUrlWithParams(type, pageNum, price, brand, sortPrice) {
-    let url = `${baseUrl}?type=${type}&page=${pageNum}`;
-    if (price) url += `&price=${price}`;
-    if (brand && brand !== "all") url += `&brand=${brand}`;
+function getUrlWithParams(q, pageNum, sortPrice) {
+    let url = `${baseUrl}?q=${encodeURIComponent(q)}&page=${pageNum}`;
     if (sortPrice) url += `&sort_price=${sortPrice}`;
     return url;
 }
 
 // Function để get current filter values
 function getCurrentFilters() {
-    const priceFilter = document.querySelector('input[name="priceFilter"]:checked').value;
-    const brandFilter = document.querySelector('input[name="brandFilter"]:checked').value;
-    const sortPrice = document.querySelector('#sortPrice').value;
-    
-    // Map priceFilter to API value
-    let price = null; 
-    if (priceFilter === "under10") price = 1;
-    else if (priceFilter === "10to20") price = 2;
-    else if (priceFilter === "over20") price = 3;
-    
-    return { price, brand: brandFilter, sortPrice };
+    const sortPrice = document.querySelector('#sortPrice')?.value || '';
+    return { sortPrice };
 }
 
 async function fetchProducts(append = false) {
+    if (!query) {
+        console.error('No search query provided');
+        return;
+    }
+
     const filters = getCurrentFilters();
-    const url = getUrlWithParams("tablet", page, filters.price, filters.brand, filters.sortPrice);
+    const url = getUrlWithParams(query, page, filters.sortPrice);
     
     try {
+        console.log('Fetching from:', url);
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data = await response.json();
         
-        if (data.remainingQuantity === 0 && append) {
-            document.getElementById("view-more").style.display = "none";
-            console.log("No more products to load");
+        const json_data = await response.json();
+        console.log('API Response:', json_data);
+        
+        // ✅ FIXED: Đúng cấu trúc data
+        let productList = json_data.show_product?.show_product || [];
+        const totalCount = json_data.number || 0;
+        
+        // Cập nhật số kết quả
+        const resultsCount = document.getElementById("results-count");
+        if (resultsCount) {
+            resultsCount.innerHTML = totalCount;
         }
         
-        const viewMoreP = document.querySelector("#view-more strong");
-        if (viewMoreP) {
-            if (data.remainingQuantity > 0) {
-                viewMoreP.innerText = `Xem thêm ${data.remainingQuantity} sản phẩm`;
-                document.getElementById("view-more").style.display = "block";
-            } else {
-                document.getElementById("view-more").style.display = "none";
+        // Cập nhật query hiển thị
+        const searchQueryDisplay = document.getElementById("search-query-display");
+        if (searchQueryDisplay) {
+            searchQueryDisplay.innerHTML = `"<strong>${query}</strong>"`;
+        }
+        
+        // ✅ FIXED: Kiểm tra xem có sản phẩm nào không
+        if (!productList || productList.length === 0) {
+            if (!append) {
+                renderNoResults();
             }
+            document.getElementById("view-more").style.display = "none";
+            console.log("No products found");
+            return;
         }
         
         if (append) {
-            // Append sản phẩm mới (đã được back-end filter/sort)
-            filteredProducts = [...filteredProducts, ...data.show_product];
-            renderProducts(data.show_product, true);
+            // Append sản phẩm mới
+            filteredProducts = [...filteredProducts, ...productList];
+            renderProducts(productList, true);
         } else {
             // Load ban đầu
-            products = data.show_product;
-            filteredProducts = data.show_product;
+            products = productList;
+            filteredProducts = [...productList];
             renderProducts(filteredProducts, false);
         }
         
-        console.log("Products loaded:", products);
-        console.log("Filtered Products:", filteredProducts);
+        // ✅ FIXED: Không còn remainingQuantity, chỉ kiểm tra độ dài
+        document.getElementById("view-more").style.display = 
+            productList.length < 20 ? "none" : "block";
+        
+        console.log("Products loaded:", products.length);
+        console.log("Filtered Products:", filteredProducts.length);
     } catch (error) {
         console.error("Error fetching products:", error);
-        alert("Không tải được sản phẩm!");
+        alert("Không tải được sản phẩm! " + error.message);
     }
 }
 
 function renderProducts(products, append = false) {
     const phonesList = document.getElementById("phones-list");
     if (!append) {
-        phonesList.innerHTML = "";  // Chỉ xóa nếu không append
+        phonesList.innerHTML = "";
     }
 
     const htmls = products
-        .filter(product => product.percent_abs >= 0)  // Back-end đã filter, nhưng giữ để an toàn
+        .filter(product => product && product.price)
         .map(function (product) {
-            var now = new Date();
-            var end = new Date(product.end_time);
-            var diffMs = end - now;
-
-            var timeLeft = "Hết hạn";
-            if (diffMs > 0) {
-                var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                var diffHours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-                var diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
-                timeLeft = `${diffDays} ngày ${diffHours} giờ ${diffMinutes} phút`;
-            }
-
             var price = Number(product.price) || 0;
             var percent = Number(product.percent_abs) || 0;
-            var priceSale = new Intl.NumberFormat("de-DE", {
+            var discountedPrice = price - (percent / 100) * price;
+            
+            var priceSale = new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
-            }).format(price - (percent / 100) * price);
-            if (product.percent_abs > 0) {
+            }).format(discountedPrice);
+            
+            var originalPrice = new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+            }).format(price);
+            
+ if (product.percent_abs > 0) {
                 return `
-                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                    <div class="col-product-5">
                         <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
@@ -126,7 +137,7 @@ function renderProducts(products, append = false) {
             }
             else {
                 return `
-                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                    <div class="col-product-5">
                         <div class="product__item" data-id="${product.id}">
                             <div class="product__media">
                                 <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
@@ -163,12 +174,12 @@ function renderProducts(products, append = false) {
     var productItems = document.querySelectorAll(".product__item");
     productItems.forEach(function (item) {
         item.addEventListener("click", function () {
-            var productId = item.getAttribute("data-id")
+            var productId = item.getAttribute("data-id");
             var productName = item.querySelector(".product__info h3").innerText;
             var productImage = item.querySelector(".product__media-img").src;
-            var productPrice = item.querySelector(".product__price span:first-child").innerText;
+            var productPrice = item.querySelector(".product__price").innerText;
             var productPrice2 = productPrice.replace(/[^0-9]/g, "");
-            // Loại bỏ ký tự không phải số
+            
             localStorage.setItem("productId", productId);
             localStorage.setItem("productName", productName);
             localStorage.setItem("productImage", productImage);
@@ -178,21 +189,35 @@ function renderProducts(products, append = false) {
     });
 }
 
-function applyFilters() {
-    // Reset page về 1 khi filter/sort thay đổi
-    page = 1;
-    fetchProducts(false);  // Fetch lại từ đầu với filter mới
+function renderNoResults() {
+    const phonesList = document.getElementById("phones-list");
+    phonesList.innerHTML = `
+        <div class="no-results text-center" style="grid-column: 1/-1; padding: 40px;">
+            <div style="font-size: 48px;">🔍</div>
+            <h3>Không tìm thấy sản phẩm</h3>
+            <p>Từ khóa tìm kiếm "<strong>${query}</strong>" không có kết quả</p>
+            <a href="index.html" class="btn btn-primary mt-3">Quay lại trang chủ</a>
+        </div>
+    `;
 }
 
-// Sự kiện thay đổi bộ lọc và sắp xếp
+function applyFilters() {
+    page = 1;
+    fetchProducts(false);
+}
+
+// Event listeners
 document.querySelectorAll('input[name="priceFilter"], input[name="brandFilter"], #sortPrice').forEach(input => {
-    input.addEventListener("change", applyFilters);
+    input?.addEventListener("change", applyFilters);
 });
+
+const viewMoreBtn = document.getElementById("view-more");
+if (viewMoreBtn) {
+    viewMoreBtn.onclick = function () {
+        page += 1;
+        fetchProducts(true);
+    }
+}
 
 // Load sản phẩm ban đầu
 fetchProducts(false);
-
-document.getElementById("view-more").onclick = function () {
-    page += 1;
-    fetchProducts(true);
-}

@@ -60,15 +60,18 @@ def get_abs(type: Optional[str] = None, page: int = 1, limit: int = 20,brand: Op
 
 # -------------------- SMART SEARCH --------------------
 
-@router.get("/search/", response_model=List[ProductSearchResult])
+@router.get("/search/",response_model=ProductSearchResult)
 def search_products(
-    q: str = Query(..., min_length=2, description="Từ khóa tìm kiếm"),
-    db: DBSession = Depends(get_db)
+    db: DBSession = Depends(get_db),
+    q: str = Query(..., description="Từ khóa tìm kiếm"),
+    page: int = 1, limit: int = 20,brand: Optional[str] = None,sort_price: Optional[str] = None
 ):
-    results = product_service.smart_search_products(db, q)
-    
+    length, results = product_service.ultimate_search_products(db, q,page = page, limit = limit, brand = brand, sort_price = sort_price)
     if not results:
-        # Nếu không có kết quả, trả về list rỗng
-        return []
-        
-    return results
+        results = []
+    output = ProductSearchResult(
+        title = q,
+        number = length,
+        show_product=results
+    )
+    return output

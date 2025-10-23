@@ -288,6 +288,50 @@
                     </table>
                 </div>
 
+                <!-- Khách Hàng -->
+                <div class="item-pane customers-management">
+                    <div class="container py-3">
+                        <h2 class="section__heading">DANH SÁCH KHÁCH HÀNG</h2>
+                        <div class="row g-2 align-items-end mt-2 mb-3">
+                            <div class="col-sm-4">
+                                <label class="form-label">Sắp xếp theo</label>
+                                <select id="users-sort-by" class="form-select">
+                                    <option value="name">Tên</option>
+                                    <option value="created_at">Ngày tạo</option>
+                                    <option value="updated_at">Ngày sửa</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="form-label">Thứ tự</label>
+                                <select id="users-order" class="form-select">
+                                    <option value="asc">Tăng dần</option>
+                                    <option value="desc">Giảm dần</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <button id="users-refresh" class="btn btn-primary w-100">Tải lại</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th>SĐT</th>
+                                        <th>Email</th>
+                                        <th>Vai trò</th>
+                                        <th>Ngày tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers-table-body"></tbody>
+                            </table>
+                        </div>
+                        <div id="customers-empty" class="text-muted" style="display:none;">Không có dữ liệu.</div>
+                    </div>
+                </div>
+
                 <div class="item-pane">
                     <div class="container">
                         Chào mừng đến với trang quản trị!
@@ -309,5 +353,7 @@
         </main>
         <script src="../assets/js/user.js"></script>
         <script src="../assets/js/admin.js"></script>
+        <script src="../assets/js/orders_main.js"></script>
+
     </body>
 </html>

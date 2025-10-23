@@ -77,11 +77,10 @@ class AddProductSchema(BaseModel):
         from_attributes = True
 
 class ProductSearchResult(BaseModel):
-    id: int
-    name: str
-    price: float
-    phanloai_vi: str
-    brand: str
+    title: str
+    number: int
+    show_product: OutPutPage
+
     
 
 

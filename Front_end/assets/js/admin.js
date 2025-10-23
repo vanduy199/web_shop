@@ -12,7 +12,7 @@ const token = localStorage.getItem("access_token");
 
             if (response.ok) {
                 const user = await response.json();
-                if (user.role !== 'admin') {
+                if ((user.role || '').toString().toLowerCase() !== 'admin') {
                     alert('Xin lỗi, trang này chỉ dành cho Quản trị viên!');
                     window.location.href = "../index.html";
                 }
@@ -71,6 +71,11 @@ navItems.forEach((item, index) => {
         this.classList.add("active");
         pane.classList.add("active");
         getTitlePage(this);
+
+        // Nếu tab Khách Hàng được bật, tải danh sách user
+        if (pane && pane.classList.contains('customers-management')) {
+            loadCustomers();
+        }
     };
 });
 
@@ -235,6 +240,58 @@ document.getElementById('products__noabs-btn').onclick = function () {
 // Lấy tất cả sản phẩm lúc load page
 fetchProducts(type);
 
+// ====================== QUẢN LÝ KHÁCH HÀNG (ADMIN) ======================
+async function loadCustomers() {
+    const tbody = document.getElementById('customers-table-body');
+    const empty = document.getElementById('customers-empty');
+    const sortSelect = document.getElementById('users-sort-by');
+    const orderSelect = document.getElementById('users-order');
+    if (!tbody) return;
+
+    const sort_by = sortSelect ? sortSelect.value : 'name';
+    const order = orderSelect ? orderSelect.value : 'asc';
+
+    tbody.innerHTML = '<tr><td colspan="6">Đang tải...</td></tr>';
+    empty && (empty.style.display = 'none');
+    try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(`http://127.0.0.1:8000/users/?sort_by=${encodeURIComponent(sort_by)}&order=${encodeURIComponent(order)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            let msg = `HTTP ${res.status}`;
+            try { const j = await res.json(); if (j?.detail) msg = j.detail; } catch {}
+            throw new Error(msg);
+        }
+        const users = await res.json();
+        if (!Array.isArray(users) || users.length === 0) {
+            tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        const rows = users.map(u => `
+            <tr>
+                <td>${u.id ?? ''}</td>
+                <td>${(u.full_name || u.username || '').toString()}</td>
+                <td>${u.phone || ''}</td>
+                <td>${u.email || ''}</td>
+                <td>${u.role || ''}</td>
+                <td>${u.created_at ? new Date(u.created_at).toLocaleString() : ''}</td>
+            </tr>
+        `);
+        tbody.innerHTML = rows.join('');
+    } catch (err) {
+        tbody.innerHTML = '';
+        showMessage('Không tải được danh sách khách hàng: ' + (err.message || err), 'error');
+        empty && (empty.style.display = 'block');
+    }
+}
+
+// Sự kiện điều khiển sort
+document.getElementById('users-refresh')?.addEventListener('click', () => loadCustomers());
+document.getElementById('users-sort-by')?.addEventListener('change', () => loadCustomers());
+document.getElementById('users-order')?.addEventListener('change', () => loadCustomers());
+
 // -------------------- Add/Update Product Form Management --------------------
 const btnAddProduct = document.querySelector("#products__add-btn");
 const infoAddProduct = document.querySelector(".products__add-info");
@@ -394,6 +451,113 @@ window.handleUpdateProduct = async function (id) {
         showMessage(`Không tải được dữ liệu sản phẩm: ${error.message}`, "error");
     }
 };
+// ====================== QUẢN LÝ ĐƠN HÀNG CHO ADMIN ======================
+
+// Hàm lấy danh sách đơn hàng
+async function fetchOrders() {
+    const token = localStorage.getItem("access_token");
+    const tableBody = document.querySelector("#orders-table tbody");
+
+    if (!tableBody) return; // nếu chưa có table trong HTML thì bỏ qua
+
+    showMessage("Đang tải danh sách đơn hàng...", "info");
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/orders/all", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Không thể tải danh sách đơn hàng!");
+
+        const orders = await res.json();
+        tableBody.innerHTML = "";
+
+        if (orders.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center">Không có đơn hàng nào</td></tr>`;
+            return;
+        }
+
+        orders.forEach(order => {
+            const itemList = order.items.map(item => `
+                <div class="item d-flex align-items-center gap-2">
+                    <img src="${item.product_thumb}" alt="" width="40" height="40">
+                    <span>${item.product_name} x${item.quantity}</span>
+                </div>
+            `).join("");
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${order.id}</td>
+                <td>${order.user_id}</td>
+                <td>${order.total_price.toLocaleString()} ₫</td>
+                <td>
+                    <select class="order-status" data-id="${order.id}">
+                        <option value="pending" ${order.status === "pending" ? "selected" : ""}>Chờ xử lý</option>
+                        <option value="confirmed" ${order.status === "confirmed" ? "selected" : ""}>Đã xác nhận</option>
+                        <option value="delivered" ${order.status === "delivered" ? "selected" : ""}>Đã giao</option>
+                        <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Đã hủy</option>
+                    </select>
+                </td>
+                <td>${new Date(order.created_at).toLocaleString()}</td>
+                <td>${itemList}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        // Cập nhật trạng thái đơn hàng
+        document.querySelectorAll(".order-status").forEach(select => {
+            select.addEventListener("change", async (e) => {
+                const orderId = e.target.dataset.id;
+                const newStatus = e.target.value;
+
+                if (!confirm(`Xác nhận đổi trạng thái đơn hàng #${orderId} thành "${newStatus}"?`)) {
+                    e.target.value = e.target.dataset.oldValue || "pending";
+                    return;
+                }
+
+                try {
+                    const updateRes = await fetch(`http://127.0.0.1:8000/orders/${orderId}/status?status=${newStatus}`, {
+                        method: "PUT",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    if (!updateRes.ok) throw new Error("Cập nhật trạng thái thất bại!");
+
+                    const data = await updateRes.json();
+                    showMessage(`✅ ${data.message || "Cập nhật thành công!"}`, "success");
+                } catch (err) {
+                    console.error(err);
+                    showMessage("❌ Lỗi: " + err.message, "error");
+                }
+            });
+        });
+
+        showMessage("Tải danh sách đơn hàng thành công!", "success");
+
+    } catch (error) {
+        console.error("Lỗi tải đơn hàng:", error);
+        showMessage("Không thể tải danh sách đơn hàng!", "error");
+    }
+}
+
+// Gọi fetchOrders() khi chuyển tab "Đơn hàng"
+document.addEventListener("DOMContentLoaded", () => {
+    const orderTab = document.querySelector("#tab-orders");
+    if (orderTab) {
+        // Khi nhấn vào tab "Đơn hàng" thì gọi API
+        document.querySelectorAll(".nav__link").forEach(link => {
+            link.addEventListener("click", () => {
+                if (link.textContent.includes("Đơn hàng")) {
+                    fetchOrders();
+                }
+            });
+        });
+    }
+});
+
 
 // -------------------- Helper Functions --------------------
 function collectFormData() {

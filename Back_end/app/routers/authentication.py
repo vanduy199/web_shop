@@ -5,7 +5,7 @@ from app.schemas.user import LoginSchema, TokenSchema
 from app.services import authentication
 from app.core.config import SessionLocal
 
-router = APIRouter(prefix="", tags=["Login"])
+router = APIRouter(prefix="", tags=["Auth"])
 
 def get_db():
     db = SessionLocal()
