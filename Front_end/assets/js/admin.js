@@ -11,7 +11,7 @@ const token = localStorage.getItem("access_token");
 
             if (response.ok) {
                 const user = await response.json();
-                if (user.role !== 'admin') {
+                if ((user.role || '').toString().toLowerCase() !== 'admin') {
                     alert('Xin lỗi, trang này chỉ dành cho Quản trị viên!');
                     window.location.href = "../index.html";
                 }
@@ -70,6 +70,11 @@ navItems.forEach((item, index) => {
         this.classList.add("active");
         pane.classList.add("active");
         getTitlePage(this);
+
+        // Nếu tab Khách Hàng được bật, tải danh sách user
+        if (pane && pane.classList.contains('customers-management')) {
+            loadCustomers();
+        }
     };
 });
 // --- Handler riêng cho menu Hỗ Trợ User (không ảnh hưởng menu khác) ---
@@ -256,6 +261,58 @@ document.getElementById('products__noabs-btn').onclick = function () {
 };
 // Lấy tất cả sản phẩm lúc load page
 fetchProducts(type);
+
+// ====================== QUẢN LÝ KHÁCH HÀNG (ADMIN) ======================
+async function loadCustomers() {
+    const tbody = document.getElementById('customers-table-body');
+    const empty = document.getElementById('customers-empty');
+    const sortSelect = document.getElementById('users-sort-by');
+    const orderSelect = document.getElementById('users-order');
+    if (!tbody) return;
+
+    const sort_by = sortSelect ? sortSelect.value : 'name';
+    const order = orderSelect ? orderSelect.value : 'asc';
+
+    tbody.innerHTML = '<tr><td colspan="6">Đang tải...</td></tr>';
+    empty && (empty.style.display = 'none');
+    try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(`http://127.0.0.1:8000/users/?sort_by=${encodeURIComponent(sort_by)}&order=${encodeURIComponent(order)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            let msg = `HTTP ${res.status}`;
+            try { const j = await res.json(); if (j?.detail) msg = j.detail; } catch {}
+            throw new Error(msg);
+        }
+        const users = await res.json();
+        if (!Array.isArray(users) || users.length === 0) {
+            tbody.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+        }
+        const rows = users.map(u => `
+            <tr>
+                <td>${u.id ?? ''}</td>
+                <td>${(u.full_name || u.username || '').toString()}</td>
+                <td>${u.phone || ''}</td>
+                <td>${u.email || ''}</td>
+                <td>${u.role || ''}</td>
+                <td>${u.created_at ? new Date(u.created_at).toLocaleString() : ''}</td>
+            </tr>
+        `);
+        tbody.innerHTML = rows.join('');
+    } catch (err) {
+        tbody.innerHTML = '';
+        showMessage('Không tải được danh sách khách hàng: ' + (err.message || err), 'error');
+        empty && (empty.style.display = 'block');
+    }
+}
+
+// Sự kiện điều khiển sort
+document.getElementById('users-refresh')?.addEventListener('click', () => loadCustomers());
+document.getElementById('users-sort-by')?.addEventListener('change', () => loadCustomers());
+document.getElementById('users-order')?.addEventListener('change', () => loadCustomers());
 
 // -------------------- Add/Update Product Form Management --------------------
 const btnAddProduct = document.querySelector("#products__add-btn");

@@ -53,21 +53,20 @@ function renderOrders(orders) {
             <tr data-id="${order.id}">
                 <td>#${order.id}</td>
                 <td>${date}</td>
-                <td>${order.user_id}</td>
+                <td>${order.phone_number}</td>
                 <td>
                     <select class="form-select form-select-sm order-status" data-id="${order.id}">
                         ${getStatusOptions(status)}
                     </select>
                 </td>
+                <td>${order.payment_method}</td>
+                <td>${order.shipping_address}</td>
+                <td>${total}</td>
                 <td>
                     <button class="btn btn-sm btn-primary update-status-btn" data-id="${order.id}">
                         Cập nhật
                     </button>
                 </td>
-                <td>${order.payment_method}</td>
-                <td>${order.shipping_address}</td>
-                <td>${total}</td>
-                <td>${date}</td>
             </tr>`;
     });
 
@@ -76,7 +75,7 @@ function renderOrders(orders) {
         btn.addEventListener("click", updateOrderStatus);
     });
 }
-
+const api = "http://127.0.0.1:8000/orders"
 // ==================== CẬP NHẬT TRẠNG THÁI ====================
 async function updateOrderStatus(e) {
     const orderId = e.target.dataset.id;
@@ -87,10 +86,9 @@ async function updateOrderStatus(e) {
         return;
 
     try {
-        const res = await fetch(`${API_BASE}/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
+        const res = await fetch(`${api}/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
             method: "PUT",
             headers: {
-                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
