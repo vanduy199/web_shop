@@ -142,17 +142,18 @@
               </div>
             </div>
             <div id="sub-filters" class="row mt-4"></div>
-          </div>
-
-          <div class="tab-products__add">
+                      <div class="tab-products__add">
             <div class="dieuhuong">
               <button class="btn btn-lg btn-info button" id="products__abs-btn">Sản phẩm có quảng cáo</button>
               <button class="btn btn-lg btn-info button" id="products__noabs-btn">Sản phẩm không có quảng cáo</button>
               <button class="btn btn-lg btn-info button" id="products__add-btn">Thêm Sản Phẩm</button>
             </div>
+          </div>
+
+
 
             <div id="overlay" class="overlay">
-              <form class="products__add-info form" id="productForm" action="/submit-product" method="POST">
+              <form class="products__add-info form" id="productForm">
                 <span class="close-btn">&times;</span>
                 <label for="productName" class="label">Tên Sản Phẩm</label>
                 <input type="text" id="productName" name="name" required class="input" />
