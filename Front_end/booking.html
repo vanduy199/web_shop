@@ -52,75 +52,40 @@
         <div id="header-placeholder"></div>
         <!-- Header PC & Tablet -->
         
-    <main>
-    <div class="container booking">
-        <h1>THÔNG TIN MUA HÀNG</h1>
-        <p class="name_input">Thông tin khách hàng</p>
+        <main>
+            <div class="container booking">
+                <h1>THÔNG TIN MUA HÀNG</h1>
+                <p class="name_input">Thông tin khách hàng</p>
+                <form action="/submit_form">
+                    <label for="address"></label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        placeholder="Địa chỉ"
+                        required
+                    />
 
-        <form action="/submit_form" method="POST">
-            <!-- Họ và tên -->
-            <div class="form-group">
-                <label for="fullname">Họ và tên</label><br />
-                <input
-                    type="text"
-                    id="fullname"
-                    name="fullname"
-                    placeholder="Nhập họ và tên"
-                    required
-                />
+                    <label for="phone"></label>
+                    <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        placeholder="Số điện thoại"
+                        required
+                    />
+
+                    <label for="pttt">Phương thức thanh toán</label>
+                    <select id="pttt" name="pttt">
+                        <option value="Thanh toán khi nhận hàng">Thanh toán khi nhận hàng</option>
+                        <option value="Thẻ ngân hàng">Thẻ ngân hàng</option>
+                        <option value="Ví trả sau">Thẻ tín dụng/ghi nợ</option>
+                        <option value="vi-dien-tu">Ví điện tử (Momo, ZaloPay, v.v.)</option>
+                    </select>
+                    <input type="submit" value="ĐẶT MUA" />
+                </form>
             </div>
-
-            <!-- Địa chỉ -->
-            <div class="form-group">
-                <label for="address">Địa chỉ</label><br />
-                <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                    required
-                />
-            </div>
-
-            
-            <!-- Số điện thoại -->
-            <div class="form-group">
-                <label for="phone">Số điện thoại</label><br />
-                <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="Số điện thoại liên hệ"
-                    pattern="[0-9]{10,11}"
-                    title="Vui lòng nhập số điện thoại hợp lệ (10–11 chữ số)"
-                    required
-                />
-            </div>
-
-           
-
-            <!-- Phương thức thanh toán -->
-            <div class="form-group">
-                <label for="pttt">Phương thức thanh toán</label><br />
-                <select id="pttt" name="pttt" required>
-                    <option value="">-- Chọn phương thức thanh toán --</option>
-                    <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                    <option value="bank">Thẻ ngân hàng</option>
-                    <option value="credit">Thẻ tín dụng/Ghi nợ</option>
-                    <option value="ewallet">Ví điện tử (Momo, ZaloPay, v.v.)</option>
-                </select>
-            </div>
-
-
-            <!-- Nút gửi -->
-            <div class="form-group">
-                <input type="submit" value="ĐẶT MUA" class="submit-btn" />
-            </div>
-        </form>
-    </div>
-</main>
-
-
+        </main>
           <!-- Footer Placeholder -->
         <div id="footer-placeholder"></div>
         <script src="./assets/js/booking.js"></script>
