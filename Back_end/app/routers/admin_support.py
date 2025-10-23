@@ -56,13 +56,9 @@ def get_tickets_summary(
 @router.get("/tickets/{ticket_id}", response_model=FullTicketDetail)
 def get_ticket_detail(
     ticket_id: int,
-    payload: TicketUpdate,  
     db: Session = Depends(get_db),
     admin_user: User = Depends(require_admin),
 ):
-    """
-    Trả về chi tiết đầy đủ: CÓ messages + attachment_urls
-    """
     ticket = (
         db.query(SupportTicketModel)
         .options(
@@ -75,15 +71,12 @@ def get_ticket_detail(
     if not ticket:
         raise HTTPException(status_code=404, detail="Không tìm thấy ticket.")
 
-   
     msgs = ticket.messages
-
     return FullTicketDetail(
         detail=TicketDetailSchema.model_validate(ticket),
         messages=[m.message for m in msgs],
         attachment_urls=[m.attachment_url for m in msgs if m.attachment_url],
     )
-
 
 # ------------------------------ UPDATE STATUS ---------------------------------
 @router.patch("/tickets/{ticket_id}/status", response_model=FullTicketDetail)

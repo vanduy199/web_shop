@@ -54,7 +54,7 @@ class TicketDetailSchema(BaseModel):
     updated_at: datetime
     
     requester_name: Optional[str] = None
-    requester_email: Optional[str] = None
+    requester_email: Optional[EmailStr] = None
     requester_phone: Optional[str] = None
     
     class Config:

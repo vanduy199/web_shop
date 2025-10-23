@@ -554,4 +554,86 @@ img.tn {
   color: #333;
   font-weight: 600;
 }
+/* ===== SUPPORT ADMIN STYLE ===== */
+#support-root h2 {
+  font-weight: 700;
+  color: #b50000; /* đỏ chủ đạo */
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
 
+/* Filter bar */
+#support-root .form-select,
+#support-root .btn {
+  font-size: 14px;
+}
+
+/* Table style */
+#tblTickets {
+  width: 100%;
+  font-size: 14px;
+  border-collapse: collapse;
+}
+#tblTickets thead {
+  background: #000;        
+  color: #fff;
+  font-weight: 600;
+}
+
+#tblTickets tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+#tblTickets th, #tblTickets td {
+  padding: 14px 16px;         /* tăng khoảng cách trong ô */
+  vertical-align: middle;
+  font-size: 17px;            /* chữ to hơn */
+  line-height: 1;           /* dòng cao hơn */
+}
+#tblTickets tbody tr:hover {
+  background: #f1f1f1;        /* hiệu ứng hover nhẹ cho đẹp */
+}
+
+
+/* Buttons */
+#tblTickets .btn-danger {
+  background-color: #c62828;
+  border: none;
+}
+#tblTickets .btn-outline-secondary {
+  border-color: #777;
+  color: #444;
+}
+#tblTickets .btn-outline-secondary:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Dropdowns */
+#tblTickets select {
+  min-width: 110px;
+}
+
+/* Modal detail */
+#ticketModal .modal-dialog {
+  max-width: 900px;
+}
+#ticketModal .modal-body {
+  font-size: 15px;
+}
+.support-attachment {
+  max-width: 260px;
+  border-radius: 8px;
+  border: 2px solid #eee;
+  margin: 5px 0;
+}
+
+/* Ảnh trong modal: luôn hiện đúng tỉ lệ, không bị co/ẩn */
+#ticketModal .modal-body img.support-attachment{
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tăng z-index modal để nằm trên mọi phần tử lớn vừa thêm */
+.modal { z-index: 1080; }
+.modal-backdrop { z-index: 1075; }
