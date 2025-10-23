@@ -75,7 +75,7 @@ function renderOrders(orders) {
         btn.addEventListener("click", updateOrderStatus);
     });
 }
-
+const api = "http://127.0.0.1:8000/orders"
 // ==================== CẬP NHẬT TRẠNG THÁI ====================
 async function updateOrderStatus(e) {
     const orderId = e.target.dataset.id;
@@ -86,10 +86,9 @@ async function updateOrderStatus(e) {
         return;
 
     try {
-        const res = await fetch(`${API_BASE}/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
+        const res = await fetch(`${api}/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
             method: "PUT",
             headers: {
-                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
