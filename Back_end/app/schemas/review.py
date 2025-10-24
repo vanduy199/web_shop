@@ -1,8 +1,22 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ReviewCreate(BaseModel):
     product_id: int
-    rating: int
+    rating: Optional[int] = None
     comment: Optional[str] = None
+    id_parent: Optional[int] = None
+
+class Response(BaseModel):
+    product_id: Optional[int] = None
+    comment: Optional[str] = None
+
+class ReviewOut(BaseModel):
+    product_id: int
+    user_id: int
+    comment: Optional[str] = None
+    created_at: datetime
+    comment_children: List[Response] = []
+   
+
