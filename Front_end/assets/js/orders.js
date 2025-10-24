@@ -2,7 +2,6 @@ const tbody = document.querySelector(".order__content");
 const API_BASE = "http://127.0.0.1:8000/orders/";
 const token = localStorage.getItem("access_token");
 
-// 🧩 Hàm load danh sách đơn hàng
 async function loadOrders() {
     try {
         const res = await fetch(API_BASE,
@@ -44,8 +43,23 @@ async function loadOrders() {
                     </div>
                 `
             ).join("") || "<em>Không có sản phẩm</em>";
-
-            tbody.innerHTML += `
+            if (status == "pending") {
+                tbody.innerHTML += `
+                <tr data-id="${order.id}">
+                    <td>#${order.id}</td>
+                    <td>${itemsHTML}</td>
+                    <td>${date}</td>
+                    <td>${total}</td>
+                    <td>
+                        <span class="badge ${getStatusBadge(status)}">${status}</span>
+                    </td>
+                    <td>
+                        <button class="buttonDel" data-id="${order.id}">XÓA</button>
+                    </td>
+                </tr>`;
+            }
+            else {
+                tbody.innerHTML += `
                 <tr data-id="${order.id}">
                     <td>#${order.id}</td>
                     <td>${itemsHTML}</td>
@@ -55,6 +69,32 @@ async function loadOrders() {
                         <span class="badge ${getStatusBadge(status)}">${status}</span>
                     </td>
                 </tr>`;
+            }
+
+            
+            const buttons = document.getElementsByClassName("buttonDel");
+
+            Array.from(buttons).forEach(button => {
+                button.onclick = async function () {
+                const id = button.getAttribute("data-id");
+
+                const res = await fetch(`${API_BASE}${id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+                });
+
+                if (res.ok) {
+                    alert("Xóa thành công!");
+                    loadOrders();
+                } else {
+                const err = await res.json();
+                alert(`Lỗi: ${err.detail || "Không thể xóa"}`);
+                }
+            };
+    });
         });
 
     } catch (err) {
@@ -82,6 +122,7 @@ function getStatusBadge(status) {
             return "bg-secondary";
     }
 }
+
 
 // 🟢 Gọi khi mở trang
 window.addEventListener("DOMContentLoaded", loadOrders);

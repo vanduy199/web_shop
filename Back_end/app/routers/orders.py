@@ -235,3 +235,27 @@ def get_all_orders(
             "phone_number": order.phone_number,
         })
     return result
+
+@router.delete("/{order_id}")
+def delete_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    order = (
+        db.query(Order)
+        .filter(
+            Order.id == order_id,
+            Order.user_id == current_user.id,
+            Order.status == "pending"
+        )
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Không tìm thấy đơn hàng hoặc không thể xóa")
+
+    db.delete(order)
+    db.commit()
+
+    return {"message": "Xóa thành công"}

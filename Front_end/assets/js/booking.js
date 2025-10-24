@@ -17,34 +17,73 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.forEach((value, key) => {
                 bookingData[key] = value;
             });
-            products = localStorage.getItem("booked")
-            console.log(products)
-            bookingData['carts'] = products
-            // 7. In dữ liệu ra console để kiểm tra (hoặc gửi lên server bằng Fetch API)
-            console.log("Dữ liệu thông tin mua hàng:");
-            console.log(bookingData);
+            const status = localStorage.getItem("point");
+            if (status == "cart") {
+                products = localStorage.getItem("booked")
+                console.log(products)
+                bookingData['carts'] = products
+                // 7. In dữ liệu ra console để kiểm tra (hoặc gửi lên server bằng Fetch API)
+                console.log("Dữ liệu thông tin mua hàng:");
+                console.log(bookingData);
 
-            const url = 'http://127.0.0.1:8000/orders'; // URL mà form của bạn đã chỉ định
+                const url = 'http://127.0.0.1:8000/orders'; // URL mà form của bạn đã chỉ định
 
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${token}` 
-                },
-                body: JSON.stringify(bookingData), // Chuyển đổi object thành chuỗi JSON
-            })
-            .then(response => response.json()) // Giả sử server trả về JSON
-            .then(data => {
-                console.log('Server trả về:', data);
-                alert('Đặt hàng thành công!');
-                // Có thể chuyển hướng người dùng hoặc làm gì đó khác tại đây
-            })
-            .catch((error) => {
-                console.error('Lỗi khi gửi dữ liệu:', error);
-                alert('Đặt hàng thất bại. Vui lòng thử lại.');
-            });
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(bookingData), // Chuyển đổi object thành chuỗi JSON
+                })
+                .then(
+                    response => response.json()
+                )
+                .then(data => {
+                    console.log('Server trả về:', data);
+                    alert('Đặt hàng thành công!');
+                    localStorage.removeItem('booked');
+                    // Có thể chuyển hướng người dùng hoặc làm gì đó khác tại đây
+                })
+                .catch((error) => {
+                    console.error('Lỗi khi gửi dữ liệu:', error);
+                    alert('Đặt hàng thất bại. Vui lòng thử lại.');
+                });
+            }
+            else {
+                products = localStorage.getItem("productId")
+                console.log(products)
+                bookingData['product_id'] = products
+                // 7. In dữ liệu ra console để kiểm tra (hoặc gửi lên server bằng Fetch API)
+                console.log("Dữ liệu thông tin mua hàng:");
+                console.log(bookingData);
+
+                const url = 'http://127.0.0.1:8000/orders'; // URL mà form của bạn đã chỉ định
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(bookingData), // Chuyển đổi object thành chuỗi JSON
+                })
+                .then(
+                    response => response.json()
+                )
+                .then(data => {
+                    console.log('Server trả về:', data);
+                    alert('Đặt hàng thành công!');
+                    localStorage.removeItem('booked');
+                    // Có thể chuyển hướng người dùng hoặc làm gì đó khác tại đây
+                })
+                .catch((error) => {
+                    console.error('Lỗi khi gửi dữ liệu:', error);
+                    alert('Đặt hàng thất bại. Vui lòng thử lại.');
+                });
+            }
             
+
         });
     }
 });

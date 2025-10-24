@@ -268,12 +268,13 @@ function checkout() {
         .map(cb => cb.dataset.id);
     
     if (selected.length >= 1) {
-        localStorage.removeItem("booked")
-        localStorage.setItem("booked",selected)
+        localStorage.removeItem("booked");
+        localStorage.setItem("booked", selected);
+        localStorage.setItem("point", "cart");
         window.location.href = "booking.html";
     }
     else {
-        alert("Chưa chọn sản phẩm.")
+        alert("Chưa chọn sản phẩm.");
     }
 }
 

@@ -113,6 +113,7 @@ function seeMore() {
 // đặt lịch sửa chữa
 var booking = document.querySelector(".groupbtn__order");
 booking.addEventListener("click", function () {
+    localStorage.setItem("point", "info");
     window.location.href = "booking.html";
 });
 var swiper = new Swiper(".mySwiper", {
