@@ -404,13 +404,7 @@ def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20
     
     if 'text_search' in conditions:
         search_text = f"%{conditions['text_search']}%"
-        if search_text:
-            b = search_query.filter(Search.name.ilike(search_text))
-            if b.count() != 0:
-                search_query = b
-            else:
-                if search_query.count() == len:
-                    search_query = b
+        search_query = search_query.filter(Search.name.ilike(search_text))
     search_subquery = search_query.with_entities(Search.id).subquery()
     now = datetime.now()
     present_abs = (
