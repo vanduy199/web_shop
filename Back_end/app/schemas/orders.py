@@ -34,14 +34,15 @@ class OrderBase(BaseModel):
 
 
 # ====================== SCHEMA TRẢ VỀ ======================
-class OrderResponse(OrderBase):
-    """
-    Schema chuẩn trả về cho API /orders/{user_id} và /orders POST
-    """
-    pass
-
 class OrderInput(BaseModel):
-    carts: str
+# Trường hợp đặt hàng từ giỏ hàng
+    carts: Optional[str] = None
+
+    # Trường hợp đặt hàng trực tiếp
+    product_id: Optional[int] = None
+    quantity: Optional[int] = 1
+
+    # Thông tin giao hàng
     address: str
     pttt: str
     phone: str

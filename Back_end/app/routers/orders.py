@@ -70,7 +70,7 @@ def get_orders(
     return result
 
 
-# ====================== 📍 POST /orders/{user_id} ======================
+# ====================== 📍 POST /orders ======================
 @router.post("/", response_model=OrderBase)
 def create_order(
     input_order: OrderInput,
@@ -79,6 +79,7 @@ def create_order(
 ):
     from app.models.cart import Cart  # tránh vòng lặp import
 
+    # 🧾 Tạo đơn hàng mới
     order = Order(
         user_id=current_user.id,
         total_price=0,
@@ -93,44 +94,16 @@ def create_order(
 
     total_price = 0
 
-    # ✅ Nếu có giỏ hàng
-    if input_order.carts:
-        cart_ids = [int(c) for c in input_order.carts.split(",") if c.strip()]
-        for cart_id in cart_ids:
-            cart_selected = (
-                db.query(Cart)
-                .join(Product, Cart.product_id == Product.id)
-                .filter(Cart.user_id == current_user.id, Cart.selected == True, Cart.id == cart_id)
-                .first()
-            )
-            if not cart_selected:
-                continue
+    # ✅ ƯU TIÊN: Nếu đặt hàng trực tiếp (không qua giỏ hàng)
+    if input_order.product_id:
+        print("🟢 Đặt hàng trực tiếp:", input_order.product_id, input_order.quantity)
 
-            price = cart_selected.product.price
-            total_price += price * cart_selected.quantity
-
-            db.add(OrderItem(
-                order_id=order.id,
-                product_id=cart_selected.product_id,
-                quantity=cart_selected.quantity,
-                price=price
-            ))
-            db.delete(cart_selected)
-
-            db.add(UserActivity(
-                user_id=current_user.id,
-                product_id=cart_selected.product_id,
-                action="Order"
-            ))
-
-    # ✅ Nếu đặt hàng trực tiếp (không qua giỏ hàng)
-    elif input_order.product_id:
         product = db.query(Product).filter(Product.id == input_order.product_id).first()
         if not product:
             raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
 
         # đảm bảo quantity luôn hợp lệ
-        quantity = input_order.quantity or 1
+        quantity = getattr(input_order, "quantity", 1) or 1
         total_price = product.price * quantity
 
         db.add(OrderItem(
@@ -146,10 +119,41 @@ def create_order(
             action="Order"
         ))
 
+    # 🧺 Nếu không có product_id mà có giỏ hàng thì xử lý giỏ hàng
+    elif input_order.carts and input_order.carts.strip():
+        print("🟢 Đặt hàng từ giỏ hàng:", input_order.carts)
+
+        cart_ids = [int(c) for c in input_order.carts.split(",") if c.strip()]
+        carts = (
+            db.query(Cart)
+            .join(Product, Cart.product_id == Product.id)
+            .filter(Cart.user_id == current_user.id, Cart.id.in_(cart_ids))
+            .all()
+        )
+
+        for cart in carts:
+            price = cart.product.price
+            total_price += price * cart.quantity
+
+            db.add(OrderItem(
+                order_id=order.id,
+                product_id=cart.product_id,
+                quantity=cart.quantity,
+                price=price
+            ))
+
+            db.add(UserActivity(
+                user_id=current_user.id,
+                product_id=cart.product_id,
+                action="Order"
+            ))
+
+            db.delete(cart)
+
     else:
         raise HTTPException(status_code=400, detail="Không có sản phẩm trong đơn hàng")
 
-     # ✅ Cập nhật tổng giá
+    # ✅ Cập nhật tổng giá
     order.total_price = total_price
     db.commit()
 
@@ -162,6 +166,7 @@ def create_order(
     )
 
     return order
+
 # ====================== 📍 PUT /orders/{order_id}/status ======================
 @router.put("/{order_id}/status")
 def update_order_status(
