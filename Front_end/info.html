@@ -161,7 +161,6 @@
                     <hr />
                     <h2>Cấu hình chi tiết</h2>
                     <div id="specifications"></div>
-                    <div class="info__content row">
   <div class="info__content row">
   <div class="info__qa col-md-5" style="width: max-content">
     <h2 style="font-weight: 700; color: #d70018; font-size: 20px;">
@@ -191,65 +190,74 @@
 </div>
 
 
-                        <div class="rate col-md-5">
-                            <h2
-                                style="
-                                    font-weight: 600;
-                                    font-size: 16px;
-                                    margin-bottom: 10px;
-                                "
-                            >
-                                ĐÁNH GIÁ VÀ NHẬN XÉT
-                            </h2>
-                            <div class="rating">
-                                <div class="star">1 ⭐</div>
-                                <div class="progress-bar"></div>
-                                <div class="count">0</div>
-                            </div>
+                        <div id="rating-section" class="rating-container">
+  <h3>Đánh giá sản phẩm</h3>
 
-                            <div class="rating">
-                                <div class="star">2 ⭐</div>
-                                <div class="progress-bar"></div>
-                                <div class="count">0</div>
-                            </div>
+  <!-- Điểm trung bình -->
+  <div class="rating-summary">
+    <span id="average-rating" class="avg">0</span> / 5 ⭐
+    <p><span id="rating-count">0</span> lượt đánh giá</p>
+  </div>
 
-                            <div class="rating">
-                                <div class="star">3 ⭐</div>
-                                <div class="progress-bar"></div>
-                                <div class="count">0</div>
-                            </div>
+  <!-- Biểu đồ tỷ lệ sao -->
+  <div class="rating-breakdown">
+    <div class="rating-bar"><span>5 sao</span> <progress id="bar-5" max="100" value="0"></progress> (<span id="count-5">0</span>)</div>
+    <div class="rating-bar"><span>4 sao</span> <progress id="bar-4" max="100" value="0"></progress> (<span id="count-4">0</span>)</div>
+    <div class="rating-bar"><span>3 sao</span> <progress id="bar-3" max="100" value="0"></progress> (<span id="count-3">0</span>)</div>
+    <div class="rating-bar"><span>2 sao</span> <progress id="bar-2" max="100" value="0"></progress> (<span id="count-2">0</span>)</div>
+    <div class="rating-bar"><span>1 sao</span> <progress id="bar-1" max="100" value="0"></progress> (<span id="count-1">0</span>)</div>
+  </div>
 
-                            <div class="rating">
-                                <div class="star">4 ⭐</div>
-                                <div class="progress-bar"></div>
-                                <div class="count">0</div>
-                            </div>
+  <!-- Form người dùng chọn sao -->
+  <div class="rating-form">
+    <h4>Gửi đánh giá của bạn:</h4>
+    <div id="user-stars" class="stars">
+      <i class="fa-regular fa-star" data-value="1"></i>
+      <i class="fa-regular fa-star" data-value="2"></i>
+      <i class="fa-regular fa-star" data-value="3"></i>
+      <i class="fa-regular fa-star" data-value="4"></i>
+      <i class="fa-regular fa-star" data-value="5"></i>
+    </div>
+    <button id="submit-rating" class="btn btn-danger mt-2">Gửi đánh giá</button>
+  </div>
+</div>
 
-                            <div class="rating">
-                                <div class="star">5 ⭐</div>
-                                <div class="progress-bar"></div>
-                                <div class="count">0</div>
-                            </div>
+<style>
+.rating-container {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 400px;
+}
+.rating-summary {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f39c12;
+  text-align: center;
+}
+.rating-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0;
+}
+.rating-bar progress {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+}
+.stars i {
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+.stars i.selected,
+.stars i:hover,
+.stars i:hover ~ i {
+  color: #f39c12;
+}
+</style>
 
-                            <p style="margin-bottom: 0">
-                                Hiện chưa có nhận xét nào. Hãy là người nhận xét
-                                đầu tiên.
-                            </p>
-                            <div class="center">
-                                <button
-                                    style="
-                                        color: white;
-                                        background-color: #d70018;
-                                        border: none;
-                                    "
-                                >
-                                    Gửi đánh giá
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
           <!-- Footer Placeholder -->
         <div id="footer-placeholder"></div>
