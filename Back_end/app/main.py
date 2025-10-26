@@ -7,10 +7,10 @@ from app.core.security import decode_access_token
 
 from app.routers import router as api_router, user as user_router, user_activity, authentication
 from app.routers import orders
-
 from app.routers import guest_router
-
 from app.routers import review
+from app.routers import banners as banners_router
+from app.routers import public_banners
 app = FastAPI(title="Product & ABS API")
 
 bearer_scheme = HTTPBearer()
@@ -66,4 +66,6 @@ app.include_router(guest_router.router)
 app.include_router(review.router, tags=["Reviews"])
 app.include_router(authentication.router, tags=["Auth"])
 app.include_router(orders.router, tags=["Orders"])
+app.include_router(banners_router.router, tags=["Banners"])
+app.include_router(public_banners.router)
 

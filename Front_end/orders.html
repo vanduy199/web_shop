@@ -27,31 +27,34 @@
     <div id="header-placeholder"></div>
 
     <!-- MAIN -->
-    <main class="order-main">
+   <main class="order-main">
         <div class="order-container container">
-            <div class="order__list container mt-4">
-                <h2 class="section__heading ms-3 my-2">Đơn hàng của bạn</h2>
+            <div class="order__list mt-4">
+                <h2 class="section__heading ms-3 mb-4 fw-bold text-primary">
+                    <i class="fas fa-box-open me-2"></i> Lịch sử Đơn hàng của bạn
+                </h2>
 
-                <table class="table table-hover table-sm mt-3">
-                    <thead>
+                <table class="table table-hover table-striped table-borderless table-sm mt-3">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Mã đơn hàng</th>
-                            <th>Sản phẩm</th>
-                            <th>Ngày đặt</th>
-                            <th>Tổng tiền</th>
-                            <th>Tình trạng</th>
-                        </tr>
+                            <th scope="col">Mã đơn hàng</th>
+                            <th scope="col">Sản phẩm</th>
+                            <th scope="col">Ngày đặt</th>
+                            <th scope="col">Tổng tiền</th>
+                            <th scope="col">Tình trạng</th>
+                            <th scope="col">Hành động</th> </tr>
                     </thead>
                     <tbody class="order__content">
                         <tr>
-                            <td colspan="5" class="text-center">Đang tải đơn hàng...</td>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-spinner fa-spin me-2"></i> Đang tải đơn hàng...
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
-
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
