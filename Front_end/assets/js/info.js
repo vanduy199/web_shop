@@ -367,3 +367,67 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
   loadReviews();
 });
+// ================== CẤU HÌNH ==================
+let selectedRating = 0;
+let PRODUCT_ID = localStorage.getItem("productId");
+// ================== LẤY DỮ LIỆU RATING ==================
+async function loadRating() {
+  const res = await fetch(`${API_URL}/reviews/rating?product_id=${PRODUCT_ID}`);
+  const data = await res.json();
+
+  // Cập nhật điểm trung bình
+  document.getElementById("average-rating").textContent = data.average_rating;
+  document.getElementById("rating-count").textContent = data.rating_count;
+
+  // Cập nhật biểu đồ
+  for (let i = 1; i <= 5; i++) {
+    const cnt = data[`${i}_star_count`];
+    document.getElementById(`count-${i}`).textContent = cnt;
+
+    // phần trăm
+    const percent = data.rating_count > 0 ? (cnt / data.rating_count) * 100 : 0;
+    document.getElementById(`bar-${i}`).value = percent;
+  }
+}
+
+// ================== GỬI / CẬP NHẬT RATING ==================
+async function postRating() {
+  if (selectedRating === 0) {
+    alert("Vui lòng chọn số sao trước khi gửi!");
+    return;
+  }
+
+  const token = localStorage.getItem("access_token"); // ⚠️ cần có JWT token từ login
+
+  const res = await fetch(`${API_URL}/reviews/rating?product_id=${PRODUCT_ID}&rating=${selectedRating}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+  alert(data.message);
+  loadRating();
+}
+
+// ================== XỬ LÝ GIAO DIỆN ==================
+document.addEventListener("DOMContentLoaded", () => {
+  loadRating();
+
+  // chọn sao
+  const stars = document.querySelectorAll("#user-stars i");
+  stars.forEach((star) => {
+    star.addEventListener("click", () => {
+      selectedRating = parseInt(star.dataset.value);
+
+      stars.forEach((s, i) => {
+        s.classList.toggle("fa-solid", i < selectedRating);
+        s.classList.toggle("fa-regular", i >= selectedRating);
+        s.style.color = i < selectedRating ? "#f39c12" : "#ccc";
+      });
+    });
+  });
+
+  document.getElementById("submit-rating").addEventListener("click", postRating);
+});

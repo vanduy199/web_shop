@@ -66,4 +66,3 @@ app.include_router(guest_router.router)
 app.include_router(review.router, tags=["Reviews"])
 app.include_router(authentication.router, tags=["Auth"])
 app.include_router(orders.router, tags=["Orders"])
-
