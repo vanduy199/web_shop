@@ -3,6 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 
 class ReviewCreate(BaseModel):
+    
     product_id: int
     rating: Optional[int] = None
     comment: Optional[str] = None
@@ -13,6 +14,7 @@ class Response(BaseModel):
     comment: Optional[str] = None
 
 class ReviewOut(BaseModel):
+    id: int
     product_id: int
     user_id: int
     comment: Optional[str] = None

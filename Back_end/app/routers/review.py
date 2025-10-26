@@ -72,6 +72,7 @@ def get_review(
             )
             child.append(a)
         rv = ReviewOut (
+            id = review.id,
             product_id = review.product_id,
             user_id = review.user_id,
             comment = review.comment,

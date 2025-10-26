@@ -1,5 +1,12 @@
 
 var productId = localStorage.getItem("productId");
+const API_URL = "http://127.0.0.1:8000";
+const token = localStorage.getItem("access_token");
+const headers = token
+  ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+  : { "Content-Type": "application/json" };
+
+let userRole = null; // Lưu role của user (admin, user, guest)
 
 let name1 = "Samsung Galaxy S24 5G 8GB/256GB";
 async function fetchProducts(id = null) {
@@ -129,12 +136,6 @@ var swiper = new Swiper(".mySwiper", {
 });
 const API_BASE = "http://127.0.0.1:8000/cart";
 
-
-const token = localStorage.getItem("access_token"); 
-
-const headers = token
-  ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
-  : { "Content-Type": "application/json" };
 const userId = null;
 async function addToCart(productId, quantity = 1) {
     try {
@@ -235,10 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn("No productId found in localStorage");
     }
 });
-const API_URL = "http://localhost:8000";  // 🔁 thay bằng backend của bạn
-const PRODUCT_ID = 15;                    // 🧩 id sản phẩm hiện tại
-
-// Gửi request có token
+// ✅ REVIEW & COMMENTS SECTION
 async function fetchWithAuth(url, options = {}) {
   options.headers = {
     ...options.headers,
@@ -253,7 +251,7 @@ async function fetchWithAuth(url, options = {}) {
 // Lấy danh sách bình luận
 async function loadReviews() {
   try {
-    const res = await fetch(`${API_URL}/reviews/?product_id=${PRODUCT_ID}`);
+    const res = await fetch(`${API_URL}/reviews/?product_id=${productId}`);
     const data = await res.json();
     renderReviews(data);
   } catch (err) {
@@ -266,54 +264,69 @@ async function sendComment() {
   const comment = document.getElementById("commentInput").value.trim();
   if (!comment) return alert("Vui lòng nhập nội dung!");
 
-  await fetchWithAuth(`${API_URL}/reviews/`, {
-    method: "POST",
-    body: JSON.stringify({
-      product_id: PRODUCT_ID,
-      comment: comment,
-      rating: null,
-      id_parent: null
-    })
-  });
-
-  document.getElementById("commentInput").value = "";
-  loadReviews();
+  try {
+    await fetchWithAuth(`${API_URL}/reviews/`, {
+      method: "POST",
+      body: JSON.stringify({
+        product_id: productId,
+        comment: comment,
+        rating: null,
+        id_parent: null
+      })
+    });
+    document.getElementById("commentInput").value = "";
+    loadReviews();
+  } catch (err) {
+    console.error("Lỗi gửi bình luận:", err);
+    alert("Không thể gửi bình luận!");
+  }
 }
 
-// Gửi phản hồi con
-async function sendReply(parentId, productId) {
-  const input = document.getElementById(`reply-${parentId}`);
-  const text = input.value.trim();
-  if (!text) return alert("Nhập phản hồi trước khi gửi!");
+// Gửi phản hồi bình luận
+async function sendReply(commentId, productIdVal) {
+  const replyText = document.getElementById(`reply-${productIdVal}-${commentId}`).value.trim();
+  if (!replyText) return alert("Vui lòng nhập nội dung phản hồi!");
 
-  await fetchWithAuth(`${API_URL}/reviews/response`, {
-    method: "POST",
-    body: JSON.stringify({
-      product_id: productId,
-      comment: text
-    })
-  });
-
-  input.value = "";
-  loadReviews();
+  try {
+    await fetchWithAuth(`${API_URL}/reviews/`, {
+      method: "POST",
+      body: JSON.stringify({
+        product_id: productIdVal,
+        comment: replyText,
+        rating: null,
+        id_parent: commentId
+      })
+    });
+    loadReviews();
+  } catch (err) {
+    console.error("Lỗi gửi phản hồi:", err);
+    alert("Không thể gửi phản hồi!");
+  }
 }
 
 // Hiển thị danh sách bình luận
 function renderReviews(reviews) {
   const container = document.getElementById("reviewsContainer");
+  if (!container) return;
   container.innerHTML = "";
 
   reviews.forEach(rv => {
     const div = document.createElement("div");
     div.className = "review";
+    
+    // Chỉ admin mới thấy reply box
+    const replyBox = (userRole === 'admin') ? `
+      <div class="reply-box">
+        <input type="text" id="reply-${rv.product_id}-${rv.id}" placeholder="Phản hồi bình luận..." />
+        <button onclick="sendReply(${rv.id}, ${rv.product_id})">Gửi</button>
+      </div>
+    ` : '';
+    
     div.innerHTML = `
       <p><b>Người dùng #${rv.user_id}</b> (${new Date(rv.created_at).toLocaleString()}):</p>
       <p>${rv.comment ?? ""}</p>
-      <div class="reply-box">
-        <input type="text" id="reply-${rv.product_id}-${rv.user_id}" placeholder="Phản hồi bình luận..." />
-        <button onclick="sendReply(${rv.product_id}, ${rv.product_id})">Gửi</button>
-      </div>
-      ${rv.comment_children.map(child => `
+      ${replyBox}
+      ${(rv.comment_children || []).map(child => `
         <div class="reply">↳ ${child.comment}</div>
       `).join("")}
     `;
@@ -321,6 +334,36 @@ function renderReviews(reviews) {
   });
 }
 
-// Khởi tạo
-document.getElementById("sendCommentBtn").addEventListener("click", sendComment);
-loadReviews();
+// Khởi tạo reviews
+document.addEventListener('DOMContentLoaded', async function() {
+  // Lấy role của user nếu có token
+  if (token) {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/users/users/me', {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const user = await response.json();
+        userRole = (user.role || '').toString().toLowerCase();
+        console.log("User role:", userRole);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy thông tin user:", error);
+    }
+  }
+
+  const sendCommentBtn = document.getElementById("sendCommentBtn");
+  if (sendCommentBtn) {
+    if (token) {
+      sendCommentBtn.addEventListener("click", sendComment);
+    } else {
+      sendCommentBtn.addEventListener("click", function () {
+        alert("Vui lòng đăng nhập để bình luận!");
+      });
+    }
+  }
+  loadReviews();
+});
