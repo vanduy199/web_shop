@@ -2,13 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from typing import List, Optional
-from app.models.user_activity import UserActivity
 from app.core.config import SessionLocal
 from app.models.cart import Cart
 from app.models.product import Product, Abs
 from app.models.user import User
 from app.schemas.cart import CartCreate, CartUpdate, CartResponse
-from app.schemas.user_activity import UserActivitySchema, OutActivity
 from app.dependencies.auth import get_current_user, require_admin
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
@@ -103,28 +101,6 @@ def add_to_cart(
     db.commit()
     db.refresh(cart)
 
-    now = datetime.now()
-    abs = (
-        db.query(Abs)
-        .filter(
-            Abs.product_id == product.id,
-            Abs.start_time <= now,
-            Abs.end_time >= now,
-        )
-        .first()
-    )
-
-    price = product.price
-    if abs:
-        price = int(product.price * (100 - abs.percent_abs) / 100)
-
-    activity = UserActivity (
-        user_id = current_user.id,
-        product_id= product.id,
-        action = "Cart"
-    )
-    db.add(activity)
-    db.commit()
 
     return CartResponse(
         id=cart.id,
@@ -136,7 +112,7 @@ def add_to_cart(
         product={
             "id": product.id,
             "name": product.name,
-            "price": price,
+            "price": product.price,
             "thumb": product.thumb,
             "main_image": product.main_image,
             "phanloai": product.phanloai,
@@ -146,7 +122,7 @@ def add_to_cart(
     )
 
 
-# Cập nhật số lượng hoặc trạng thái chọn
+# Cập nhật số lượng
 @router.put("/{cart_id}", response_model=CartResponse)
 def update_cart(
     cart_id: int,
@@ -166,9 +142,6 @@ def update_cart(
         if cart_in.quantity < 1:
             raise HTTPException(status_code=400, detail="Quantity must be >= 1")
         cart.quantity = cart_in.quantity
-
-    if cart_in.selected is not None:
-        cart.selected = cart_in.selected
 
     db.commit()
     db.refresh(cart)
@@ -205,52 +178,39 @@ def calculate_cart_total(
     try:
         now = datetime.now()
 
-        query = (
-            db.query(Cart)
-            .options(joinedload(Cart.product).joinedload(Product.abs))
+        carts = (
+            db.query(Cart, Product, Abs)
+            .join(Product, Cart.product_id == Product.id)
+            .outerjoin(
+                Abs,
+                (Abs.product_id == Product.id)
+                & (Abs.start_time <= now)
+                & (Abs.end_time >= now)
+            )
             .filter(Cart.user_id == current_user.id)
         )
 
         if selected_ids:
-            query = query.filter(Cart.id.in_(selected_ids))
+            carts = carts.filter(Cart.id.in_(selected_ids))
 
-        cart_items = query.all()
+        rows = carts.all()
 
-        total_price = 0
+        grand_total = 0
         total_quantity = 0
 
-        for cart_item in cart_items:
-            product = getattr(cart_item, "product", None)
-            if not product:
-                continue
+        for cart, product, promo in rows:
+            price = int(product.price)  
+            if promo:                   
+                pct = promo.percent_abs or 0
+                price = int(price * (100 - pct) / 100)
 
-            price = product.price
-            abs_obj = getattr(product, "abs", None)
-
-            if abs_obj:
-                if isinstance(abs_obj, list):
-                    valid_abs = [
-                        a
-                        for a in abs_obj
-                        if hasattr(a, "start_time")
-                        and hasattr(a, "end_time")
-                        and a.start_time <= now <= a.end_time
-                    ]
-                    if valid_abs:
-                        price = price * (100 - valid_abs[0].percent_abs) / 100
-                else:
-                    if hasattr(abs_obj, "start_time") and hasattr(abs_obj, "end_time"):
-                        if abs_obj.start_time <= now <= abs_obj.end_time:
-                            price = price * (100 - abs_obj.percent_abs) / 100
-
-            total_price += cart_item.quantity * price
-            total_quantity += cart_item.quantity
+            grand_total += price * cart.quantity
+            total_quantity += cart.quantity
 
         return {
-            "total_price": round(total_price, 2),
+            "total_price": int(grand_total),   
             "total_quantity": total_quantity,
-            "items_count": len(cart_items),
+            "items_count": len(rows),
         }
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server: {str(e)}")

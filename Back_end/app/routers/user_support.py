@@ -92,5 +92,4 @@ async def submit_support_request(
 
     return SupportTicketResponse(
         message="🎫 Yêu cầu của bạn đã được ghi nhận thành công!",
-        attachment_url=attachment_url,
     )

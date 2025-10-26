@@ -7,7 +7,6 @@ from app.schemas.product import ProductSchema
 class CartBase(BaseModel):
     product_id: int
     quantity: int = 1
-    selected: bool = True   # ✅ thêm thuộc tính chọn/bỏ chọn
 
 
 class CartCreate(CartBase):
@@ -16,8 +15,6 @@ class CartCreate(CartBase):
 
 class CartUpdate(BaseModel):
     quantity: Optional[int] = None
-    selected: Optional[bool] = None  # ✅ cho phép cập nhật trạng thái chọn
-
 
 class CartInDBBase(CartBase):
     id: int

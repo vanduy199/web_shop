@@ -88,16 +88,7 @@ def update_ticket_status_admin(
 ):
     if payload.status is None and payload.priority is None:
         raise HTTPException(status_code=400, detail="Phải truyền ít nhất 'status' hoặc 'priority'.")
-
-    ALLOWED_STATUS = {"New", "Open", "Pending", "Resolved", "Closed"}
-    ALLOWED_PRIORITY = {"Low", "Medium", "High", "Urgent"}
-
-    if payload.status is not None and payload.status not in ALLOWED_STATUS:
-        raise HTTPException(status_code=422, detail=f"Status không hợp lệ. Cho phép: {sorted(ALLOWED_STATUS)}")
-
-    if payload.priority is not None and payload.priority not in ALLOWED_PRIORITY:
-        raise HTTPException(status_code=422, detail=f"Priority không hợp lệ. Cho phép: {sorted(ALLOWED_PRIORITY)}")
-
+        
     ticket = (
         db.query(SupportTicketModel)
         .options(
