@@ -235,3 +235,92 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn("No productId found in localStorage");
     }
 });
+const API_URL = "http://localhost:8000";  // 🔁 thay bằng backend của bạn
+const PRODUCT_ID = 15;                    // 🧩 id sản phẩm hiện tại
+
+// Gửi request có token
+async function fetchWithAuth(url, options = {}) {
+  options.headers = {
+    ...options.headers,
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json"
+  };
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error("Lỗi khi gọi API");
+  return res.json();
+}
+
+// Lấy danh sách bình luận
+async function loadReviews() {
+  try {
+    const res = await fetch(`${API_URL}/reviews/?product_id=${PRODUCT_ID}`);
+    const data = await res.json();
+    renderReviews(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Gửi bình luận cha
+async function sendComment() {
+  const comment = document.getElementById("commentInput").value.trim();
+  if (!comment) return alert("Vui lòng nhập nội dung!");
+
+  await fetchWithAuth(`${API_URL}/reviews/`, {
+    method: "POST",
+    body: JSON.stringify({
+      product_id: PRODUCT_ID,
+      comment: comment,
+      rating: null,
+      id_parent: null
+    })
+  });
+
+  document.getElementById("commentInput").value = "";
+  loadReviews();
+}
+
+// Gửi phản hồi con
+async function sendReply(parentId, productId) {
+  const input = document.getElementById(`reply-${parentId}`);
+  const text = input.value.trim();
+  if (!text) return alert("Nhập phản hồi trước khi gửi!");
+
+  await fetchWithAuth(`${API_URL}/reviews/response`, {
+    method: "POST",
+    body: JSON.stringify({
+      product_id: productId,
+      comment: text
+    })
+  });
+
+  input.value = "";
+  loadReviews();
+}
+
+// Hiển thị danh sách bình luận
+function renderReviews(reviews) {
+  const container = document.getElementById("reviewsContainer");
+  container.innerHTML = "";
+
+  reviews.forEach(rv => {
+    const div = document.createElement("div");
+    div.className = "review";
+    div.innerHTML = `
+      <p><b>Người dùng #${rv.user_id}</b> (${new Date(rv.created_at).toLocaleString()}):</p>
+      <p>${rv.comment ?? ""}</p>
+      <div class="reply-box">
+        <input type="text" id="reply-${rv.product_id}-${rv.user_id}" placeholder="Phản hồi bình luận..." />
+        <button onclick="sendReply(${rv.product_id}, ${rv.product_id})">Gửi</button>
+      </div>
+      ${rv.comment_children.map(child => `
+        <div class="reply">↳ ${child.comment}</div>
+      `).join("")}
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Khởi tạo
+document.getElementById("sendCommentBtn").addEventListener("click", sendComment);
+loadReviews();

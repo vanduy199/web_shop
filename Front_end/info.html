@@ -162,40 +162,35 @@
                     <h2>Cấu hình chi tiết</h2>
                     <div id="specifications"></div>
                     <div class="info__content row">
-                        <div
-                            class="info__qa col-md-5"
-                            style="width: max-content"
-                        >
-                            <h2
-                                style="
-                                    font-weight: 700;
-                                    color: #d70018;
-                                    font-size: 20px;
-                                "
-                            >
-                                <i
-                                    class="fa-regular fa-circle-question"
-                                    style="color: #f5193a"
-                                ></i>
-                                HỎI VÀ ĐÁP
-                            </h2>
-                            <br />
-                            <textarea
-                                cols="70"
-                                rows="7"
-                                placeholder="Vui lòng để lại câu hỏi, chúng tôi sẽ cố gắng phản hồi sớm nhất"
-                            ></textarea>
-                            <br />
-                            <button
-                                style="
-                                    color: white;
-                                    background-color: #d70018;
-                                    border: none;
-                                "
-                            >
-                                <i class="fa-solid fa-paper-plane"></i> Gửi
-                            </button>
-                        </div>
+  <div class="info__content row">
+  <div class="info__qa col-md-5" style="width: max-content">
+    <h2 style="font-weight: 700; color: #d70018; font-size: 20px;">
+      <i class="fa-regular fa-circle-question" style="color: #f5193a"></i>
+      HỎI VÀ ĐÁP
+    </h2>
+    <br />
+
+    <textarea
+      id="commentInput"
+      cols="70"
+      rows="7"
+      placeholder="Vui lòng để lại câu hỏi, chúng tôi sẽ phản hồi sớm nhất"
+    ></textarea>
+    <br />
+
+    <button
+      id="sendCommentBtn"
+      style="color: white; background-color: #d70018; border: none;"
+    >
+      <i class="fa-solid fa-paper-plane"></i> Gửi
+    </button>
+
+    <hr />
+    <div id="reviewsContainer"></div>
+  </div>
+</div>
+
+
                         <div class="rate col-md-5">
                             <h2
                                 style="
