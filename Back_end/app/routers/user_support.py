@@ -6,7 +6,7 @@ import uuid, os
 from app.core.config import SessionLocal
 from app.models.support import SupportTicketModel, SupportMessageModel
 from app.models.user import User
-from app.dependencies.auth import get_current_user_optional
+from app.services.authentication import get_current_user_optional
 from app.schemas.support import SupportTicketResponse
 
 router = APIRouter(prefix="/api/support", tags=["User Support"])

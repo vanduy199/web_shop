@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.review import Review
 from app.schemas.review import ReviewCreate, Response, ReviewOut
-from app.dependencies.auth import get_current_user, require_admin
+from app.services.authentication import get_current_user, require_admin
 from app.models.user import User
 from app.core.config import SessionLocal
 from typing import Optional, List

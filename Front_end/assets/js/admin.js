@@ -299,6 +299,7 @@ async function loadCustomers() {
                 <td>${u.email || ''}</td>
                 <td>${u.role || ''}</td>
                 <td>${u.created_at ? new Date(u.created_at).toLocaleString() : ''}</td>
+                <td>${typeof u.orders_count === 'number' ? u.orders_count : (u.orders_count ? Number(u.orders_count) : 0)}</td>
             </tr>
         `);
         tbody.innerHTML = rows.join('');
