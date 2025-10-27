@@ -528,4 +528,190 @@ def get_product_recommendations(db: Session, product_id: int, top_n: int = 5) ->
     except Exception as e:
         print(f"Lỗi trong recommendation: {e}")
         return None
+
+
+def get_user_recommendations(db: Session, user_id: int, top_n: int = 32) -> List[OutPutAbs] | None:
+    try:
+        if similarity_matrix is None:
+            return None
+        
+        # Lấy user activity - lọc distinct product, lấy hành động gần nhất
+        from app.models.user_activity import UserActivity
+        all_activities = db.query(UserActivity).filter(
+            UserActivity.user_id == user_id
+        ).order_by(UserActivity.created_at.desc()).all()
+        
+        # Lấy 5 sản phẩm khác nhau gần đây nhất user xem
+        seen_products = set()
+        user_activities = []
+        for activity in all_activities:
+            if activity.product_id not in seen_products:
+                user_activities.append(activity)
+                seen_products.add(activity.product_id)
+                if len(user_activities) >= 5:
+                    break
+        
+        if not user_activities:
+            # Nếu user chưa có activity, trả về sản phẩm promotion mới nhất
+            return get_promotion_products(db, top_n)
+        
+        # Lấy tất cả sản phẩm
+        all_products = db.query(Product).all()
+        if not all_products:
+            return None
+        
+        # Tạo mapping
+        product_id_to_idx = {p.id: idx for idx, p in enumerate(all_products)}
+        
+        # Thu thập sản phẩm gợi ý từ những sản phẩm user đã xem
+        recommended_ids = set()
+        now = datetime.now()
+        
+        for activity in user_activities:
+            if activity.product_id not in product_id_to_idx:
+                continue
+            
+            product_idx = product_id_to_idx[activity.product_id]
+            similarities = similarity_matrix[product_idx]
+            
+            # Lấy top 5 tương tự cho mỗi sản phẩm user đã xem
+            top_indices = np.argsort(similarities)[::-1][1:6]
+            
+            for idx in top_indices:
+                recommended_ids.add(all_products[idx].id)
+        
+        # Lấy thông tin chi tiết sản phẩm recommend
+        recommendations = []
+        for product_id in list(recommended_ids)[:top_n]:
+            product = db.query(Product).filter(Product.id == product_id).first()
+            if not product:
+                continue
+            
+            promotion = db.query(Abs).filter(
+                Abs.product_id == product_id,
+                Abs.start_time <= now,
+                Abs.end_time >= now
+            ).first()
+            
+            product_name = product.name
+            if product.phanloai == "laptop" and "(" in product_name:
+                product_name = product_name.split("(")[0]
+            
+            recommendations.append(
+                OutPutAbs(
+                    id=product.id,
+                    name=product_name,
+                    price=product.price,
+                    thumb=product.thumb,
+                    main_image=product.main_image,
+                    phanloai=product.phanloai,
+                    percent_abs=promotion.percent_abs if promotion else 0,
+                    start_time=promotion.start_time if promotion else None,
+                    end_time=promotion.end_time if promotion else None,
+                )
+            )
+        
+        return recommendations if recommendations else get_promotion_products(db, top_n)
     
+    except Exception as e:
+        print(f"Lỗi trong user recommendation: {e}")
+        return get_promotion_products(db, top_n)
+
+
+def get_promotion_products(db: Session, top_n: int = 32) -> List[OutPutAbs]:
+
+    try:
+        now = datetime.now()
+        promotions = db.query(Abs).filter(
+            Abs.start_time <= now,
+            Abs.end_time >= now
+        ).order_by(Abs.start_time.desc()).limit(top_n).all()
+        
+        recommendations = []
+        for promotion in promotions:
+            product = promotion.product
+            if not product or product.price is None:
+                continue
+            
+            product_name = product.name
+            if product.phanloai == "laptop" and "(" in product_name:
+                product_name = product_name.split("(")[0]
+            
+            recommendations.append(
+                OutPutAbs(
+                    id=product.id,
+                    name=product_name,
+                    price=product.price,
+                    thumb=product.thumb,
+                    main_image=product.main_image,
+                    phanloai=product.phanloai,
+                    percent_abs=promotion.percent_abs,
+                    start_time=promotion.start_time,
+                    end_time=promotion.end_time,
+                )
+            )
+        
+        return recommendations
+    
+    except Exception as e:
+        print(f"Lỗi lấy promotion products: {e}")
+        return []
+
+
+def get_trending_products(db: Session, top_n: int = 32) -> List[OutPutAbs]:
+    try:
+        from app.models.user_activity import UserActivity
+        from sqlalchemy import func
+        
+        # Lấy top products by interaction count
+        activity_counts = db.query(
+            UserActivity.product_id,
+            func.count(UserActivity.id).label('interaction_count')
+        ).group_by(UserActivity.product_id).order_by(
+            func.count(UserActivity.id).desc()
+        ).limit(top_n).all()
+        
+        if not activity_counts:
+            # Fallback: nếu chưa có activity, trả promotion products
+            return get_promotion_products(db, top_n)
+        
+        trending_product_ids = [ac[0] for ac in activity_counts]
+        now = datetime.now()
+        
+        recommendations = []
+        for product_id in trending_product_ids:
+            product = db.query(Product).filter(Product.id == product_id).first()
+            if not product or product.price is None:
+                continue
+            
+            promotion = db.query(Abs).filter(
+                Abs.product_id == product_id,
+                Abs.start_time <= now,
+                Abs.end_time >= now
+            ).first()
+            
+            product_name = product.name
+            if product.phanloai == "laptop" and "(" in product_name:
+                product_name = product_name.split("(")[0]
+            
+            recommendations.append(
+                OutPutAbs(
+                    id=product.id,
+                    name=product_name,
+                    price=product.price,
+                    thumb=product.thumb,
+                    main_image=product.main_image,
+                    phanloai=product.phanloai,
+                    percent_abs=promotion.percent_abs if promotion else 0,
+                    start_time=promotion.start_time if promotion else None,
+                    end_time=promotion.end_time if promotion else None,
+                )
+            )
+        
+        return recommendations if recommendations else get_promotion_products(db, top_n)
+    
+    except Exception as e:
+        print(f"Lỗi lấy trending products: {e}")
+        return get_promotion_products(db, top_n)
+    
+

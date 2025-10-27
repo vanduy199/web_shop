@@ -76,6 +76,40 @@ def search_products(
     )
     return output
 
+@router.get("/recommend/user")
+def recommend_for_user(
+    db: DBSession = Depends(get_db),
+    current_user = Depends(get_current_user),
+    top_n: int = Query(32, ge=1, le=64)
+):
+    """Lấy sản phẩm gợi ý dựa trên user activity (yêu cầu login)"""
+    recommendations = product_service.get_user_recommendations(db, current_user.id, top_n)
+    
+    if recommendations is None:
+        recommendations = []
+    
+    return {
+        "success": True,
+        "data": recommendations,
+        "count": len(recommendations)
+    }
+
+
+@router.get("/recommend/trending")
+def get_trending_products(
+    db: DBSession = Depends(get_db),
+    top_n: int = Query(32, ge=1, le=64)
+):
+    """Lấy sản phẩm trending dựa trên số lượt tương tác (không yêu cầu login)"""
+    recommendations = product_service.get_trending_products(db, top_n)
+    
+    return {
+        "success": True,
+        "data": recommendations,
+        "count": len(recommendations)
+    }
+
+
 @router.get("/recommend/{product_id}")
 def recommend_products(
     product_id: int,

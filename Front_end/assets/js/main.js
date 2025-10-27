@@ -135,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Tải dữ liệu ban đầu (tất cả sản phẩm)
     fetchData(null);
+    
+    // Load recommendations dựa user activity
+    loadUserRecommendations();
 });
 
 const url_banners = "http://127.0.0.1:8000/banners/raw";
@@ -190,4 +193,153 @@ function renderBanners(Banners) {
         bannermidRImg.src = link_base + midRightBanner.image_url;
     }
 }
+
+
+async function loadUserRecommendations() {
+    const token = localStorage.getItem("access_token");
+    const container = document.getElementById("recommendationsContainer");
+    
+    let endpoint;
+    let options = {};
+    
+    if (token) {
+        // User đã login - dùng personalized recommendations
+        endpoint = "http://127.0.0.1:8000/api/recommend/user?top_n=32";
+        options = {
+            headers: { "Authorization": `Bearer ${token}` }
+        };
+    } else {
+        // User chưa login - dùng trending products
+        endpoint = "http://127.0.0.1:8000/api/recommend/trending?top_n=12";
+    }
+    
+    try {
+        const res = await fetch(endpoint, options);
+        
+        if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        renderUserRecommendations(data.data || []);
+    } catch (err) {
+        console.error("Lỗi load gợi ý:", err);
+        container.innerHTML = "<p style='text-align:center;color:#999;'>Không có gợi ý sản phẩm</p>";
+    }
+}
+
+// Render recommendations với Slick Slider
+function renderUserRecommendations(recommendations) {
+    const container = document.getElementById("recommendationsContainer");
+    
+    if (!recommendations || recommendations.length === 0) {
+        container.innerHTML = "<p style='text-align:center;color:#999;padding:40px 0;'>Không có gợi ý sản phẩm</p>";
+        return;
+    }
+    
+    // Destroy slider nếu đã tồn tại
+    if ($(container).hasClass('slick-initialized')) {
+        $(container).slick('unslick');
+    }
+    
+    // Render HTML giống info.js
+    const htmlList = recommendations.map(function (product) {
+         var now = new Date();
+            var end = new Date(product.end_time);
+            var diffMs = end - now;
+
+            var timeLeft = "Hết hạn";
+            if (diffMs > 0) {
+                var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                var diffHours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+                var diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
+                timeLeft = `${diffDays} ngày ${diffHours} giờ ${diffMinutes} phút`;
+            }
+
+            var price = Number(product.price) || 0;
+            var percent = Number(product.percent_abs) || 0;
+            var priceSale = new Intl.NumberFormat("de-DE", {
+                style: "currency",
+                currency: "VND",
+            }).format(price - (percent / 100) * price);
+            if (product.percent_abs > 0) {
+                return `
+                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                        <div class="product__item" data-id="${product.id}">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                                <div class="product__media-promotion">-${product.percent_abs}%</div>
+                            </div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else {
+                return `
+                    <div class="col-lg-3 col-md-4 col-6 my-3">
+                        <div class="product__item" data-id="${product.id}">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                            </div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+        })
+        .join("");
+    
+    // Set HTML với row
+    container.innerHTML = `<div class="row product__list recommendation-list">${htmlList}</div>`;
+    
+    
+}
+
+// Add click listeners to recommendation products
+function addRecommendationClickListeners() {
+    const recommendationItems = document.querySelectorAll("#recommendationsContainer .product__item");
+    recommendationItems.forEach(item => {
+        item.addEventListener("click", function() {
+            const productId = item.getAttribute("data-id");
+            const productName = item.querySelector(".product__info h3").innerText;
+            const productImage = item.querySelector(".product__media-img").src;
+            const productPrice = item.querySelector(".product__price span:first-child").innerText;
+            const productPrice2 = productPrice.replace(/[^0-9]/g, "");
+            
+            localStorage.setItem("productId", productId);
+            localStorage.setItem("productName", productName);
+            localStorage.setItem("productImage", productImage);
+            localStorage.setItem("productPrice", productPrice2);
+            
+            window.location.href = "info.html";
+        });
+    });
+}
+    
     
