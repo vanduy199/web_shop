@@ -314,6 +314,14 @@ function renderReviews(reviews) {
     const div = document.createElement("div");
     div.className = "review";
     
+    // Tạo sao display
+    const starDisplay = Array(5).fill('').map((_, i) => {
+      return `<i class="fa-${i < (rv.rating || 0) ? 'solid' : 'regular'} fa-star" style="color: #f39c12; font-size: 14px;"></i>`;
+    }).join('');
+    
+    // Format ngày
+    const reviewDate = new Date(rv.created_at).toLocaleString('vi-VN');
+    
     // Chỉ admin mới thấy reply box
     const replyBox = (userRole === 'admin') ? `
       <div class="reply-box">
@@ -327,7 +335,8 @@ function renderReviews(reviews) {
       <p>${rv.comment ?? ""}</p>
       ${replyBox}
       ${(rv.comment_children || []).map(child => `
-        <div class="reply">↳ ${child.comment}</div>
+          <div class="reply">↳ ${child.comment}</div>
+
       `).join("")}
     `;
     container.appendChild(div);
