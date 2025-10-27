@@ -57,7 +57,7 @@ def get_review(
     product_id,
     db: Session = Depends(get_db)
 ):
-    reviews = db.query(Review).filter((Review.product_id == product_id) & (Review.id_parent == None)).order_by(Review.created_at).all()
+    reviews = db.query(Review).filter((Review.product_id == product_id) & (Review.id_parent == None) & (Review.comment != None)).order_by(Review.created_at).all()
     review_all = []
     for review in reviews:
         x = review.id
