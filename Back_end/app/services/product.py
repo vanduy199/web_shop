@@ -290,7 +290,8 @@ def parse_price_string(price_str: str) -> int | None:
         return int(text)
     except (ValueError, IndexError):
         return None
-
+# 8, 'Samsung Galaxy Z Flip7 5G 12GB/256GB', '27000000.00', 'dien thoai', 'phone', 'Samsung', 12, 256, '4300', 'Bluetooth: v5.4 | Chất liệu: Khung nhôm & Mặt lưng kính cường lực | Chip đồ họa (GPU): Xclipse 950 | Chip xử lý (CPU): Exynos 2500 10 nhân | Chống nước/bụi: IP48 | Cổng kết nối: Type-C | Công nghệ màn hình: Chính: Dynamic AMOLED 2X, Phụ: Super AMOLED | Công nghệ pin: Tiết kiệm pin | Sạc pin nhanh | Sạc không dây | Công suất sạc tối đa: 25 W | Danh bạ: Không giới hạn | Đèn flash camera sau: Có | Định dạng âm thanh: DFF | XMF | WAV | RTX | RTTTL | OTA | OGG | OGA | MXMF | MP3 | Midi | M4A | IMY | FLAC | DSF | AWB | APE | AMR | AAC | 3GA | Định dạng video: WEBM | MP4 | MKV | M4V | FLV | AVI | 3GP | 3G2 | Độ phân giải camera sau: Chính 50 MP & Phụ 12 MP | Độ phân giải camera trước: 10 MP | Độ phân giải màn hình: Chính: Full HD+ (1080 x 2520 Pixels) & Phụ: 948 x 1048 Pixels | Độ sáng tối đa: 2600 nits | Dung lượng khả dụng: 223.8 GB | Dung lượng lưu trữ: 256 GB | Dung lượng pin: 4300 mAh | Ghi âm: Ghi âm mặc định | Ghi âm cuộc gọi | GPS: QZSS | GPS | GLONASS | GALILEO | BEIDOU | Hệ điều hành: Android 16 | Jack tai nghe: Type-C | Kết nối khác: OTG | NFC | Kích thước & Trọng lượng: Dài 166.7 (khi mở) | 85.5 mm (khi gập) - Ngang 75.2 mm - Dày 6.5 mm (khi mở) | 13.7 mm (khi gập) - Nặng 188g | Kích thước màn hình: Chính 6.9 | Kính bảo vệ màn hình: Kính cường lực Corning Gorilla Glass Victus 2 | Loại pin: Li-Ion | Mạng di động: Hỗ trợ 5G | Quay video camera sau: FullHD 1080p@240fps | FullHD 1080p@120fps | 4K 2160p@60fps | RAM: 12 GB | SIM: 1 Nano SIM + 1 eSIM hoặc 2 eSIM | Thiết kế: Nguyên khối | Tính năng bảo mật: Mở khoá vân tay cạnh viền | Mở khoá khuôn mặt | Tính năng camera sau: Xóa phông | Tự động lấy nét (AF) | Toàn cảnh (Panorama) | Quay chậm (Slow Motion) | Làm đẹp | HDR | Góc siêu rộng (Ultrawide) | Chống rung quang học (OIS) | Chọn ảnh chân dung đẹp nhất (Best Face) | Ban đêm (Night Mode) | Audio zoom | Tính năng camera trước: Xóa phông | Làm đẹp | Chọn ảnh chân dung đẹp nhất (Best Face) | Tính năng đặc biệt: Vision Booster | Trợ lý ảo Google Gemini | Samsung DeX (Kết nối màn hình sử dụng giao diện tương tự PC) | Now Brief | Khoanh tròn để tìm kiếm | Audio Eraser | Tốc độ CPU: 3.3 GHz | Wi-Fi: Wi-Fi MIMO | Wi-Fi hotspot | Wi-Fi Display | Wi-Fi 7 | Dual-band (2.4 GHz/5 GHz) | 6 GHz'
+# s24 : điện thoại samsung
 def parse_master_query(query: str) -> dict:
     conditions = {}
     q = normalize_vietnamese_string(query)
@@ -344,7 +345,7 @@ def parse_master_query(query: str) -> dict:
                 conditions[key] = price_val
                 q = re.sub(pattern, '', q).strip()
                 
-    
+    # hoa hoang
     ram_pattern = r'\b(\d+)\s*(?:g|gb)?\s*ram\b|\bram\s*(\d+)\s*(?:g|gb)\b'
     ram_match = re.search(ram_pattern, q)
     if ram_match:
@@ -375,6 +376,7 @@ def parse_master_query(query: str) -> dict:
                 conditions['storage_gb'] = gb_value
                 q = re.sub(r'\b(\d+)\s*(?:g|gb)\b', '', q, count=1).strip()
     
+    #fullindex
     # Text search cho phần còn lại
     q_clean = re.sub(r'\s+', ' ', q).strip()
     if q_clean:
@@ -541,29 +543,27 @@ def get_user_recommendations(db: Session, user_id: int, top_n: int = 32) -> List
             UserActivity.user_id == user_id
         ).order_by(UserActivity.created_at.desc()).all()
         
-        # Lấy 5 sản phẩm khác nhau gần đây nhất user xem
         seen_products = set()
         user_activities = []
         for activity in all_activities:
             if activity.product_id not in seen_products:
                 user_activities.append(activity)
                 seen_products.add(activity.product_id)
-                if len(user_activities) >= 5:
+                if len(user_activities) >= 8:
                     break
         
         if not user_activities:
-            # Nếu user chưa có activity, trả về sản phẩm promotion mới nhất
             return get_promotion_products(db, top_n)
         
-        # Lấy tất cả sản phẩm
+
         all_products = db.query(Product).all()
         if not all_products:
             return None
         
-        # Tạo mapping
+  
         product_id_to_idx = {p.id: idx for idx, p in enumerate(all_products)}
         
-        # Thu thập sản phẩm gợi ý từ những sản phẩm user đã xem
+
         recommended_ids = set()
         now = datetime.now()
         
@@ -574,13 +574,13 @@ def get_user_recommendations(db: Session, user_id: int, top_n: int = 32) -> List
             product_idx = product_id_to_idx[activity.product_id]
             similarities = similarity_matrix[product_idx]
             
-            # Lấy top 5 tương tự cho mỗi sản phẩm user đã xem
-            top_indices = np.argsort(similarities)[::-1][1:6]
+ 
+            top_indices = np.argsort(similarities)[::-1][1:8]
             
             for idx in top_indices:
                 recommended_ids.add(all_products[idx].id)
         
-        # Lấy thông tin chi tiết sản phẩm recommend
+
         recommendations = []
         for product_id in list(recommended_ids)[:top_n]:
             product = db.query(Product).filter(Product.id == product_id).first()
@@ -610,6 +610,15 @@ def get_user_recommendations(db: Session, user_id: int, top_n: int = 32) -> List
                     end_time=promotion.end_time if promotion else None,
                 )
             )
+        
+        # Nếu không đủ top_n sản phẩm → Thêm trending
+        if len(recommendations) < top_n:
+            trending = get_trending_products(db, top_n - len(recommendations))
+            # Lọc để tránh duplicate
+            existing_ids = {r.id for r in recommendations}
+            for product in trending:
+                if product.id not in existing_ids and len(recommendations) < top_n:
+                    recommendations.append(product)
         
         return recommendations if recommendations else get_promotion_products(db, top_n)
     

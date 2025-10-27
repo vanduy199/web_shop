@@ -23,7 +23,7 @@ def create_review(
     current_user: User = Depends(get_current_user)
 ):
     new_review = Review(
-        user_id=current_user.id,        # ✅ Lấy user từ token
+        user_id=current_user.id,        
         product_id=review.product_id,
         rating=review.rating,
         comment=review.comment,

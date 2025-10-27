@@ -210,7 +210,7 @@ async function loadUserRecommendations() {
         };
     } else {
         // User chưa login - dùng trending products
-        endpoint = "http://127.0.0.1:8000/api/recommend/trending?top_n=12";
+        endpoint = "http://127.0.0.1:8000/api/recommend/trending?top_n=32";
     }
     
     try {
