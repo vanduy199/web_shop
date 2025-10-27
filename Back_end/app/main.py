@@ -11,6 +11,9 @@ from app.routers import orders
 from app.routers import guest_router
 
 from app.routers import review
+from app.routers import banners as banners_router
+from app.routers import public_banners
+from pathlib import Path
 app = FastAPI(title="Product & ABS API")
 
 bearer_scheme = HTTPBearer()
@@ -42,6 +45,11 @@ def custom_openapi():
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
+BASE_DIR = Path(__file__).resolve().parents[0]  # points to app/
+STATIC_DIR = BASE_DIR / "static"
+# ensure static and banners exist on startup
+STATIC_DIR.joinpath("banners").mkdir(parents=True, exist_ok=True)
+
 app.openapi = custom_openapi
 
 # ---- Cấu hình CORS ----
@@ -53,7 +61,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 app.include_router(api_router)
 app.include_router(user_router.router, tags=["Users"])
@@ -66,3 +74,5 @@ app.include_router(guest_router.router)
 app.include_router(review.router, tags=["Reviews"])
 app.include_router(authentication.router, tags=["Auth"])
 app.include_router(orders.router, tags=["Orders"])
+app.include_router(banners_router.router)        # /admin/banners
+app.include_router(banners_router.public_router) # /banners

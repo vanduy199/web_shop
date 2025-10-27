@@ -2,6 +2,16 @@ const tbody = document.querySelector(".order__content");
 const API_BASE = "http://127.0.0.1:8000/orders/";
 const token = localStorage.getItem("access_token");
 
+function statusPriority(s) {
+    if (!s) return 1;
+    s = String(s).toLowerCase().trim();
+    if (["pending", "đang xử lý"].includes(s)) return 0;
+    if (["processing", "delivering", "đang giao"].includes(s)) return 1;
+    if (["completed", "hoàn thành", "delivered"].includes(s)) return 2;
+    if (["cancelled", "canceled", "đã hủy"].includes(s)) return 3;
+    return 1;
+}
+
 async function loadOrders() {
     try {
         const res = await fetch(API_BASE,
@@ -17,6 +27,16 @@ async function loadOrders() {
         let orders = await res.json();
         console.log(orders)
         if (!Array.isArray(orders)) orders = orders ? [orders] : [];
+
+        // sort: pending/processing first, completed/cancelled last; within same priority sort by created_at desc
+        orders.sort((a, b) => {
+            const pa = statusPriority(a.status);
+            const pb = statusPriority(b.status);
+            if (pa !== pb) return pa - pb;
+            const da = a.created_at ? new Date(a.created_at) : 0;
+            const db = b.created_at ? new Date(b.created_at) : 0;
+            return db - da;
+        });
 
         tbody.innerHTML = "";
         if (orders.length === 0) {

@@ -48,15 +48,15 @@
             <span>Trang Chủ</span>
           </div>
         </li>
-
-        <div class="nav__heading">QUẢN LÝ SẢN PHẨM</div>
+        <div class="nav__heading">QUẢN LÝ BANNERS</div>
         <li class="nav__item">
-          <div class="nav-link nav__link" id="nav-type">
-            <i class="fa-solid fa-list nav__icon"></i>
-            <span>Danh Mục</span>
-            <ul id="list-type"></ul>
+          <div class="nav-link nav__link nav__banners">
+            <i class="fa-solid fa-images nav__icon"></i>
+            <span>Banners</span>
           </div>
-        </li>
+        </li> 
+        <div class="nav__heading">QUẢN LÝ SẢN PHẨM</div>
+        
         <li class="nav__item">
           <div class="nav-link nav__link nav__product">
             <i class="fa-solid fa-bag-shopping nav__icon"></i>
@@ -102,15 +102,101 @@
       </ul>
     </nav>
 
+
     <main class="col-md-10 offset-md-2">
       <div class="item-content">
         <div class="item-pane active" id="home-pane">
           <div class="container">Chào mừng đến với trang quản trị!</div>
         </div>
 
-        <div class="item-pane" id="category-pane">
-          <div class="container">Quản lý danh mục sản phẩm</div>
+        
+       <div class="item-pane banners-management" id="banners-pane">
+  <div class="col py-3 px-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="section__heading">QUẢN LÝ BANNERS (4 VỊ TRÍ CỐ ĐỊNH)</h2>
+    </div>
+
+    <div class="row g-3" id="banner-slots">
+      <!-- Top -->
+      <div class="col-md-3 col-6">
+        <div class="card p-3 text-center">
+          <h6 class="mb-2">Top</h6>
+          <img id="slot-top-img" src="../assets/img/placeholder.png" class="img-fluid mb-2 slot-img" alt="Top">
+          <div>
+            <button class="btn btn-sm btn-primary btn-select-slot" data-pos="homepage_top">Chọn ảnh</button>
+            <button class="btn btn-sm btn-danger btn-clear-slot" data-pos="homepage_top">Gỡ ảnh</button>
+          </div>
+          <div class="small text-muted mt-2" id="slot-homepage_top-info"></div>
         </div>
+      </div>
+
+      <!-- Left -->
+      <div class="col-md-3 col-6">
+        <div class="card p-3 text-center">
+          <h6 class="mb-2">Left</h6>
+          <img id="slot-left-img" src="../assets/img/placeholder.png" class="img-fluid mb-2 slot-img" alt="Left">
+          <div>
+            <button class="btn btn-sm btn-primary btn-select-slot" data-pos="homepage_mid_left">Chọn ảnh</button>
+            <button class="btn btn-sm btn-danger btn-clear-slot" data-pos="homepage_mid_left">Gỡ ảnh</button>
+          </div>
+          <div class="small text-muted mt-2" id="slot-homepage_mid_left-info"></div>
+        </div>
+      </div>
+
+      <!-- Mid -->
+      <div class="col-md-3 col-6">
+        <div class="card p-3 text-center">
+          <h6 class="mb-2">Mid</h6>
+          <img id="slot-mid-img" src="../assets/img/placeholder.png" class="img-fluid mb-2 slot-img" alt="Mid">
+          <div>
+            <button class="btn btn-sm btn-primary btn-select-slot" data-pos="homepage_mid_center">Chọn ảnh</button>
+            <button class="btn btn-sm btn-danger btn-clear-slot" data-pos="homepage_mid_center">Gỡ ảnh</button>
+          </div>
+          <div class="small text-muted mt-2" id="slot-homepage_mid_center-info"></div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="col-md-3 col-6">
+        <div class="card p-3 text-center">
+          <h6 class="mb-2">Right</h6>
+          <img id="slot-right-img" src="../assets/img/placeholder.png" class="img-fluid mb-2 slot-img" alt="Right">
+          <div>
+            <button class="btn btn-sm btn-primary btn-select-slot" data-pos="homepage_mid_right">Chọn ảnh</button>
+            <button class="btn btn-sm btn-danger btn-clear-slot" data-pos="homepage_mid_right">Gỡ ảnh</button>
+          </div>
+          <div class="small text-muted mt-2" id="slot-homepage_mid_right-info"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection / Upload panel (ẩn theo mặc định) -->
+    <div id="banner-selection-panel" style="display:none; margin-top:20px;">
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 id="selection-panel-title">Chọn ảnh cho vị trí</h5>
+          <button id="selection-cancel" class="btn btn-sm btn-secondary">Hủy</button>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Ảnh hiện có (chọn một)</label>
+          <div id="selection-thumbs" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Hoặc upload ảnh mới</label>
+          <input id="selection-upload" type="file" accept="image/*" class="form-control" />
+        </div>
+
+        <div class="d-flex gap-2">
+          <button id="selection-apply" class="btn btn-primary">Áp dụng</button>
+          <button id="selection-upload-and-apply" class="btn btn-success">Upload & Áp dụng</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
         <div class="item-pane item-pane__product" id="product-pane">
           <div class="col py-3 px-5 brand__inner">
@@ -250,7 +336,6 @@
                   <option value="name">Tên</option>
                   <option value="created_at">Ngày tạo</option>
                   <option value="updated_at">Ngày sửa</option>
-                  <option value="orders_count">Số đơn hàng</option>
                 </select>
               </div>
               <div class="col-sm-3">
@@ -275,7 +360,6 @@
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Ngày tạo</th>
-                    <th>Số đơn hàng</th>
                   </tr>
                 </thead>
                 <tbody id="customers-table-body"></tbody>
@@ -311,5 +395,8 @@
     <script src="../assets/js/admin.js"></script>
     <script src="../assets/js/orders_main.js"></script>
     <script src="../assets/js/support-admin.js"></script>
+    <script src="../assets/js/banners_admin.js"></script>
+   
+
   </body>
 </html>
