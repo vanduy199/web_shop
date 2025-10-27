@@ -136,3 +136,58 @@ document.addEventListener('DOMContentLoaded', function () {
     // Tải dữ liệu ban đầu (tất cả sản phẩm)
     fetchData(null);
 });
+
+const url_banners = "http://127.0.0.1:8000/banners/raw";
+
+(async () => {
+    try {
+        const response = await fetch(url_banners, {
+            method: "GET",
+        });
+
+        if (response.ok) {
+            const banners = await response.json();
+            console.log("Banners Data:", banners);
+            renderBanners(banners);
+        } else {
+            console.error("Lỗi HTTP:", response.status, response.statusText);
+        }
+    } catch (error) {
+        console.error("Lỗi kết nối đến server:", error);
+        alert("Không thể kết nối tới máy chủ. Vui lòng thử lại sau.");
+    }
+})();
+
+function renderBanners(Banners) {
+    const link_base = "http://127.0.0.1:8000";
+    console.log("Rendering banners:", Banners);
+    
+    // Top banner
+    const bannerTopImg = document.getElementById("banner-top-img");
+    const topBanner = Banners.find(banner => banner.position === 'homepage_top');
+    if (bannerTopImg && topBanner) {
+        bannerTopImg.src = link_base + topBanner.image_url;
+    }
+    
+    // Mid-left banner
+    const bannermidLImg = document.getElementById("banner-mid-left-img");
+    const midLeftBanner = Banners.find(banner => banner.position === 'homepage_mid_left');
+    if (bannermidLImg && midLeftBanner) {
+        bannermidLImg.src = link_base + midLeftBanner.image_url;
+    }
+    
+    // Mid-center banner
+    const bannermidMImg = document.getElementById("banner-mid-center-img");
+    const midCenterBanner = Banners.find(banner => banner.position === 'homepage_mid_center');
+    if (bannermidMImg && midCenterBanner) {
+        bannermidMImg.src = link_base + midCenterBanner.image_url;
+    }
+    
+    // Mid-right banner
+    const bannermidRImg = document.getElementById("banner-mid-right-img");
+    const midRightBanner = Banners.find(banner => banner.position === 'homepage_mid_right');
+    if (bannermidRImg && midRightBanner) {
+        bannermidRImg.src = link_base + midRightBanner.image_url;
+    }
+}
+    

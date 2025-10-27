@@ -12,7 +12,7 @@ from app.routers import guest_router
 
 from app.routers import review
 from app.routers import banners as banners_router
-from app.routers import public_banners
+from app.routers import public_banners as public_banners
 from pathlib import Path
 app = FastAPI(title="Product & ABS API")
 
@@ -75,4 +75,4 @@ app.include_router(review.router, tags=["Reviews"])
 app.include_router(authentication.router, tags=["Auth"])
 app.include_router(orders.router, tags=["Orders"])
 app.include_router(banners_router.router)        # /admin/banners
-app.include_router(banners_router.public_router) # /banners
+app.include_router(public_banners.router) # /banners

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.config import SessionLocal
 from app.models.banners import Banner
 from app.schemas.banners import BannerOut
-
+from sqlalchemy import text
 router = APIRouter(prefix="/banners", tags=["Banners (public)"])
 
 def get_db():
@@ -14,14 +14,8 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/", response_model=List[BannerOut])
-def read_public_banners(
-    position: Optional[str] = None,
-    banner_position: Optional[str] = None,
-    db: Session = Depends(get_db)
-):
-    p = position or banner_position
-    q = db.query(Banner).filter(Banner.active == True)
-    if p:
-        q = q.filter(Banner.position == p)
-    return q.all()
+@router.get("/raw")
+def read_public_banners_raw(db: Session = Depends(get_db)):
+    query = text("SELECT * FROM banners WHERE position IS NOT NULL")
+    result = db.execute(query)
+    return result.mappings().all()
