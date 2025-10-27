@@ -122,58 +122,76 @@ async function applySelection() {
 }
 
 // upload new file and assign to slot
+// upload new file and assign to slot
 async function uploadAndApply() {
   if (!currentSlotPos) return alert("Vị trí chưa chọn");
   const fileInput = document.getElementById("selection-upload");
   const file = fileInput.files && fileInput.files[0];
   if (!file) return alert("Chưa chọn file upload");
-  const fd = new FormData();
-  fd.append("title", file.name);
-  fd.append("position", currentSlotPos);
-  fd.append("active", "1");
-  fd.append("file", file);
+
   try {
+    // 🟡 1️⃣ Tìm banner cũ ở vị trí hiện tại
+    const oldBanner = bannersList.find(x => x.position === currentSlotPos);
+    if (oldBanner) {
+      console.log("Xóa banner cũ:", oldBanner.id);
+      const delRes = await fetch(`${API_BASE_URL}/admin/banners/${oldBanner.id}`, {
+        method: "DELETE",
+        headers: getAuthHeader()
+      });
+      if (!delRes.ok) {
+        const e = await delRes.json().catch(() => ({ detail: "Unknown" }));
+        console.warn("Không thể xóa banner cũ:", e.detail);
+        // Không throw — vẫn tiếp tục upload ảnh mới
+      }
+    }
+
+    // 🟢 2️⃣ Upload ảnh mới
+    const fd = new FormData();
+    fd.append("title", file.name);
+    fd.append("position", currentSlotPos);
+    fd.append("active", "1");
+    fd.append("file", file);
+
     const res = await fetch(`${API_BASE_URL}/admin/banners/`, {
       method: "POST",
-      headers: getAuthHeader(), // do not set Content-Type
+      headers: getAuthHeader(), // Không set Content-Type khi dùng FormData
       body: fd
     });
     if (!res.ok) {
-      const e = await res.json().catch(()=>({detail:"Unknown"}));
+      const e = await res.json().catch(() => ({ detail: "Unknown" }));
       throw new Error(e.detail || "Upload thất bại");
     }
+
     await loadAllSlots();
     closeSelectionPanel();
-    alert("Upload và gán thành công");
+    alert("Đã cập nhật ảnh mới và xóa ảnh cũ thành công!");
   } catch (err) {
     console.error(err);
     alert("Lỗi upload: " + (err.message || ""));
   }
 }
 
+
 // clear (delete) banner assigned to slot
 async function clearSlot(position) {
   // find banner currently set to position
   const b = bannersList.find(x => x.position === position);
-  if (!b) return alert("Không có banner để bỏ gán ở vị trí này");
-
-  if (!confirm(`Bạn có chắc muốn bỏ gán ảnh ID ${b.id} khỏi vị trí ${position}?`)) return;
+  if (!b) return alert("Không có banner để xóa ở vị trí này");
+  if (!confirm(`Xóa banner ID ${b.id} ở vị trí ${position}?`)) return;
   try {
-    // dùng PUT để cập nhật position => null (bỏ gán) thay vì DELETE
     const res = await fetch(`${API_BASE_URL}/admin/banners/${b.id}`, {
-      method: "PUT",
-      headers: Object.assign({ "Content-Type": "application/json" }, getAuthHeader()),
-      body: JSON.stringify({ position: null })
+      method: "DELETE",
+      headers: getAuthHeader()
     });
     if (!res.ok) {
       const e = await res.json().catch(()=>({detail:"Unknown"}));
-      throw new Error(e.detail || "Bỏ gán thất bại");
+      throw new Error(e.detail || "Xóa thất bại");
     }
     await loadAllSlots();
-    alert("Đã bỏ gán ảnh khỏi vị trí");
+    alert("Xóa thành công");
   } catch (err) {
     console.error(err);
-    alert("Lỗi: " + (err.message || ""));
+    alert("Lỗi xóa: " + (err.message || ""));
   }
 }
 

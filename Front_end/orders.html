@@ -21,36 +21,33 @@
     <!-- CSS -->
     <link rel="stylesheet" href="./assets/css/styles.css" />
     <link rel="stylesheet" href="./assets/css/responsive.css" />
+    <link rel="stylesheet" href="./assets/css/orders.css" />
 </head>
 <body>
     <!-- Header Placeholder -->
     <div id="header-placeholder"></div>
 
     <!-- MAIN -->
-   <main class="order-main">
+  <main class="order-main">
         <div class="order-container container">
             <div class="order__list container mt-4">
                 <h2 class="section__heading ms-3 my-2">Đơn hàng của bạn</h2>
 
-                <table class="table table-hover table-striped table-borderless table-sm mt-3">
-                    <thead class="bg-light">
-                        <tr>
-                            <th scope="col">Mã đơn hàng</th>
-                            <th scope="col">Sản phẩm</th>
-                            <th scope="col">Ngày đặt</th>
-                            <th scope="col">Tổng tiền</th>
-                            <th scope="col">Tình trạng</th>
-                            <th scope="col">Hành động</th> </tr>
-                    </thead>
-                    <tbody class="order__content">
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-spinner fa-spin me-2"></i> Đang tải đơn hàng...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <div class="cart-header-columns d-flex align-items-center mb-3">
+                    <div style="width: 10%; text-align: center;">Mã ĐH</div>
+                    <div style="width: 30%;">Sản phẩm</div>
+                    <div style="width: 15%; text-align: center;">Ngày đặt</div>
+                    <div style="width: 15%; text-align: center;">Tổng tiền</div>
+                    <div style="width: 15%; text-align: center;">Tình trạng</div>
+                    <div style="width: 15%; text-align: center;">Hành động</div>
+                </div>
+
+                <div class="order__content">
+                    <div class="text-center py-5 text-muted" style="border: 1px solid #eee;">
+                        <i class="fas fa-spinner fa-spin me-2"></i> Đang tải đơn hàng...
+                    </div>
+                </div>
+                </div>
         </div>
     </main>
     <!-- Footer Placeholder -->

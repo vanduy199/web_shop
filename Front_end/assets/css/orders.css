@@ -1,0 +1,245 @@
+/* TƯƠNG ĐỐI HÓA VỊ TRÍ CHO CÁC KHỐI CHÍNH */
+.cart-container {
+    width: 90%;
+    margin: 20px auto;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.cart-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #C40000;
+    margin-bottom: 20px;
+    padding-left: 5px;
+}
+
+/* CĂN CHỈNH TIÊU ĐỀ CỘT (Thông tin sản phẩm, Đơn giá,...) */
+.cart-header-columns {
+    display: flex;
+    align-items: center;
+    padding: 0 15px; 
+    margin-bottom: 10px;
+    
+    /* Chỉnh kích thước chữ và độ đậm cho tiêu đề cột */
+    font-size: 16px; 
+    font-weight: 600; 
+    
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+.cart-header-columns .header-col-product {
+    /* Căn chỉnh theo mép ảnh sản phẩm */
+    padding-left: 80px; /* Đã điều chỉnh để khớp mép hình ảnh/checkbox */
+    flex-grow: 1; 
+}
+.cart-header-columns .header-col-price {
+    width: 140px; /* Điều chỉnh lại để khớp với đoạn code cuối cùng của bạn */
+    text-align: right;
+    flex-shrink: 0;
+    margin-right: 30px; 
+}
+.cart-header-columns .header-col-quantity {
+    width: 120px; 
+    text-align: center;
+    flex-shrink: 0;
+}
+.cart-header-columns .header-col-total {
+    width: 120px; 
+    text-align: right;
+    flex-shrink: 0;
+    margin-left: 20px; 
+}
+.cart-header-columns .header-col-action {
+    width: 50px; 
+    flex-shrink: 0;
+}
+
+
+/* CĂN CHỈNH SẢN PHẨM (cart-item) */
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.cart-item-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1; 
+    min-width: 40%;
+}
+
+/* Căn chỉnh Checkbox */
+.cart-item-left input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 0; 
+    align-self: center; 
+    flex-shrink: 0;
+}
+
+.cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Tên sản phẩm: Đậm như tiêu đề */
+.cart-item-left .name {
+    font-weight: 700; 
+    color: #333; 
+}
+
+/* KHỐI CHỨA CÁC CỘT GIÁ/SỐ LƯỢNG/THÀNH TIỀN/XÓA */
+.cart-item-right {
+    display: flex;
+    align-items: center;
+    gap: 0; 
+    flex-shrink: 0;
+    width: 450px; 
+}
+
+/* 1. Đơn giá */
+.cart-item-right .price:nth-child(1) { 
+    width: 140px; 
+    text-align: right;
+    color: #C40000;
+    margin-right: 30px; 
+    font-weight: bold; 
+}
+
+/* 2. Số lượng (Control Group) - Kiểu nút mới */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    width: 120px; 
+    justify-content: center;
+    flex-shrink: 0;
+    
+    border: 1px solid #C40000; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    height: 36px; 
+}
+
+.quantity-control button {
+    background: #C40000; 
+    color: #fff;
+    border: none;
+    padding: 0; 
+    cursor: pointer;
+    font-size: 18px; 
+    font-weight: bold;
+    line-height: 1;
+    flex-basis: 35%; 
+    height: 100%; 
+    border-radius: 0; 
+}
+
+.quantity-control input.quantity-value {
+    border: none;
+    text-align: center;
+    width: 30%; 
+    padding: 0;
+    height: 100%;
+    outline: none;
+    color: #333; 
+    font-size: 18px; 
+    font-weight: bold;
+    background-color: #fff; 
+}
+
+.quantity-control button:first-child {
+    border-right: 1px solid #fff; 
+}
+
+.quantity-control button:last-child {
+    border-left: 1px solid #fff; 
+}
+
+/* 3. Thành tiền */
+.cart-item-right .price:nth-child(3) { 
+    width: 120px;
+    text-align: right;
+    color: #333; 
+    margin-left: 20px; 
+    margin-right: 10px; 
+    font-weight: bold; 
+}
+
+/* 4. Nút Xóa riêng lẻ */
+.btn-remove.remove {
+    width: 35px; 
+    height: 35px; 
+    background: #C40000;
+    color: #fff;
+    border: none;
+    padding: 0; 
+    font-size: 16px; 
+    flex-shrink: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* CĂN CHỈNH VỊ TRÍ CÁC NÚT DƯỚI CÙNG */
+.total-price-text {
+    color: #C40000; 
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 5px !important; /* Đẩy sát nút ĐẶT HÀNG */
+}
+
+.info__right-groupbtn {
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    /* Thiết lập Flexbox để đẩy hai khối ra hai góc */
+    justify-content: space-between !important; 
+    /* Căn chỉnh khối ở dưới cùng */
+    align-items: flex-end !important; 
+    padding-right: 0;
+}
+
+/* Khối nút XÓA */
+.action-buttons {
+    /* Đảm bảo nút XÓA nằm sát góc trái */
+    gap: 0 !important; 
+}
+
+/* Khối ĐẶT HÀNG và Tổng tiền (đã được sắp xếp flex-column trong HTML) */
+.checkout-group {
+    text-align: right;
+}
+
+/* Nút ĐẶT HÀNG */
+.checkout-btn.order-btn {
+    padding: 10px 25px; 
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    text-transform: uppercase;
+    background: #C40000; 
+    color: #fff;
+}
+/* Nút XÓA */
+.delete-selected-btn {
+    padding: 10px 25px; 
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    text-transform: uppercase;
+    background: #C40000; /* Dùng màu đỏ thống nhất cho nút XÓA */
+    color: #fff;
+}
