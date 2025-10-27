@@ -75,3 +75,23 @@ def search_products(
         show_product=results
     )
     return output
+
+@router.get("/recommend/{product_id}")
+def recommend_products(
+    product_id: int,
+    db: DBSession = Depends(get_db),
+    top_n: int = Query(5, ge=1, le=20)
+):
+    recommendations = product_service.get_product_recommendations(db, product_id, top_n)
+    
+    if recommendations is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Không tìm thấy sản phẩm hoặc mô hình recommendation chưa được tải"
+        )
+    
+    return {
+        "success": True,
+        "data": recommendations,
+        "count": len(recommendations)
+    }

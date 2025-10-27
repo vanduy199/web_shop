@@ -411,9 +411,124 @@ async function postRating() {
   loadRating();
 }
 
-// ================== XỬ LÝ GIAO DIỆN ==================
+
+async function loadRecommendations() {
+  try {
+    const res = await fetch(`${API_URL}/api/recommend/${productId}?top_n=10`);
+    if (!res.ok) throw new Error("Không thể lấy gợi ý");
+    
+    const data = await res.json();
+    renderRecommendations(data.data || []);
+  } catch (err) {
+    console.error("Lỗi lấy gợi ý:", err);
+  }
+}
+
+function renderRecommendations(recommendations) {
+  const container = document.getElementById("recommendationsContainer");
+  if (!container) {
+    console.warn("recommendationsContainer not found in HTML");
+    return;
+  }
+  
+  if (!recommendations || recommendations.length === 0) {
+    container.innerHTML = "<p style='text-align: center; padding: 20px;'>Không có sản phẩm gợi ý</p>";
+    return;
+  }
+  
+  // Tạo HTML cho slider
+  const htmlList = recommendations.map(function (product) {
+            var price = Number(product.price) || 0;
+            var percent = Number(product.percent_abs) || 0;
+            var discountedPrice = price - (percent / 100) * price;
+            
+            var priceSale = new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+            }).format(discountedPrice);
+            
+            var originalPrice = new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+            }).format(price);
+            
+ if (product.percent_abs > 0) {
+                return `
+                    <div class="col-product-5">
+                        <div class="product__item" data-id="${product.id}">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                                <div class="product__media-promotion">-${product.percent_abs}%</div>
+                            </div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else {
+                return `
+                    <div class="col-product-5">
+                        <div class="product__item" data-id="${product.id}">
+                            <div class="product__media">
+                                <img src="${product.thumb}" alt="${product.name}" class="product__media-img" />
+                                <span class="product__media-note">
+                                    <p>BẢO HÀNH 12 THÁNG</p>
+                                </span>
+                            </div>
+                            <div class="product__info">
+                                <h3>${product.name}</h3>
+                                <div class="product__price">
+                                    <span>${priceSale}</span>
+                                    <span class="line-through">${new Intl.NumberFormat("de-DE", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(product.price)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+        })
+        .join("");
+  
+  // Set HTML với row
+  container.innerHTML = `<div class="row product__list recommendation-list">${htmlList}</div>`;
+  // Thêm event listener cho các product items
+  var productItems = document.querySelectorAll(".product__item");
+  productItems.forEach(function (item) {
+      item.addEventListener("click", function () {
+          var productId = item.getAttribute("data-id")
+          var productName = item.querySelector(".product__info h3").innerText;
+          var productImage = item.querySelector(".product__media-img").src;
+          var productPrice = item.querySelector(".product__price span:first-child").innerText;
+          var productPrice2 = productPrice.replace(/[^0-9]/g, "");
+          // Loại bỏ ký tự không phải số
+          localStorage.setItem("productId", productId);
+          localStorage.setItem("productName", productName);
+          localStorage.setItem("productImage", productImage);
+          localStorage.setItem("productPrice", productPrice2);
+          window.location.href = "info.html";
+      });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   loadRating();
+  loadRecommendations(); // Load gợi ý sản phẩm
 
   // chọn sao
   const stars = document.querySelectorAll("#user-stars i");

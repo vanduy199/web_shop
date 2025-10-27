@@ -444,3 +444,88 @@ def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20
         remainingQuantity= max(0,length - page*limit) 
     )
     return (length, result)
+
+
+import pickle
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load models khi service khởi động
+MODELS_DIR = "/home/vanduy/Documents/DATA_SCIENTIST/PYTHON/web_shop/Back_end/app/models/recommendation"
+
+try:
+    with open(f"{MODELS_DIR}/similarity_matrix_v2.pkl", 'rb') as f:
+        similarity_matrix = pickle.load(f)
+    with open(f"{MODELS_DIR}/scaler_v2.pkl", 'rb') as f:
+        scaler = pickle.load(f)
+except Exception as e:
+    similarity_matrix = None
+    scaler = None
+
+def get_product_recommendations(db: Session, product_id: int, top_n: int = 5) -> List[OutPutAbs] | None:
+    if similarity_matrix is None:
+        return None
+    
+    try:
+        base_product = db.query(Product).filter(Product.id == product_id).first()
+        if not base_product:
+            return None
+        
+        # Lấy tất cả sản phẩm để tạo mapping
+        all_products = db.query(Product).all()
+        if not all_products:
+            return None
+        
+        # Tạo mapping id -> index
+        product_id_to_idx = {p.id: idx for idx, p in enumerate(all_products)}
+        
+        if product_id not in product_id_to_idx:
+            return None
+        
+        # Lấy index của sản phẩm
+        product_idx = product_id_to_idx[product_id]
+        
+        # Lấy similarity scores
+        similarities = similarity_matrix[product_idx]
+        # lấy giá trị similarity trên ma trận đấy 
+        # Lấy top similar products (bỏ chính nó)
+        top_indices = np.argsort(similarities)[::-1][1:top_n+1]
+        
+        # Lấy thông tin sản phẩm recommend
+        now = datetime.now()
+        recommendations = []
+        
+        for idx in top_indices:
+            recommended_product = all_products[idx]
+            promotion = db.query(Abs).filter(
+                Abs.product_id == recommended_product.id,
+                Abs.start_time <= now,
+                Abs.end_time >= now
+            ).first()
+            
+            product_name = recommended_product.name
+            if recommended_product.phanloai == "laptop" and "(" in product_name:
+                product_name = product_name.split("(")[0]
+            
+            recommendations.append(
+                OutPutAbs(
+                    id=recommended_product.id,
+                    name=product_name,
+                    price=recommended_product.price,
+                    thumb=recommended_product.thumb,
+                    main_image=recommended_product.main_image,
+                    phanloai=recommended_product.phanloai,
+                    brand=recommended_product.brand,
+                    release_date=recommended_product.release_date,
+                    percent_abs=promotion.percent_abs if promotion else 0,
+                    start_time=promotion.start_time if promotion else None,
+                    end_time=promotion.end_time if promotion else None,
+                )
+            )
+        
+        return recommendations
+    
+    except Exception as e:
+        print(f"Lỗi trong recommendation: {e}")
+        return None
+    

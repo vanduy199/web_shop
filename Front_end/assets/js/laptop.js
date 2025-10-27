@@ -79,7 +79,7 @@ function renderProducts(products, append = false) {
     }
 
     const htmls = products
-        .filter(product => product.percent_abs >= 0)  // Back-end đã filter, nhưng giữ để an toàn
+        .filter(product => product.percent_abs >= 0)  
         .map(function (product) {
             var now = new Date();
             var end = new Date(product.end_time);

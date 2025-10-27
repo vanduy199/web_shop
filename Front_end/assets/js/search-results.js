@@ -38,7 +38,6 @@ async function fetchProducts(append = false) {
         const json_data = await response.json();
         console.log('API Response:', json_data);
         
-        // ✅ FIXED: Đúng cấu trúc data
         let productList = json_data.show_product?.show_product || [];
         const totalCount = json_data.number || 0;
         
@@ -54,7 +53,6 @@ async function fetchProducts(append = false) {
             searchQueryDisplay.innerHTML = `"<strong>${query}</strong>"`;
         }
         
-        // ✅ FIXED: Kiểm tra xem có sản phẩm nào không
         if (!productList || productList.length === 0) {
             if (!append) {
                 renderNoResults();
@@ -74,8 +72,7 @@ async function fetchProducts(append = false) {
             filteredProducts = [...productList];
             renderProducts(filteredProducts, false);
         }
-        
-        // ✅ FIXED: Không còn remainingQuantity, chỉ kiểm tra độ dài
+    
         document.getElementById("view-more").style.display = 
             productList.length < 20 ? "none" : "block";
         
