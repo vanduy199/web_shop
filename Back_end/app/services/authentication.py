@@ -77,16 +77,6 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(status_code=403, detail="Permission denied")
     return current_user
 
-
-def generate_guest_token() -> str:
-    payload = {
-        "sub": "0",
-        "role": "guest",
-        "exp": datetime.utcnow() + timedelta(days=365),
-    }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-
 def get_current_user_optional(
     request: Request,
     db: Session = Depends(get_db),

@@ -6,7 +6,7 @@ import uuid, os
 from app.core.config import SessionLocal
 from app.models.support import SupportTicketModel, SupportMessageModel
 from app.models.user import User
-from app.services.authentication import get_current_user_optional
+from app.services.authentication import get_current_user,
 from app.schemas.support import SupportTicketResponse
 
 router = APIRouter(prefix="/api/support", tags=["User Support"])
@@ -48,7 +48,7 @@ async def submit_support_request(
     support_phone: Optional[str] = Form(None, alias="support-phone"),
     support_file: Optional[UploadFile] = File(None, alias="support-file"),
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: Optional[User] = ,
 ):
     user_id = current_user.id if current_user else DEFAULT_GUEST_ID
 
