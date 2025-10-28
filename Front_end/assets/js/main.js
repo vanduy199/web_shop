@@ -238,9 +238,6 @@ function renderUserRecommendations(recommendations) {
     }
     
     // Destroy slider nếu đã tồn tại
-    if ($(container).hasClass('slick-initialized')) {
-        $(container).slick('unslick');
-    }
     
     // Render HTML giống info.js
     const htmlList = recommendations.map(function (product) {
@@ -317,6 +314,7 @@ function renderUserRecommendations(recommendations) {
     
     // Set HTML với row
     container.innerHTML = `<div class="row product__list recommendation-list">${htmlList}</div>`;
+    addRecommendationClickListeners();
     
     
 }

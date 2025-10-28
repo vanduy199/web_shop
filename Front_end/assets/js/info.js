@@ -236,7 +236,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn("No productId found in localStorage");
     }
 });
-// ✅ REVIEW & COMMENTS SECTION
 async function fetchWithAuth(url, options = {}) {
   options.headers = {
     ...options.headers,
@@ -427,14 +426,15 @@ async function loadRecommendations() {
     if (!res.ok) throw new Error("Không thể lấy gợi ý");
     
     const data = await res.json();
-    renderRecommendations(data.data || []);
+    console.log("Gợi ý sản phẩm:", data);
+    renderRecommendations(data.data);
   } catch (err) {
     console.error("Lỗi lấy gợi ý:", err);
   }
 }
 
 function renderRecommendations(recommendations) {
-  const container = document.getElementById("recommendationsContainer");
+  const container = document.getElementById("recommendationsContainer_product");
   if (!container) {
     console.warn("recommendationsContainer not found in HTML");
     return;
