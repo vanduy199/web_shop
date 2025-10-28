@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sympy import Product
 from app.models.review import Review
+from app.models.product import Product
 from app.schemas.review import ReviewCreate, Response, ReviewOut
 from app.services.authentication import get_current_user, require_admin
 from app.models.user import User
@@ -169,3 +171,47 @@ def post_rating(
     db.commit()
     db.refresh(new_rating)
     return {"message": "Đã thêm rating mới", "rating": rating}
+
+# id bình luận
+# người bình luận
+# nội dung bình luận
+# thời gian bình luận
+# sản phẩm được bình luận
+# Trạng thái 
+# nếu một bình luận được trả lời thì nó sẽ có một bình luận khác có id_parent trỏ đến nó
+
+@router.get("/all_reviews")
+def get_all_reviews(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    reviews = db.query(Review).filter(Review.id_parent == None).order_by(Review.created_at).all()
+    reviews_rep = db.query(Review).filter(Review.id_parent != None).order_by(Review.created_at).all()
+    reviews_out = []
+    for review in reviews:
+        c = True
+        for review_rep in reviews_rep:
+            if review_rep.id_parent == review.id:
+                c = False
+                break
+        if c:
+            reviews_out.append({
+                "id": review.id,
+                "product_name": db.query(Product).filter(Product.id == review.product_id).first().name,
+                "user_id": review.user_id,
+                "comment": review.comment,
+                "rating": review.rating,
+                "created_at": review.created_at,
+                "status": "Chưa trả lời"
+            })
+        else:
+            reviews_out.append({
+                "id": review.id,
+                "product_name": db.query(Product).filter(Product.id == review.product_id).first().name,
+                "user_id": review.user_id,
+                "comment": review.comment,
+                "rating": review.rating,
+                "created_at": review.created_at,
+                "status": "Đã trả lời"
+            })
+    return reviews_out  

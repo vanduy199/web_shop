@@ -110,6 +110,10 @@ function ensureModals() {
                     <label>Mật khẩu mới</label>
                     <input id="new-password" class="form-control" type="password" />
                 </div>
+                <div class="mb-3">
+                    <label>Xác nhận mật khẩu mới</label>
+                    <input id="confirm-password" class="form-control" type="password" />
+                </div>
             </div>
             <div style="padding:12px 20px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end;">
                 <button class="btn btn-light" onclick="closeAllModals()">Hủy</button>
@@ -165,11 +169,25 @@ async function submitChangePassword(){
     const token = localStorage.getItem('access_token');
     const user = JSON.parse(localStorage.getItem('current_user')||'{}');
     if (!token || !user?.id){ alert('Vui lòng đăng nhập lại.'); return; }
+    
+    const oldPassword = document.getElementById('old-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    if (!oldPassword || !newPassword || !confirmPassword){ 
+        alert('Vui lòng nhập đủ thông tin'); 
+        return; 
+    }
+    
+    if (newPassword !== confirmPassword){
+        alert('Mật khẩu mới và xác nhận mật khẩu không trùng khớp');
+        return;
+    }
+    
     const payload = { 
-        old_password: document.getElementById('old-password').value,
-        new_password: document.getElementById('new-password').value,
+        old_password: oldPassword,
+        new_password: newPassword,
     };
-    if (!payload.old_password || !payload.new_password){ alert('Vui lòng nhập đủ thông tin'); return; }
     try{
         const res = await fetch(`http://127.0.0.1:8000/users/${user.id}/change-password`,{
             method:'PUT',
