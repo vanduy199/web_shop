@@ -1,0 +1,155 @@
+:root {
+  --primary-red: #e50914;
+  --dark-red: #b1020e;
+  --text-light: #eee;
+  --white: #fff;
+}
+
+/* ==== FOOTER NGŨ HỔ ĐỎ ==== */
+.footer-nguho-red {
+  background: linear-gradient(180deg, var(--primary-red), var(--dark-red));
+  color: var(--text-light);
+  font-family: "Roboto", sans-serif;
+  border-top: 3px solid #fff;
+}
+
+.footer-nguho-red a {
+  color: var(--text-light);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-nguho-red a:hover {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.footer-brand-text {
+  font-weight: 900;
+  font-size: 2rem;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.brand-tagline {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.footer-heading {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.footer-heading::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.footer-links li {
+  margin-bottom: 0.6rem;
+}
+
+.footer-contact .footer-icon {
+  width: 20px;
+}
+
+.social-icons a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.social-icons a:hover {
+  background: #fff;
+  color: var(--primary-red);
+  transform: translateY(-5px);
+}
+
+.newsletter-form .form-control {
+  border: none;
+  padding: 0.7rem 1rem;
+}
+
+.newsletter-form .btn-primary {
+  background: #000;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.newsletter-form .btn-primary:hover {
+  background: #111;
+}
+
+.copyright-bar {
+  background: #111;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .footer-nguho-red {
+    text-align: center;
+  }
+  .footer-heading::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .social-icons {
+    justify-content: center;
+  }
+}
+/* === GHI ĐÈ Bootstrap để màu chữ trong footer luôn theo tông trắng === */
+.footer-nguho-red,
+.footer-nguho-red a,
+.footer-nguho-red a:visited {
+  color: #f5f5f5 !important;
+  text-decoration: none;
+}
+
+.footer-nguho-red a:hover {
+  color: #ffffff !important;
+  text-decoration: underline;
+}
+
+.footer-nguho-red .footer-heading {
+  color: #fff !important;
+}
+
+.footer-nguho-red .brand-tagline {
+  color: #ffeaea !important;
+}
+/* 🌊 Hiệu ứng sóng giữa sản phẩm và footer */
+.footer-wave {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  line-height: 0;
+  background: #fff; /* Màu nền phía trên (trắng) */
+}
+
+.footer-wave svg {
+  position: relative;
+  display: block;
+  width: calc(150% + 1.3px);
+  height: 100px;
+  transform: rotate(180deg); /* Lật sóng xuống */
+}
+
