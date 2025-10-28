@@ -17,8 +17,6 @@ from app.schemas import LoginSchema, TokenSchema, TokenData
 from app.services.user import get_by_phone, verify_password
 from app.models.user import User
 from app.core.config import SessionLocal
-
-# OAuth2 bearer scheme for extracting token from Authorization header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_db():
@@ -51,8 +49,6 @@ def login_for_access_token(db: Session, form_data: LoginSchema) -> TokenSchema:
     )
     return TokenSchema(access_token=access_token, token_type="bearer")
 
-
-# --- Moved from app.dependencies.auth ---
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -68,7 +64,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user_id is None:
         raise credentials_exception
 
-    # Lazy import to avoid circular dependency on service function
     from app.services.user import get_by_id
 
     user = get_by_id(db, user_id)

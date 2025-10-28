@@ -7,16 +7,15 @@ from app.models.user import User
 from app.models.orders import Order
 from sqlalchemy import func
 
-# Password utilities (moved from CRUD)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Các hàm cơ bản tương tác với DB (có thể tách ra package khác nhưng để đây để đồng bộ với nhóm):
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# CRUD helpers (moved from CRUD)
 def get_by_phone(db: Session, phone: str) -> Optional[User]:
     return db.query(User).filter(User.phone == phone).first()
 
@@ -48,9 +47,10 @@ def update(db: Session, db_user: User, user_update: UserUpdate) -> User:
 def delete(db: Session, db_user: User) -> None:
     db.delete(db_user)
     db.commit()
+    
+# Các hàm service phục vụ router
 
 def list_all(db: Session, sort_by: str = "name", order: str = "asc") -> List[User]:
-    # Map accepted sort fields to model attributes
     attr_map = {
         "name": "username",
         "full_name": "full_name",
@@ -123,7 +123,6 @@ def list_users(db: Session, sort_by: str = "name", order: str = "asc") -> List[D
 
     users = list_all(db, sort_by=sort_by_norm, order=order_norm)
 
-    # Precompute counts for all users
     counts = dict(
         db.query(Order.user_id, func.count(Order.id)).group_by(Order.user_id).all()
     )
