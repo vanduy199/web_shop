@@ -1,6 +1,6 @@
 :root {
-  --primary-red: #d70018;
-  --dark-red: #a30014;
+  --primary-red: #e50914;
+  --dark-red: #b1020e;
   --text-light: #eee;
   --white: #fff;
 }
@@ -26,17 +26,14 @@
 
 .footer-brand-text {
   font-weight: 900;
-  font-size: 2.5rem;
+  font-size: 2rem;
   color: #fff;
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
 }
 
 .brand-tagline {
   font-style: italic;
-  opacity: 0.95;
-  font-size: 1rem;
-  font-weight: 500;
+  opacity: 0.9;
 }
 
 .footer-heading {
@@ -44,8 +41,6 @@
   font-weight: 700;
   margin-bottom: 1rem;
   position: relative;
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
 }
 
 .footer-heading::after {
@@ -61,18 +56,10 @@
 
 .footer-links li {
   margin-bottom: 0.6rem;
-  font-size: 0.95rem;
-  line-height: 1.6;
 }
 
 .footer-contact .footer-icon {
   width: 20px;
-}
-
-.footer-contact li {
-  font-size: 0.95rem;
-  margin-bottom: 0.8rem;
-  line-height: 1.6;
 }
 
 .social-icons a {
@@ -95,8 +82,7 @@
 
 .newsletter-form .form-control {
   border: none;
-  padding: 0.8rem 1rem;
-  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
 }
 
 .newsletter-form .btn-primary {
@@ -104,22 +90,17 @@
   border: none;
   color: #fff;
   font-weight: 600;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
 }
 
 .newsletter-form .btn-primary:hover {
-  background: #333;
-  color: var(--primary-red);
+  background: #111;
 }
 
 .copyright-bar {
-  background: rgba(0, 0, 0, 0.3);
-  color: #ddd;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #111;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {
@@ -144,7 +125,7 @@
 
 .footer-nguho-red a:hover {
   color: #ffffff !important;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .footer-nguho-red .footer-heading {
@@ -153,10 +134,6 @@
 
 .footer-nguho-red .brand-tagline {
   color: #ffeaea !important;
-}
-
-.footer-nguho-red > .container {
-  font-size: 0.95rem;
 }
 /* 🌊 Hiệu ứng sóng giữa sản phẩm và footer */
 .footer-wave {
