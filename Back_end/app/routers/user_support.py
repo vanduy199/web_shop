@@ -6,12 +6,12 @@ import uuid, os
 from app.core.config import SessionLocal
 from app.models.support import SupportTicketModel, SupportMessageModel
 from app.models.user import User
-from app.services.authentication import get_current_user
 from app.schemas.support import SupportTicketResponse
+from app.core.security import decode_access_token
 
 router = APIRouter(prefix="/api/support", tags=["User Support"])
 
-DEFAULT_GUEST_ID = 99999999  
+DEFAULT_GUEST_ID = 0
 UPLOAD_DIR = "app/static/support_files" 
 
 def get_db():
@@ -48,34 +48,31 @@ async def submit_support_request(
     support_phone: Optional[str] = Form(None, alias="support-phone"),
     support_file: Optional[UploadFile] = File(None, alias="support-file"),
     db: Session = Depends(get_db),
-    current_user: Optional[User] =  Depends(get_current_user)
 ):
-    user_id = current_user.id if current_user else DEFAULT_GUEST_ID
+    user_id = DEFAULT_GUEST_ID
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ", 1)[1]
+        payload = decode_access_token(token)
+        if payload and payload.get("sub") is not None:
+            try:
+                user_id = int(payload.get("sub"))
+            except Exception:
+                user_id = DEFAULT_GUEST_ID
 
     # Lưu file và tạo URL
     rel_path = await save_uploaded_file(support_file)  
     base_url = str(request.base_url).rstrip("/")      
     attachment_url = f"{base_url}{rel_path}" if rel_path else None
 
-    # Tạo message trước
-    new_message = SupportMessageModel(
-        sender_id=user_id,
-        sender_type="Customer",
-        message=support_desc,
-        attachment_url=attachment_url,
-    )
-    db.add(new_message)
-    db.flush()
-
-    # Tạo ticket
+    # 1) Tạo ticket trước để có ticket_id
     subject_line = f"[{support_type}] Yêu cầu từ {support_name}"
     new_ticket = SupportTicketModel(
         user_id=user_id,
         subject=subject_line,
         issue_type=support_type,
-        first_message_id=new_message.id,
         status="New",
-        assigned_to_id=None,
+        assigned_to_id=0,
         priority="Medium",
         requester_name=support_name,
         requester_email=support_email,
@@ -85,11 +82,35 @@ async def submit_support_request(
     db.commit()
     db.refresh(new_ticket)
 
-    new_message.ticket_id = new_ticket.id
+    # 2) Tạo message gắn với ticket_id và sender_type (nếu có cột trong DB)
+    try:
+        new_message = SupportMessageModel(
+            ticket_id=new_ticket.id,
+            sender_id=user_id,
+            sender_type="Customer",
+            message=support_desc,
+            attachment_url=attachment_url,
+        )
+    except TypeError:
+        # Trường hợp model/DB không có các cột bổ sung
+        new_message = SupportMessageModel(
+            ticket_id=new_ticket.id,
+            sender_id=user_id,
+            message=support_desc,
+        )
     db.add(new_message)
     db.commit()
     db.refresh(new_message)
 
+    # 3) Cập nhật first_message_id cho ticket
+    new_ticket.first_message_id = new_message.id
+    db.add(new_ticket)
+    db.commit()
+    db.refresh(new_ticket)
+
     return SupportTicketResponse(
-        message="🎫 Yêu cầu của bạn đã được ghi nhận thành công!"
+        message="🎫 Yêu cầu của bạn đã được ghi nhận thành công!",
+        ticket_id=new_ticket.id,
+        first_message_id=new_message.id,
+        attachment_url=attachment_url,
     )
