@@ -453,8 +453,6 @@ import numpy as np
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Load models khi service khởi động
-# Sử dụng relative path từ file hiện tại
 MODELS_DIR = Path(__file__).resolve().parent.parent / "models" / "recommendation"
 
 try:
