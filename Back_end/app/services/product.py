@@ -450,15 +450,17 @@ def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20
 
 import pickle
 import numpy as np
+from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load models khi service khởi động
-MODELS_DIR = "/home/vanduy/Documents/DATA_SCIENTIST/PYTHON/web_shop/Back_end/app/models/recommendation"
+# Sử dụng relative path từ file hiện tại
+MODELS_DIR = Path(__file__).resolve().parent.parent / "models" / "recommendation"
 
 try:
-    with open(f"{MODELS_DIR}/similarity_matrix_v2.pkl", 'rb') as f:
+    with open(MODELS_DIR / "similarity_matrix_v2.pkl", 'rb') as f:
         similarity_matrix = pickle.load(f)
-    with open(f"{MODELS_DIR}/scaler_v2.pkl", 'rb') as f:
+    with open(MODELS_DIR / "scaler_v2.pkl", 'rb') as f:
         scaler = pickle.load(f)
 except Exception as e:
     similarity_matrix = None
