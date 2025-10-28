@@ -52,6 +52,179 @@
         <link rel="stylesheet" href="./assets/css/responsive.css" />
         <link rel="stylesheet" href="./assets/css/search-results.css" />
         <link rel="stylesheet" href="./assets/css/phone.css" />
+        
+        <!-- Specifications CSS - Completely Redesigned -->
+        <style>
+            #specifications {
+                margin: 15px 0;
+            }
+
+            .spec-group {
+                margin-bottom: 8px;
+                border-radius: 6px;
+                overflow: hidden;
+                background: #fff;
+                border: 1px solid #ddd;
+                transition: all 0.2s ease;
+            }
+
+            .spec-group:hover {
+                border-color: #d70018;
+                box-shadow: 0 2px 6px rgba(215, 0, 24, 0.1);
+            }
+
+            .spec-header {
+                padding: 10px 14px;
+                background: #f5f5f5;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: 600;
+                color: #333;
+                font-size: 16px;
+                user-select: none;
+                border-left: 4px solid #d70018;
+                transition: all 0.2s ease;
+            }
+
+            .spec-header:hover {
+                background: #efefef;
+            }
+
+            .spec-header.active {
+                background: #d70018;
+                color: white;
+            }
+
+            .spec-header::after {
+                content: '⊕';
+                font-size: 16px;
+                transition: transform 0.2s ease;
+                display: flex;
+                align-items: center;
+            }
+
+            .spec-header.active::after {
+                content: '⊖';
+            }
+
+            .spec-content {
+                display: none;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+
+            .spec-content.show {
+                display: block;
+                max-height: 1500px;
+            }
+
+            .spec-items-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+            }
+
+            .spec-item {
+                padding: 8px 12px;
+                border-bottom: 1px solid #f0f0f0;
+                border-right: 1px solid #f0f0f0;
+                font-size: 15px;
+                transition: background 0.2s ease;
+            }
+
+            .spec-item:nth-child(2n) {
+                border-right: none;
+            }
+
+            .spec-item:hover {
+                background: #fafafa;
+            }
+
+            .spec-item:nth-last-child(n+3) {
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .spec-item:nth-last-child(1),
+            .spec-item:nth-last-child(2) {
+                border-bottom: none;
+            }
+
+            .spec-key {
+                font-weight: 600;
+                color: #666;
+                margin-bottom: 3px;
+                font-size: 14px;
+            }
+
+            .spec-value {
+                color: #333;
+                line-height: 1.4;
+                font-size: 15px;
+            }
+
+            /* Tách các tính năng thành từng dòng */
+            .spec-value-item {
+                display: block;
+                padding: 3px 0;
+            }
+
+            /* Tablet: 1 column */
+            @media (max-width: 1024px) {
+                .spec-items-wrapper {
+                    grid-template-columns: 1fr;
+                }
+
+                .spec-item:nth-child(2n) {
+                    border-right: 1px solid #f0f0f0;
+                }
+
+                .spec-item:nth-last-child(1) {
+                    border-bottom: none;
+                }
+
+                .spec-item:nth-last-child(2) {
+                    border-bottom: 1px solid #f0f0f0;
+                }
+            }
+
+            /* Mobile */
+            @media (max-width: 768px) {
+                .spec-group {
+                    margin-bottom: 6px;
+                }
+
+                .spec-header {
+                    padding: 8px 12px;
+                    font-size: 15px;
+                    border-left-width: 3px;
+                }
+
+                .spec-item {
+                    padding: 6px 10px;
+                    font-size: 14px;
+                }
+
+                .spec-key {
+                    font-size: 13px;
+                    margin-bottom: 2px;
+                }
+
+                .spec-value {
+                    font-size: 14px;
+                }
+
+                .spec-items-wrapper {
+                    grid-template-columns: 1fr;
+                }
+
+                .spec-item:nth-child(2n) {
+                    border-right: none;
+                }
+            }
+        </style>
         <!-- JS -->
         <script src="./assets/js/main.js"></script>
     </head>

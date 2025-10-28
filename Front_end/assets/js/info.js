@@ -44,13 +44,16 @@ async function fetchProducts(id = null) {
             acc[item.loai_cau_hinh].push(item);
             return acc;
         }, {});
+        
+        // Thứ tự hợp lý theo cấu trúc sản phẩm
         const order = {
-            "Cấu hình": 1,
-            "Camera & Màn hình": 2,
-            "Kết nối": 3,
-            "Tiện ích": 4,
-            "Pin & Sạc": 5,
-            "Thiết kế & Chất liệu": 6
+            "Cấu hình": 0,        // CPU, RAM, Storage
+            "Màn hình": 1,         // Screen specs
+            "Camera": 2,           // Camera - main & front
+            "Pin & Sạc": 3,        // Battery & Charging
+            "Kết nối": 4,          // Connectivity - Wifi, Bluetooth, etc
+            "Tiện ích": 5,         // Features & Security
+            "Thiết kế & Chất liệu": 6  // Design & Material
         };
 
 // Lấy các nhóm từ object grouped
@@ -64,7 +67,7 @@ async function fetchProducts(id = null) {
         // Sắp xếp lại theo order
         groups.sort((a, b) => (order[a] || 999) - (order[b] || 999));
         const container = document.getElementById("specifications");
-        groups.forEach(group => {
+        groups.forEach((group, index) => {
             const groupDiv = document.createElement("div");
             groupDiv.classList.add("spec-group");
 
@@ -73,18 +76,54 @@ async function fetchProducts(id = null) {
             header.textContent = group;
             
             const content = document.createElement("div");
-            content.style.display = "block";
             content.classList.add("spec-content");
+            
+            // Wrapper cho items (2 column grid)
+            const itemsWrapper = document.createElement("div");
+            itemsWrapper.classList.add("spec-items-wrapper");
+            
+            // Mặc định mở 3 nhóm đầu tiên
+            if (index < 3) {
+                header.classList.add("active");
+                content.classList.add("show");
+            }
 
+            // Thêm items vào wrapper
             grouped[group].forEach(item => {
                 const row = document.createElement("div");
                 row.classList.add("spec-item");
 
+                // Tách các tính năng có dấu | thành từng dòng
+                let valueHTML = "";
+                if (item.value && item.value.includes("|")) {
+                    const features = item.value.split("|").map(f => f.trim());
+                    valueHTML = features.map(f => `<span class="spec-value-item">• ${f}</span>`).join("");
+                } else {
+                    valueHTML = `<span class="spec-value-item">${item.value}</span>`;
+                }
+
                 row.innerHTML = `
                 <div class="spec-key">${item.key}</div>
-                <div class="spec-value">${item.value}</div>
+                <div class="spec-value">${valueHTML}</div>
             `;
-                content.appendChild(row);
+                itemsWrapper.appendChild(row);
+            });
+
+            content.appendChild(itemsWrapper);
+
+            // Thêm event listener cho header (accordion)
+            header.addEventListener("click", function() {
+                const isActive = this.classList.contains("active");
+                
+                if (isActive) {
+                    // Đóng
+                    this.classList.remove("active");
+                    content.classList.remove("show");
+                } else {
+                    // Mở
+                    this.classList.add("active");
+                    content.classList.add("show");
+                }
             });
 
             groupDiv.appendChild(header);
