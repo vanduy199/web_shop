@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles 
-from Back_end.app.routers import auth
+from app.routers import auth
 from app.core.security import decode_access_token
 
 from app.routers import router as api_router, user as user_router, user_activity

@@ -7,7 +7,7 @@ from app.models.user_activity import UserActivity
 from app.schemas.orders import OrderBase, OrderInput
 from typing import List
 from app.models.user import User
-from Back_end.app.services.auth import get_current_user, require_admin
+from app.services.auth import get_current_user, require_admin
 
 
 router = APIRouter(prefix="/orders", tags=["Orders"])

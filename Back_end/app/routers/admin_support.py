@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.core.config import SessionLocal
 from app.models.support import SupportTicketModel
 from app.schemas.support import TicketDetailSchema, TicketUpdate, FullTicketDetail,TicketSummary
-from Back_end.app.services.auth import require_admin 
+from app.services.auth import require_admin 
 from app.models.user import User 
 
 router = APIRouter(prefix="/admin/support", tags=["Admin Support"])

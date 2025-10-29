@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.config import SessionLocal
 from app.schemas.user import UserCreate, UserOut, UserUpdate, ChangePasswordSchema, OutPutUser
 from app.services import user as user_service
-from Back_end.app.services.auth import get_current_user, require_admin
+from app.services.auth import get_current_user, require_admin
 from app.models.user import User 
 from typing import List, Optional
 

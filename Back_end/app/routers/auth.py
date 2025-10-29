@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.schemas.user import LoginSchema, TokenSchema
-from Back_end.app.services import auth
+from app.services import auth
 from app.core.config import SessionLocal
 
 router = APIRouter(prefix="", tags=["Auth"])

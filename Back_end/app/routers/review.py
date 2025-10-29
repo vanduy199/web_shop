@@ -4,7 +4,7 @@ from sympy import Product
 from app.models.review import Review
 from app.models.product import Product
 from app.schemas.review import ReviewCreate, Response, ReviewOut
-from Back_end.app.services.auth import get_current_user, require_admin
+from app.services.auth import get_current_user, require_admin
 from app.models.user import User
 from app.core.config import SessionLocal
 from typing import Optional, List

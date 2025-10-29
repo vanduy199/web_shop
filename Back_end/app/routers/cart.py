@@ -7,7 +7,7 @@ from app.models.cart import Cart
 from app.models.product import Product, Abs
 from app.models.user import User
 from app.schemas.cart import CartCreate, CartUpdate, CartResponse
-from Back_end.app.services.auth import get_current_user, require_admin
+from app.services.auth import get_current_user, require_admin
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
 # ================== DEPENDENCY ==================
