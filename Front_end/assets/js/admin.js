@@ -362,21 +362,21 @@ document.getElementById('addBtn').onclick = async function (e) {
 };
 
 async function addProduct() {
-    const payload = collectFormData();
-    if (!validatePayload(payload)) return;
+    const formData = collectFormData();
+    if (!validatePayload(formData)) return;
     try {
         const token = localStorage.getItem("access_token");
         showMessage("Đang thêm sản phẩm...", "info");
         const response = await fetch('http://127.0.0.1:8000/api/product', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify(payload)
+            body: formData
         });
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
         showMessage('Thêm sản phẩm thành công! ID: ' + data.product_id, "success");
@@ -391,21 +391,21 @@ async function addProduct() {
 }
 
 async function updateProduct(id) {
-    const payload = collectFormData();
-    if (!validatePayload(payload)) return;
+    const formData = collectFormData();
+    if (!validatePayload(formData)) return;
     try {
         const token = localStorage.getItem("access_token");
         showMessage("Đang cập nhật sản phẩm...", "info");
         const response = await fetch(`http://127.0.0.1:8000/api/product/${id}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify(payload)
+            body: formData
         });
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
         }
         showMessage("Cập nhật sản phẩm thành công!", "success");
         resetForm();
@@ -476,39 +476,80 @@ window.handleUpdateProduct = async function (id) {
 };
 
 // -------------------- Helper Functions --------------------
+// -------------------- Helper Functions --------------------
 function collectFormData() {
+    const formData = new FormData();
+    
+    // Lấy các trường text thông thường
     const name = document.getElementById('productName').value;
     const phanloai = document.getElementById('productType').value;
     const price = parseFloat(document.getElementById('productPrice').value);
     const brand = document.getElementById('productBrand').value;
     const release_date = document.getElementById('productReleaseDate').value;
-    const thumb = document.getElementById('productThumb').value;
-    const main_image = document.getElementById('productMainImage').value;
-
+    
+    // Thêm vào FormData
+    formData.append('name', name);
+    formData.append('phanloai', phanloai);
+    formData.append('price', price);
+    formData.append('brand', brand);
+    formData.append('release_date', release_date);
+    
+    // Lấy ảnh đại diện (file upload)
+    const thumbInput = document.getElementById('productThumb');
+    if (thumbInput?.files?.[0]) {
+        formData.append('thumb', thumbInput.files[0]);
+    }
+    
+    // Lấy ảnh chính (file upload)
+    const mainImageInput = document.getElementById('productMainImage');
+    if (mainImageInput?.files?.[0]) {
+        formData.append('main_image', mainImageInput.files[0]);
+    }
+    
+    // Xử lý attributes
     const attributes = Array.from(document.querySelectorAll('.attribute-row')).map(row => ({
         key: row.querySelector('.attr-key')?.value || '',
         value: row.querySelector('.attr-value')?.value || '',
         loai_cau_hinh: row.querySelector('.attr-type')?.value || ''
     }));
-
-    const images = Array.from(document.querySelectorAll('.image-row')).map(row => ({
-        img: row.querySelector('.image-input')?.value || ''
-    }));
-
+    formData.append('attributes', JSON.stringify(attributes));
+    
+    // Xử lý images (file hoặc URL)
+    const imageRows = Array.from(document.querySelectorAll('.image-row'));
+    const imageUrls = [];
+    
+    imageRows.forEach(row => {
+        const fileInput = row.querySelector('.image-input');
+        
+        if (fileInput?.files?.[0]) {
+            // Là file - gửi trực tiếp
+            formData.append('images', fileInput.files[0]);
+        } else if (fileInput?.value) {
+            // Là URL - thêm vào array
+            imageUrls.push({ img: fileInput.value });
+        }
+    });
+    
+    // Thêm URLs dưới dạng JSON string
+    if (imageUrls.length > 0) {
+        formData.append('image_urls', JSON.stringify(imageUrls));
+    }
+    
+    // Xử lý promotion
     const percent_abs = document.querySelector('input[name="promotion.percent_abs"]')?.value;
     const start_time = document.querySelector('input[name="promotion.start_time"]')?.value;
     const end_time = document.querySelector('input[name="promotion.end_time"]')?.value;
-
-    let promotion = null;
+    
     if (percent_abs && start_time && end_time) {
-        promotion = {
+        const promotion = {
             percent_abs: parseFloat(percent_abs),
             start_time: new Date(start_time).toISOString(),
             end_time: new Date(end_time).toISOString()
         };
+        formData.append('promotion', JSON.stringify(promotion));
     }
-
-    return { name, phanloai, price, brand, release_date, thumb, main_image, attributes, images, promotion };
+    
+    return formData;
 }
 
 function fillFormWithProductData(product) {
@@ -517,8 +558,37 @@ function fillFormWithProductData(product) {
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productBrand').value = product.brand;
     document.getElementById('productReleaseDate').value = product.release_date;
-    document.getElementById('productThumb').value = product.thumb;
-    document.getElementById('productMainImage').value = product.main_image;
+    
+    // File inputs không thể set value vì lý do bảo mật, chỉ clear thôi
+    document.getElementById('productThumb').value = '';
+    document.getElementById('productMainImage').value = '';
+    
+    // Nhưng hiển thị preview của ảnh hiện tại từ URL
+    const thumbContainer = document.getElementById('thumbPreview');
+    if (thumbContainer && product.thumb) {
+        thumbContainer.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = product.thumb;
+        img.style.maxWidth = '150px';
+        img.style.maxHeight = '150px';
+        img.style.borderRadius = '5px';
+        img.style.border = '1px solid #ddd';
+        img.title = 'Ảnh hiện tại - Chọn file mới để thay đổi';
+        thumbContainer.appendChild(img);
+    }
+    
+    const mainContainer = document.getElementById('mainImagePreview');
+    if (mainContainer && product.main_image) {
+        mainContainer.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = product.main_image;
+        img.style.maxWidth = '150px';
+        img.style.maxHeight = '150px';
+        img.style.borderRadius = '5px';
+        img.style.border = '1px solid #ddd';
+        img.title = 'Ảnh hiện tại - Chọn file mới để thay đổi';
+        mainContainer.appendChild(img);
+    }
 
     // Reset attributes
     document.querySelectorAll('.attribute-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
@@ -545,11 +615,30 @@ function fillFormWithProductData(product) {
 
     // Reset images
     document.querySelectorAll('.image-row').forEach((row, idx) => { if (idx > 0) row.remove(); });
+    
+    // Clear images preview
+    const imagesPreview = document.getElementById('imagesPreview');
+    if (imagesPreview) {
+        imagesPreview.innerHTML = '';
+    }
+    
     product.images?.forEach((img, idx) => {
         if (idx === 0) {
             const firstRow = document.querySelector('.image-row');
-            firstRow.querySelector('.image-input').value = img.img;
+            const imageInput = firstRow.querySelector('.image-input');
+            imageInput.value = img.img;
             firstRow.querySelector('.remove-img').onclick = () => firstRow.remove();
+            
+            // Hiển thị preview của ảnh hiện tại
+            if (imagesPreview && img.img) {
+                const imgEl = document.createElement('img');
+                imgEl.src = img.img;
+                imgEl.style.maxWidth = '100px';
+                imgEl.style.maxHeight = '100px';
+                imgEl.style.borderRadius = '5px';
+                imgEl.style.border = '1px solid #ddd';
+                imagesPreview.appendChild(imgEl);
+            }
         } else {
             const imgDiv = document.createElement('div');
             imgDiv.className = 'image-row';
@@ -559,6 +648,17 @@ function fillFormWithProductData(product) {
             `;
             document.getElementById('images').insertBefore(imgDiv, document.getElementById('add-image-btn'));
             imgDiv.querySelector('.remove-img').onclick = () => imgDiv.remove();
+            
+            // Hiển thị preview
+            if (imagesPreview && img.img) {
+                const imgEl = document.createElement('img');
+                imgEl.src = img.img;
+                imgEl.style.maxWidth = '100px';
+                imgEl.style.maxHeight = '100px';
+                imgEl.style.borderRadius = '5px';
+                imgEl.style.border = '1px solid #ddd';
+                imagesPreview.appendChild(imgEl);
+            }
         }
     });
 
@@ -586,15 +686,101 @@ function resetForm() {
     document.getElementById('addBtn').textContent = "Thêm";
 }
 
-function validatePayload(payload) {
-    if (!payload.name || !payload.phanloai || isNaN(payload.price) || payload.price <= 0 || !payload.thumb) {
-        showMessage("Vui lòng điền đầy đủ thông tin bắt buộc (tên, loại, giá, ảnh đại diện)!", "error");
+function validatePayload(formData) {
+    const name = formData.get('name');
+    const phanloai = formData.get('phanloai');
+    const price = parseFloat(formData.get('price'));
+    const thumbFile = document.getElementById('productThumb').files[0];
+    
+    // Kiểm tra fields bắt buộc
+    if (!name || !phanloai || isNaN(price) || price <= 0) {
+        showMessage("Vui lòng điền đầy đủ thông tin bắt buộc (tên, loại, giá)!", "error");
         return false;
     }
+    
+    // Khi thêm mới (ADD) phải có file thumb
+    // Khi cập nhật (UPDATE) không bắt buộc (vì có thể giữ ảnh cũ)
+    if (!isUpdating && !thumbFile) {
+        showMessage("Vui lòng chọn ảnh đại diện!", "error");
+        return false;
+    }
+    
     return true;
 }
 
-// Đóng form khi nhấn nút đóng
+// -------------------- Preview Image Functions --------------------
+function showImagePreview(fileInput, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = ''; // Clear previous preview
+    
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '150px';
+            img.style.maxHeight = '150px';
+            img.style.borderRadius = '5px';
+            img.style.border = '1px solid #ddd';
+            container.appendChild(img);
+        };
+        
+        reader.readAsDataURL(file);
+    }
+}
+
+function updateImageRowPreviews() {
+    const imagesPreview = document.getElementById('imagesPreview');
+    if (!imagesPreview) return;
+    
+    imagesPreview.innerHTML = ''; // Clear previous previews
+    
+    const imageRows = document.querySelectorAll('.image-row');
+    imageRows.forEach((row, idx) => {
+        const imageInput = row.querySelector('.image-input');
+        
+        if (imageInput.type === 'file' && imageInput.files && imageInput.files[0]) {
+            const file = imageInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100px';
+                img.style.maxHeight = '100px';
+                img.style.borderRadius = '5px';
+                img.style.border = '1px solid #ddd';
+                imagesPreview.appendChild(img);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// Setup preview event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const thumbInput = document.getElementById('productThumb');
+    const mainImageInput = document.getElementById('productMainImage');
+    
+    if (thumbInput) {
+        thumbInput.addEventListener('change', function() {
+            showImagePreview(this, 'thumbPreview');
+        });
+    }
+    
+    if (mainImageInput) {
+        mainImageInput.addEventListener('change', function() {
+            showImagePreview(this, 'mainImagePreview');
+        });
+    }
+});
+
+// -------------------- Form Close Handlers --------------------
 document.querySelector('#overlay .close-btn').onclick = function() {
     document.getElementById('overlay').classList.remove('active');
     infoAddProduct.classList.remove('active');

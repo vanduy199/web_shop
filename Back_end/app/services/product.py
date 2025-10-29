@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from fastapi import HTTPException, Query
+from fastapi import HTTPException, Query, UploadFile
 from app.models.product import Product, ProductImage, Specification, Abs, Search
 from app.schemas.product import (
     ProductSchema, AddProductSchema, AttributeSchema,
@@ -723,4 +723,27 @@ def get_trending_products(db: Session, top_n: int = 32) -> List[OutPutAbs]:
         print(f"Lỗi lấy trending products: {e}")
         return get_promotion_products(db, top_n)
     
+import cloudinary
+import cloudinary.uploader
 
+async def upload_to_cloudinary(file: UploadFile) -> str:
+    if not file.filename:
+        raise HTTPException(400, "File không có tên")
+    
+    allowed_types = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+    if file.content_type not in allowed_types:
+        raise HTTPException(400, f"Chỉ hỗ trợ file hình: JPG, PNG, WebP, GIF")
+    
+    try:
+        file_content = await file.read()
+        
+
+        result = cloudinary.uploader.upload(
+            file_content,
+            folder="web_shop/products",
+            resource_type="auto"
+        )
+        
+        return result.get("secure_url", result.get("url"))
+    except Exception as e:
+        raise HTTPException(500, f"Lỗi khi upload ảnh: {str(e)}")

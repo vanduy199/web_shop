@@ -15,7 +15,7 @@ class Product(Base):
     images = relationship("ProductImage", back_populates="product",cascade="all, delete-orphan")
     spec = relationship("Specification", back_populates= "product",cascade="all, delete-orphan")
     abs = relationship("Abs", back_populates="product",cascade="all, delete-orphan")
-    activity = relationship("UserActivity", back_populates="product")
+    activity = relationship("UserActivity", back_populates="product", cascade="all, delete-orphan")
     carts = relationship("Cart", back_populates="product")
 
 class ProductImage(Base):

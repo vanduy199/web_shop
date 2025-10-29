@@ -1,5 +1,5 @@
 # app/routers/product.py (Bản đã tối ưu hóa)
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, UploadFile, File, Form
 from typing import List, Optional
 from sqlalchemy.orm import Session as DBSession # Đặt alias
 from app.core.config import SessionLocal # Giả định SessionLocal nằm ở đây
@@ -10,6 +10,7 @@ from app.schemas.product import (
 from app.services import product as product_service 
 from app.services.authentication import get_current_user, require_admin
 from app.models.user import User
+import json
 router = APIRouter()
 
 def get_db():
@@ -34,13 +35,126 @@ def get_product_by_id(id: int, db: DBSession = Depends(get_db)):
     return product
 
 @router.post("/product")
-def add_product(product: AddProductSchema, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
-    # Service sẽ raise HTTPException nếu có lỗi
-    return product_service.add_product(db, product)
+async def add_product(
+    name: str = Form(...),
+    phanloai: str = Form(...),
+    price: float = Form(...),
+    brand: Optional[str] = Form(None),
+    release_date: Optional[str] = Form(None),
+    thumb: UploadFile = File(...),
+    main_image: Optional[UploadFile] = File(None),
+    attributes: Optional[str] = Form(None),
+    images: Optional[str] = Form(None),
+    image_urls: Optional[str] = Form(None),
+    promotion: Optional[str] = Form(None),
+    db: DBSession = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Thêm sản phẩm mới với file upload"""
+    try:
+        # Upload ảnh lên Cloudinary
+        thumb_url = await product_service.upload_to_cloudinary(thumb)
+        
+        main_image_url = None
+        if main_image:
+            main_image_url = await product_service.upload_to_cloudinary(main_image)
+        
+        # Parse JSON strings
+        attributes_data = json.loads(attributes) if attributes else []
+        images_data = json.loads(images) if images else []
+        image_urls_data = json.loads(image_urls) if image_urls else []
+        promotion_data = json.loads(promotion) if promotion else None
+        
+        # Merge images từ files và URLs
+        all_images = images_data + image_urls_data
+        
+        # Tạo product schema
+        product_data = AddProductSchema(
+            name=name,
+            phanloai=phanloai,
+            price=price,
+            brand=brand,
+            release_date=release_date,
+            thumb=thumb_url,
+            main_image=main_image_url,
+            attributes=attributes_data,
+            images=all_images,
+            promotion=promotion_data
+        )
+        
+        return product_service.add_product(db, product_data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/product/{product_id}")
-def update_product(product_id: int, payload: AddProductSchema, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
-    return product_service.update_product(db, product_id, payload)
+async def update_product(
+    product_id: int,
+    name: Optional[str] = Form(None),
+    phanloai: Optional[str] = Form(None),
+    price: Optional[float] = Form(None),
+    brand: Optional[str] = Form(None),
+    release_date: Optional[str] = Form(None),
+    thumb: Optional[UploadFile] = File(None),
+    main_image: Optional[UploadFile] = File(None),
+    attributes: Optional[str] = Form(None),
+    images: Optional[str] = Form(None),
+    image_urls: Optional[str] = Form(None),
+    promotion: Optional[str] = Form(None),
+    db: DBSession = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Cập nhật sản phẩm với file upload"""
+    try:
+        # Lấy product cũ
+        existing_product = product_service.get_product_detail_by_id(db, product_id)
+        if not existing_product:
+            raise HTTPException(status_code=404, detail="Sản phẩm không tồn tại")
+        
+        # Upload ảnh mới nếu có
+        thumb_url = existing_product.thumb
+        if thumb:
+            thumb_url = await product_service.upload_to_cloudinary(thumb)
+        
+        main_image_url = existing_product.main_image
+        if main_image:
+            main_image_url = await product_service.upload_to_cloudinary(main_image)
+        
+        # Parse additional images nếu có
+        images_data = existing_product.images if hasattr(existing_product, 'images') else []
+        if images:
+            images_data = json.loads(images)
+        
+        # Parse URLs
+        image_urls_data = json.loads(image_urls) if image_urls else []
+        all_images = images_data + image_urls_data
+        
+        # Parse attributes nếu có
+        attributes_data = existing_product.attributes if hasattr(existing_product, 'attributes') else []
+        if attributes:
+            attributes_data = json.loads(attributes)
+        
+        # Parse promotion nếu có
+        promotion_data = existing_product.promotion if hasattr(existing_product, 'promotion') else None
+        if promotion:
+            promotion_data = json.loads(promotion)
+        
+        # Tạo product schema với dữ liệu mới
+        product_data = AddProductSchema(
+            name=name or existing_product.name,
+            price=price or existing_product.price,
+            phanloai=phanloai or existing_product.phanloai,
+            brand=brand or existing_product.brand,
+            release_date=release_date or existing_product.release_date,
+            thumb=thumb_url,
+            main_image=main_image_url,
+            attributes=attributes_data,
+            images=all_images,
+            promotion=promotion_data
+        )
+        
+        return product_service.update_product(db, product_id, product_data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/product")
 def delete_product(product_id: int, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
@@ -129,3 +243,16 @@ def recommend_products(
         "data": recommendations,
         "count": len(recommendations)
     }
+
+@router.post("/upload_img", response_model=List[str])
+async def upload_product_images(
+    files: List[UploadFile] = File(...),
+    current_user: User = Depends(require_admin)
+):
+    uploaded_urls = []
+    
+    for file in files:
+        url = await product_service.upload_to_cloudinary(file)
+        uploaded_urls.append(url)
+    
+    return uploaded_urls

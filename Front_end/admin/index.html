@@ -277,10 +277,12 @@
                 <input type="text" id="productReleaseDate" name="release_date" class="input" />
 
                 <label for="productThumb" class="label">Ảnh đại diện</label>
-                <input type="text" id="productThumb" name="thumb" required class="input" />
+                <input type="file" id="productThumb" name="thumb" required class="input" accept="image/*" />
+                <div id="thumbPreview" style="margin-top: 10px;"></div>
 
                 <label for="productMainImage" class="label">Ảnh chính</label>
-                <input type="text" id="productMainImage" name="main_image" class="input" />
+                <input type="file" id="productMainImage" name="main_image" class="input" accept="image/*" />
+                <div id="mainImagePreview" style="margin-top: 10px;"></div>
 
                 <div id="attributes">
                   <label class="label">Thuộc tính sản phẩm</label>
@@ -300,6 +302,7 @@
                     <button type="button" class="remove-img btn btn-danger btn-sm">X</button>
                   </div>
                   <button type="button" id="add-image-btn" class="btn btn-success btn-sm mt-2">Thêm ảnh</button>
+                  <div id="imagesPreview" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
                 </div>
 
                 <label class="label">Khuyến mãi (%)</label>
