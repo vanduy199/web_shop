@@ -82,27 +82,18 @@ async def submit_support_request(
     db.commit()
     db.refresh(new_ticket)
 
-    # 2) Tạo message gắn với ticket_id và sender_type (nếu có cột trong DB)
-    try:
-        new_message = SupportMessageModel(
-            ticket_id=new_ticket.id,
-            sender_id=user_id,
-            sender_type="Customer",
-            message=support_desc,
-            attachment_url=attachment_url,
-        )
-    except TypeError:
-        # Trường hợp model/DB không có các cột bổ sung
-        new_message = SupportMessageModel(
-            ticket_id=new_ticket.id,
-            sender_id=user_id,
-            message=support_desc,
-        )
+    new_message = SupportMessageModel(
+        ticket_id=new_ticket.id,
+        sender_id=user_id,
+        sender_type="Customer",
+        message=support_desc,
+        attachment_url=attachment_url,
+    )
+   
     db.add(new_message)
     db.commit()
     db.refresh(new_message)
 
-    # 3) Cập nhật first_message_id cho ticket
     new_ticket.first_message_id = new_message.id
     db.add(new_ticket)
     db.commit()
@@ -110,7 +101,4 @@ async def submit_support_request(
 
     return SupportTicketResponse(
         message="🎫 Yêu cầu của bạn đã được ghi nhận thành công!",
-        ticket_id=new_ticket.id,
-        first_message_id=new_message.id,
-        attachment_url=attachment_url,
     )
