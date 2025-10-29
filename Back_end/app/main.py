@@ -3,9 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles 
+from Back_end.app.routers import auth
 from app.core.security import decode_access_token
 
-from app.routers import router as api_router, user as user_router, user_activity, authentication
+from app.routers import router as api_router, user as user_router, user_activity
 from app.routers import orders
 
 
@@ -66,13 +67,13 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.include_router(api_router)
 app.include_router(user_router.router, tags=["Users"])
 app.include_router(user_activity.router)
-app.include_router(authentication.router, tags=["Login"])
+app.include_router(auth.router, tags=["Login"])
 app.include_router(orders.router, tags=["Orders"])
 
 
 
 app.include_router(review.router, tags=["Reviews"])
-app.include_router(authentication.router, tags=["Auth"])
+app.include_router(auth.router, tags=["Auth"])
 app.include_router(orders.router, tags=["Orders"])
 app.include_router(banners_router.router)        # /admin/banners
 app.include_router(public_banners.router) # /banners

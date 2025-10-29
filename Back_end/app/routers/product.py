@@ -8,7 +8,7 @@ from app.schemas.product import (
 )
 # IMPORT SERVICE
 from app.services import product as product_service 
-from app.services.authentication import get_current_user, require_admin
+from Back_end.app.services.auth import get_current_user, require_admin
 from app.models.user import User
 import json
 router = APIRouter()
