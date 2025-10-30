@@ -348,8 +348,10 @@
                 <label class="form-label">Sắp xếp theo</label>
                 <select id="users-sort-by" class="form-select">
                   <option value="name">Tên</option>
+                  <option value="full_name">Họ tên</option>
                   <option value="created_at">Ngày tạo</option>
                   <option value="updated_at">Ngày sửa</option>
+                  <option value="orders_count">Số đơn hàng</option>
                 </select>
               </div>
               <div class="col-sm-3">
@@ -374,6 +376,7 @@
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Ngày tạo</th>
+                    <th>Số đơn hàng</th>
                   </tr>
                 </thead>
                 <tbody id="customers-table-body"></tbody>

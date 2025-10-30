@@ -10,8 +10,6 @@ from app.core.security import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     decode_access_token,
-    SECRET_KEY,
-    ALGORITHM,
 )
 from app.schemas import LoginSchema, TokenSchema, TokenData
 from app.services.user import get_by_phone, verify_password

@@ -5,7 +5,7 @@ import cloudinary
 import os
 from urllib.parse import urlparse
 
-db_url = "mysql+pymysql://root:trang2701@localhost:3306/web_shop"
+db_url = "mysql+pymysql://root:1234@localhost:3307/web_shop"
 
 engine = create_engine(db_url, echo = True)
 SessionLocal = sessionmaker(autocommit = False, autoflush = False, bind = engine)

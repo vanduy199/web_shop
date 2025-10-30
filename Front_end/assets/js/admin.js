@@ -273,7 +273,7 @@ async function loadCustomers() {
     const sort_by = sortSelect ? sortSelect.value : 'name';
     const order = orderSelect ? orderSelect.value : 'asc';
 
-    tbody.innerHTML = '<tr><td colspan="6">Đang tải...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7">Đang tải...</td></tr>';
     empty && (empty.style.display = 'none');
     try {
         const token = localStorage.getItem('access_token');
