@@ -6,7 +6,6 @@ from app.core.config import SessionLocal # Giả định SessionLocal nằm ở 
 from app.schemas.product import (
     ProductSchema, AddProductSchema, AbsProduct, OutPutAbs, ProductSearchResult, OutPutPage
 )
-# IMPORT SERVICE
 from app.services import product as product_service 
 from app.services.auth import get_current_user, require_admin
 from app.models.user import User
@@ -19,8 +18,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# -------------------- PRODUCT & CRUD --------------------
 
 @router.get("/product", response_model=List[ProductSchema])
 def get_product(type: Optional[str] = None, db: DBSession = Depends(get_db)):
@@ -161,7 +158,6 @@ def delete_product(product_id: int, db: DBSession = Depends(get_db),current_user
     return product_service.delete_product(db, product_id)
 
 
-# -------------------- ABS & PROMOTION --------------------
 
 @router.post("/abs", response_model=AbsProduct)
 def push_abs(abs_data: AbsProduct, db: DBSession = Depends(get_db),current_user: User = Depends(require_admin)):
@@ -172,7 +168,6 @@ def get_abs(type: Optional[str] = None, page: int = 1, limit: int = 20,brand: Op
     return product_service.get_abs(db, type=type, page=page, limit=limit, show_abs=show_abs, price = price, brand=brand, sort_price=sort_price)
 
 
-# -------------------- SMART SEARCH --------------------
 
 @router.get("/search/",response_model=ProductSearchResult)
 def search_products(

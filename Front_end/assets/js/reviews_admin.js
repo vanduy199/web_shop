@@ -175,7 +175,7 @@ async function submitReply(parentId, comment, token, userId) {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                product_id: reviewsData.find(r => r.id === parentId)?.product_id || 0,
+                product_id: reviewsData.find(r => r.id === parentId)?.product_id || 200,
                 comment: comment
             })
         });

@@ -232,9 +232,8 @@ def normalize_vietnamese_string(text: str) -> str:
 def fuzzy_brand_match(text: str, threshold: float = 0.6) -> str | None:
     brand_variants = {
             'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
-            'macbook': ['apple', 'iphone', 'macbook', 'mac', 'ip'],
-            'ipad' : ['apple', 'iphone', 'ipad', 'ip'],
-            'oppo': ['oppo', 'op', 'opo'],
+            'apple': ['apple', 'macbook', 'iphone', 'mac', 'ipad'],
+            'oppo': ['oppo'],
             'vivo': ['vivo', 'vi vo', 'vv'],
             'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
             'realme': ['realme', 'real me', 'rm'],
@@ -297,10 +296,17 @@ def parse_master_query(query: str) -> dict:
     q = normalize_vietnamese_string(query)
     original_q = q
     
-    phanloai = r'(dien thoai|laptop|may tinh bang|cap sac|tai nghe|du phong|flycam|tablet)'
+    phanloai = r'(dien thoai|laptop|may tinh bang|cap sac|tai nghe|flycam|tablet|ipad|(?:pin|sac|)\s*(?:du\s*)?phong)'
     type_match = re.search(phanloai, q)
     if type_match:
-        conditions['phanloai'] = type_match.group(1)
+        matched_phanloai = type_match.group(1).strip()
+        
+        if matched_phanloai in ['ipad', 'tablet']:
+            conditions['phanloai'] = 'may tinh bang'
+        elif 'phong' in matched_phanloai:  # "pin du phong" hoặc "sac du phong"
+            conditions['phanloai'] = 'du phong'
+        else:
+            conditions['phanloai'] = matched_phanloai
         q = re.sub(phanloai, '', q).strip()
 
     brand = fuzzy_brand_match(original_q)
@@ -308,8 +314,7 @@ def parse_master_query(query: str) -> dict:
         conditions['brand'] = brand
         brand_variants = {
             'samsung': ['samsung', 'ss', 'sam sung', 'samsum', 'samsun'],
-            'macbook': ['apple', 'iphone', 'macbook', 'mac', 'ip'],
-            'ipad' : ['apple', 'iphone', 'ipad', 'ip'],
+            'apple': ['apple', 'macbook', 'iphone', 'mac','ipad'],
             'oppo': ['oppo', 'op', 'opo'],
             'vivo': ['vivo', 'vi vo', 'vv'],
             'xiaomi': ['xiaomi', 'mi', 'redmi', 'xiao mi', 'xiomi'],
@@ -405,8 +410,20 @@ def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20
         search_query = search_query.filter(Search.bonho == conditions['storage_gb'])  
     
     if 'text_search' in conditions:
-        search_text = f"%{conditions['text_search']}%"
-        search_query = search_query.filter(Search.name.ilike(search_text))
+        search_text = conditions['text_search'].strip()
+        if search_text:
+            # ✅ Tìm kiếm toàn bộ chuỗi trước
+            search_query_full = search_query.filter(Search.name.ilike(f"%{search_text}%"))
+            
+            # Nếu không tìm được, tìm kiếm từng từ riêng lẻ
+            if search_query_full.count() > 0:
+                search_query = search_query_full
+            else:
+                # Tìm kiếm từng từ - sản phẩm phải chứa TẤT CẢ các từ
+                words = search_text.split()
+                for word in words:
+                    if word:  # Bỏ qua từ rỗng
+                        search_query = search_query.filter(Search.name.ilike(f"%{word}%"))
     search_subquery = search_query.with_entities(Search.id).subquery()
     now = datetime.now()
     present_abs = (
@@ -446,6 +463,93 @@ def ultimate_search_products( db: Session,q: str, page: int = 1, limit: int = 20
         remainingQuantity= max(0,length - page*limit) 
     )
     return (length, result)
+
+
+def simple_product_search(db: Session, query: str, category: Optional[str] = None, page: int = 1, limit: int = 20, sort_price: Optional[str] = None):
+    """
+    ✅ Tìm kiếm sản phẩm bằng full name + category
+    Không bóc tách danh mục - tìm kiếm toàn bộ query trong name
+    
+    Ví dụ:
+    - "tai nghe Sony WH-CH720" -> tìm tất cả tai nghe + match name
+    - "pin dự phòng Anker" -> tìm tất cả pin dự phòng + match name
+    """
+    search_query = db.query(Search)
+    
+    # Filter theo danh mục nếu có
+    if category:
+        # Normalize category name
+        cat_normalized = normalize_vietnamese_string(category)
+        search_query = search_query.filter(Search.phanloai_vi == cat_normalized)
+    
+    # Tìm kiếm full name
+    if query:
+        query_normalized = normalize_vietnamese_string(query)
+        # Tìm toàn bộ chuỗi trước
+        search_query_full = search_query.filter(Search.name.ilike(f"%{query_normalized}%"))
+        
+        if search_query_full.count() > 0:
+            search_query = search_query_full
+        else:
+            # Nếu không tìm được, search từng từ
+            words = query_normalized.split()
+            for word in words:
+                if word and len(word) > 1:  # Bỏ qua từ quá ngắn
+                    search_query = search_query.filter(Search.name.ilike(f"%{word}%"))
+    
+    # Đếm tổng kết quả
+    total_count = search_query.count()
+    
+    # Sắp xếp
+    if sort_price == "asc":
+        search_query = search_query.order_by(Search.price.asc())
+    elif sort_price == "desc":
+        search_query = search_query.order_by(Search.price.desc())
+    
+    # Phân trang
+    search_query = search_query.offset((page - 1) * limit).limit(limit)
+    
+    # Lấy thông tin chi tiết từ bảng Product
+    now = datetime.now()
+    pageView = []
+    
+    for search_obj in search_query.all():
+        product = db.query(Product).filter(Product.id == search_obj.id).first()
+        if not product:
+            continue
+        
+        # Lấy promotion
+        promotion = db.query(Abs).filter(
+            Abs.product_id == product.id,
+            Abs.start_time <= now,
+            Abs.end_time >= now
+        ).first()
+        
+        if product.phanloai == "laptop" and "(" in product.name:
+            product.name = product.name.split("(")[0]
+        
+        pageView.append(
+            OutPutAbs(
+                id=product.id,
+                name=product.name,
+                price=product.price,
+                thumb=product.thumb,
+                main_image=product.main_image,
+                phanloai=product.phanloai,
+                brand=product.brand,
+                release_date=product.release_date,
+                percent_abs=promotion.percent_abs if promotion else 0,
+                start_time=promotion.start_time if promotion else None,
+                end_time=promotion.end_time if promotion else None,
+            )
+        )
+    
+    result = OutPutPage(
+        show_product=pageView,
+        remainingQuantity=max(0, total_count - page * limit)
+    )
+    
+    return (total_count, result)
 
 
 import pickle
